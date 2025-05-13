@@ -1,0 +1,106 @@
+/* src/UserLogin.css */
+
+/* General styles for the login container */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f7f7f7;
+}
+
+/* Style for the login box */
+.login-box {
+  background: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+}
+
+.login-box h2 {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+/* Input fields style */
+.login-box input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+/* Button styles */
+.role-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #007BFF;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.role-button:hover {
+  background-color: #0056b3;
+}
+
+/* Forgot password link */
+.forgot-password {
+  text-align: center;
+  color: #007BFF;
+  cursor: pointer;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.forgot-password:hover {
+  text-decoration: underline;
+}
+
+/* Forgot password form styles */
+.forgot-password-form {
+  text-align: center;
+}
+
+.forgot-password-form h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.forgot-password-form input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+/* Back to login link */
+.back-to-login {
+  text-align: center;
+  color: #007BFF;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.back-to-login:hover {
+  text-decoration: underline;
+}
+
+/* Error message styles */
+.error-message {
+  color: red;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 10px;
+}
