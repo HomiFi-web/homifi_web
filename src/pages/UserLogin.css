@@ -104,3 +104,14 @@
   text-align: center;
   margin-top: 10px;
 }
+
+.back-to-login {
+  margin-top: 10px;
+  color: #007bff;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.back-to-login:hover {
+  color: #0056b3;
+}

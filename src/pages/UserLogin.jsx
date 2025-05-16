@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import './UserLogin.css'; // Import the new UserLogin CSS
+import { useNavigate } from 'react-router-dom';
+import './UserLogin.css';
 
 const UserLogin = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [forgotPassword, setForgotPassword] = useState(false); // New state for forgot password
+  const [forgotPassword, setForgotPassword] = useState(false);
 
-  // Simulate form submission without Firebase
   const handleSubmit = (e) => {
     e.preventDefault();
     setError('');
@@ -17,29 +18,27 @@ const UserLogin = () => {
       return;
     }
 
-    // Simulate successful login
     console.log('User logged in with:', email, password);
     alert('Login successful!');
-    // Redirect to user dashboard or homepage (you can implement this later)
+    // You can add navigation to user dashboard here
   };
 
-  // Handle forgot password
   const handleForgotPassword = () => {
     if (!email) {
       setError('Please enter your email address.');
       return;
     }
 
-    // Simulate sending a password reset email
     console.log('Sending password reset email to:', email);
     alert('Password reset email sent! Please check your inbox.');
-    setForgotPassword(false); // Close the forgot password form
+    setForgotPassword(false);
   };
 
   return (
     <div className="login-container">
       <div className="login-box">
         <h2>User Login</h2>
+
         {!forgotPassword ? (
           <form onSubmit={handleSubmit}>
             <input
@@ -58,8 +57,12 @@ const UserLogin = () => {
             />
             {error && <p className="error-message">{error}</p>}
             <button type="submit" className="role-button user">Login</button>
+
             <p className="forgot-password" onClick={() => setForgotPassword(true)}>
               Forgot Password?
+            </p>
+            <p className="back-to-login" onClick={() => navigate('/')}>
+              ← Back to Login Page
             </p>
           </form>
         ) : (
@@ -77,7 +80,7 @@ const UserLogin = () => {
               Send Reset Email
             </button>
             <p className="back-to-login" onClick={() => setForgotPassword(false)}>
-              Back to Login
+              ← Back to Login
             </p>
           </div>
         )}

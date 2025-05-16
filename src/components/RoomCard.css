@@ -1,0 +1,36 @@
+/* RoomCard styling */
+.room-card {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 20px;
+  background-color: white;
+}
+
+.room-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.room-info {
+  padding-top: 10px;
+}
+
+.tag {
+  background-color: #28a745;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+}
+
+.room-info h3 {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.room-info p {
+  font-size: 14px;
+  color: #555;
+}
