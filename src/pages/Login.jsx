@@ -23,7 +23,7 @@ const Login = () => {
             Admin Login
           </button>
           <button
-            onClick={() => navigate('/owner-login')}
+            onClick={() => navigate('/pg-owner-login')}
             className="role-button owner"
           >
             Owner Login

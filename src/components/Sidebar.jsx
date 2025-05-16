@@ -7,7 +7,7 @@ const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate(); // <-- useNavigate hook
 
   const handleBookingClick = () => {
-  navigate('/'); // Navigate to login page
+  navigate('/Login'); // Navigate to login page
   if (onClose) onClose(); // Only call onClose if it's passed
 
 
