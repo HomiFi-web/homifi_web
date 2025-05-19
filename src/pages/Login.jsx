@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import './Login.css'; // Make sure this CSS file is linked
+import './Login.css';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -15,12 +15,6 @@ const Login = () => {
             className="role-button user"
           >
             User Login
-          </button>
-          <button
-            onClick={() => navigate('/admin-login')}
-            className="role-button admin"
-          >
-            Admin Login
           </button>
           <button
             onClick={() => navigate('/pg-owner-login')}

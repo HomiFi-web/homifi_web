@@ -115,3 +115,13 @@
 .back-to-login:hover {
   color: #0056b3;
 }
+
+.toggle-link {
+  margin-top: 10px;
+  color: #007bff;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.toggle-link:hover {
+  opacity: 0.8;
+}

@@ -34,28 +34,52 @@
 
 /* Base styles for all buttons */
 .role-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  border-radius: 5px;
+  padding: 12px 24px;
+  font-size: 18px;
+  border-radius: 6px;
   cursor: pointer;
   border: none;
-  transition: background-color 0.3s;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  color: white;
 }
 
-/* Specific styles for each button type */
+/* Specific styles for each button type with stronger colors */
 .user {
-  background-color: lightblue;
+  background-color: #2196f3; /* Blue */
 }
 
 .admin {
-  background-color: lightgreen;
+  background-color: #4caf50; /* Green */
 }
 
 .owner {
-  background-color: lightcoral;
+  background-color: #f44336; /* Red */
 }
 
-/* Hover effect for buttons */
+/* Hover effect: slightly darker shade and scale up */
+.role-button.user:hover {
+  background-color: #1976d2;
+  transform: scale(1.05);
+}
+
+.role-button.admin:hover {
+  background-color: #388e3c;
+  transform: scale(1.05);
+}
+
+.role-button.owner:hover {
+  background-color: #d32f2f;
+  transform: scale(1.05);
+}
+
+/* Remove opacity change on hover, replaced by scale and color change */
 .role-button:hover {
-  opacity: 0.9;
+  opacity: 1;
+}
+
+/* Focus styles for accessibility */
+.role-button:focus {
+  outline: 3px solid #ff9800;
+  outline-offset: 2px;
 }

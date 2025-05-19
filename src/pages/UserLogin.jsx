@@ -1,88 +1,96 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import './UserLogin.css';
 
 const UserLogin = () => {
-  const navigate = useNavigate();
+  const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [forgotPassword, setForgotPassword] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
     setError('');
+    if (!email || !password) return setError('All fields required');
+    alert(`Logged in as: ${email}`);
+  };
 
-    if (!email || !password) {
-      setError('Please fill in both fields.');
-      return;
-    }
-
-    console.log('User logged in with:', email, password);
-    alert('Login successful!');
-    // You can add navigation to user dashboard here
+  const handleSignUp = (e) => {
+    e.preventDefault();
+    setError('');
+    if (!email || !password) return setError('All fields required');
+    alert(`Signed up with: ${email}`);
   };
 
   const handleForgotPassword = () => {
-    if (!email) {
-      setError('Please enter your email address.');
-      return;
-    }
-
-    console.log('Sending password reset email to:', email);
-    alert('Password reset email sent! Please check your inbox.');
+    if (!email) return setError('Enter your email to reset password');
+    alert('Password reset link sent to: ' + email);
     setForgotPassword(false);
   };
 
   return (
     <div className="login-container">
       <div className="login-box">
-        <h2>User Login</h2>
+        <h2>{isSignUp ? 'Sign Up' : forgotPassword ? 'Reset Password' : 'Login'}</h2>
 
-        {!forgotPassword ? (
-          <form onSubmit={handleSubmit}>
+        {forgotPassword ? (
+          <div className="forgot-password-form">
+            <input
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+            />
+            {error && <p className="error-message">{error}</p>}
+            <button
+              type="button"
+              className="role-button user"
+              onClick={handleForgotPassword}
+            >
+              Send Reset Link
+            </button>
+            <p className="back-to-login" onClick={() => setForgotPassword(false)}>
+              ← Back to Login
+            </p>
+          </div>
+        ) : (
+          <form onSubmit={isSignUp ? handleSignUp : handleLogin}>
             <input
               type="email"
               placeholder="Email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={e => setEmail(e.target.value)}
               required
             />
             <input
               type="password"
               placeholder="Password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={e => setPassword(e.target.value)}
               required
             />
             {error && <p className="error-message">{error}</p>}
-            <button type="submit" className="role-button user">Login</button>
+            <button type="submit" className="role-button user">
+              {isSignUp ? 'Sign Up' : 'Login'}
+            </button>
 
-            <p className="forgot-password" onClick={() => setForgotPassword(true)}>
-              Forgot Password?
-            </p>
-            <p className="back-to-login" onClick={() => navigate('/')}>
-              ← Back to Login Page
+            {!isSignUp && (
+              <p className="forgot-password" onClick={() => setForgotPassword(true)}>
+                Forgot Password?
+              </p>
+            )}
+
+            <p className="toggle-link" onClick={() => {
+              setIsSignUp(!isSignUp);
+              setForgotPassword(false);
+              setError('');
+            }}>
+              {isSignUp
+                ? 'Already have an account? Login here →'
+                : "Don't have an account? Sign up here →"}
             </p>
           </form>
-        ) : (
-          <div className="forgot-password-form">
-            <h3>Reset Password</h3>
-            <input
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            {error && <p className="error-message">{error}</p>}
-            <button type="button" className="role-button user" onClick={handleForgotPassword}>
-              Send Reset Email
-            </button>
-            <p className="back-to-login" onClick={() => setForgotPassword(false)}>
-              ← Back to Login
-            </p>
-          </div>
         )}
       </div>
     </div>
