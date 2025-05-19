@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from '../services/firebase';
+import { auth, db } from '../services/firebase'; // Corrected path
 import './UserLogin.css'; // Reuse CSS
 
 const PGOwnerSignup = () => {
