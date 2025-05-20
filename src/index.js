@@ -1,17 +1,18 @@
+// src/index.js
 import React from 'react';
-import ReactDOM from 'react-dom/client';  // Updated import
-import './index.css';
-import App from './App';
+import ReactDOM from 'react-dom/client';
+import './index.css'; // This imports your global CSS styles and variables
+import App from './App'; // This imports your main App component
 
-// Get the root element where the app will be rendered
+// Get the root element from public/index.html where the app will be mounted
 const rootElement = document.getElementById('root');
 
-// Create a root for React 18
+// Create a React 18 root
 const root = ReactDOM.createRoot(rootElement);
 
-// Render the app
+// Render the application within React.StrictMode for development checks
 root.render(
   <React.StrictMode>
-    <App />
+    <App /> {/* Your entire application starts here */}
   </React.StrictMode>
 );
