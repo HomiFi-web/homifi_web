@@ -1,15 +1,42 @@
+/* src/index.css */
+
+:root {
+  /* HomiFi Brand Colors */
+  --homifi-teal: #30D5C8;
+  --homifi-dark-blue: #20143b;
+  --homifi-darker-blue: #000069;
+  --homifi-deepest-blue: #000040;
+
+  /* Neutral Text & UI Colors */
+  --text-dark: #333333;
+  --text-medium: #555555;
+  --text-light: #777777;
+  --border-light: #e0e0e0;
+  --border-subtle: #eeeeee;
+
+  /* Backgrounds */
+  --bg-white: #ffffff;
+  --bg-light-grey: #f8f9fa;
+  --bg-soft-blue: #e0f7fa;
+
+  /* Action/Status */
+  --success-green: #28a745;
+  --error-red: #dc3545;
+  --warning-orange: #ffc107;
+
+  /* Font Family */
+  --font-primary: 'Inter', sans-serif;
+  --font-heading: 'Montserrat', sans-serif;
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: var(--font-primary), -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Added our professional font as the first option */
-  font-family: var(--font-primary), -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  color: var(--text-dark); /* Set the default text color from our palette */
+  color: var(--text-dark);
   background-color: var(--bg-light-grey);
 }
 
@@ -18,27 +45,101 @@ code {
     monospace;
 }
 
-/* Define the CSS variables for our color palette and fonts */
-:root {
-  /* HomiFi Brand Colors */
-  --homifi-teal: #00b8d4;
-  --homifi-cyan: #00a2ed;
-  --homifi-dark-blue: #202c5f;
-  /* Neutral Text & UI Colors */
-  --text-dark: #333333;
-  --text-medium: #555555;
-  --text-light: #777777;
-  --border-light: #e0e0e0;
-  --border-subtle: #eeeeee;
-  /* Backgrounds */
-  --bg-white: #ffffff;
-  --bg-light-grey: #f8f9fa;
-  --bg-soft-blue: #e0f7fa;
-  /* Action/Status */
-  --success-green: #28a745;
-  --error-red: #dc3545;
-  --warning-orange: #ffc107;
-  /* Font Family */
-  --font-primary: 'Inter', sans-serif;
-  --font-heading: 'Montserrat', sans-serif;
+/* Any global styles for links */
+a {
+  color: var(--homifi-teal);  /* link color */
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--homifi-dark-blue); /* hover color */
+  text-decoration: underline;
+}
+
+/* basic styles for headings */
+h1 {
+  font-family: var(--font-heading);
+  font-size: 2.5rem;
+  color: var(--homifi-dark-blue);
+  margin-bottom: 20px;
+}
+
+h2 {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  color: var(--homifi-teal);
+  margin-bottom: 15px;
+}
+
+h3 {
+  font-size: 1.5rem;
+  color: var(--text-dark);
+  margin-bottom: 10px;
+}
+
+/* Example Card Styles (using the color palette) */
+.card {
+  background-color: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+  color: var(--homifi-dark-blue);
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.card-content {
+  color: var(--text-medium);
+  line-height: 1.6;
+}
+
+/* Example Button Styles */
+.button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.primary-button {
+  background-color: var(--homifi-teal);
+  color: var(--bg-white);
+}
+
+.primary-button:hover {
+  background-color: var(--homifi-dark-blue);
+}
+
+.secondary-button {
+  background-color: var(--bg-light-grey);
+  color: var(--text-dark);
+}
+
+.secondary-button:hover {
+  background-color: var(--border-light);
+}
+
+.success-button {
+  background-color: var(--success-green);
+  color: var(--bg-white);
+}
+
+.success-button:hover {
+  background-color: #218838;
+}
+
+.error-button {
+  background-color: var(--error-red);
+  color: var(--bg-white);
+}
+
+.error-button:hover {
+  background-color: #c82333;
 }

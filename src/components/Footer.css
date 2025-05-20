@@ -1,0 +1,180 @@
+/* src/components/Footer.css */
+
+.footer {
+  background-color: var(--homifi-dark-blue); /* Use the dark blue from your logo */
+  color: var(--bg-white); /* White text for contrast on dark background */
+  font-family: var(--font-primary);
+  padding: 4rem 20px 2rem; /* Top padding, horizontal padding, bottom padding */
+  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1); /* Subtle shadow above footer */
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive columns */
+  gap: 3rem; /* Space between sections */
+  padding-bottom: 3rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Subtle white border */
+}
+
+.footer-section {
+  line-height: 1.8;
+}
+
+.footer-section h3 {
+  font-family: var(--font-heading); /* Use heading font for footer titles */
+  font-size: 1.4rem;
+  color: var(--homifi-teal); /* Teal color for section headings */
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+/* Brand Info Section */
+.brand-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-logo-link {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  text-decoration: none;
+  color: inherit; /* Inherit color from parent */
+}
+
+.footer-logo {
+  height: 45px; /* Adjust logo size */
+  margin-right: 10px;
+}
+
+.footer-brand-name {
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--homifi-teal); /* Teal for the brand name */
+}
+
+.footer-tagline {
+  font-size: 1.1rem;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.8); /* Slightly lighter tagline */
+  margin-top: -0.5rem; /* Pull closer to logo */
+  margin-bottom: 1rem;
+}
+
+.footer-description {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.7); /* Lighter text for description */
+  max-width: 350px; /* Limit width for readability */
+}
+
+/* Quick Links Section */
+.footer-links ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-links ul li {
+  margin-bottom: 0.8rem;
+}
+
+.footer-links ul li a {
+  color: var(--bg-white);
+  text-decoration: none;
+  font-size: 1rem;
+  transition: color 0.3s ease;
+}
+
+.footer-links ul li a:hover {
+  color: var(--homifi-cyan); /* Cyan on hover */
+  text-decoration: underline;
+}
+
+/* Contact Info Section */
+.footer-contact p {
+  font-size: 1rem;
+  margin-bottom: 0.8rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.footer-contact a {
+  color: var(--bg-white);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer-contact a:hover {
+  color: var(--homifi-cyan);
+  text-decoration: underline;
+}
+
+.social-links {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 15px; /* Space between social icons */
+}
+
+.social-links a {
+  color: var(--bg-white);
+  font-size: 1.6rem; /* Size of social icons */
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.social-links a:hover {
+  color: var(--homifi-teal); /* Teal on hover */
+  transform: translateY(-3px); /* Slight lift effect */
+}
+
+/* Bottom Footer Section (Copyright & Legal Links) */
+.footer-bottom {
+  max-width: 1200px;
+  margin: 0 auto; /* This centers the .footer-bottom block itself within the main footer */
+  padding-top: 1.5rem;
+  
+  /* --- REVISED CENTERING APPROACH --- */
+  display: block; /* Ensure it's a block-level element */
+  text-align: center; /* Center inline content (text, inline-block elements) */
+  
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+  
+  /* Ensure no conflicting flex properties remain if you previously had them */
+  /* Remove: display: flex; flex-direction: column; justify-content: center; align-items: center; */
+}
+
+.footer-legal-links {
+  display: flex; /* Keep this as flex to manage links horizontally */
+  justify-content: center; /* Center the links within their own div */
+  gap: 20px;
+  margin-top: 10px; /* Space between copyright and links */
+  /* Remove margin-left: auto; margin-right: auto; if present */
+}
+
+.footer-legal-links a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer-legal-links a:hover {
+  color: var(--homifi-cyan);
+  text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  /* ... (previous responsive rules remain the same) ... */
+
+  .footer-bottom {
+    /* text-align: center will handle it here */
+  }
+
+  .footer-legal-links {
+    /* On very small screens, you might want them to stack if they don't fit */
+    /* flex-wrap: wrap; */
+    /* If you flex-wrap, you might want to increase gap or make them block */
+  }
+}

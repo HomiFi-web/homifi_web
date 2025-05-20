@@ -1,33 +1,31 @@
+// src/App.js
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { app } from './services/firebase'; // Ensure this path is correct if you're using Firebase
 
-// --- Import ALL your Page Components here ---
+// --- Import ALL your Page Components ---
 import Login from './pages/Login';
 import UserLogin from './pages/UserLogin';
 import AdminLogin from './pages/AdminLogin';
-import PgOwnerLogin from './pages/PgOwnerLogin'; // Corrected path
+import PgOwnerLogin from './pages/PgOwnerLogin';
 import GuestDashboard from './pages/GuestDashboard';
-import AboutUs from './pages/AboutUs';    // <--- IMPORTANT: Import AboutUs
-import ContactUs from './pages/ContactUs'; // <--- IMPORTANT: Import ContactUs
+import AboutUs from './pages/AboutUs';
+import ContactUs from './pages/ContactUs';
 
-// --- Import your Header Component ---
-import Header from './components/Header'; // Ensure this path is correct
+// --- Import your Header and Footer Components ---
+import Header from './components/Header';
+import Footer from './components/Footer'; // <--- IMPORT THE FOOTER HERE
 
 function App() {
   return (
     <Router>
       <div className="App">
-        {/* The Header component is placed OUTSIDE the <Routes>
-            so it appears on every page that the router renders. */}
+        {/* The Header component appears on every page */}
         <Header />
 
         <div className="content-wrapper"> {/* Optional: A wrapper for your main content/pages */}
           <Routes>
-            {/* --- Define ALL your Routes here --- */}
-
             {/* Default/Landing Page Route */}
-            {/* This makes '/' redirect to '/guest-dashboard' */}
             <Route path="/" element={<Navigate to="/guest-dashboard" />} />
 
             {/* Authentication/Login Routes */}
@@ -42,14 +40,18 @@ function App() {
             {/* <Route path="/pg-owner-dashboard" element={<PgOwnerDashboard />} /> */}
 
             {/* Informational Pages */}
-            <Route path="/about-us" element={<AboutUs />} />      {/* <--- ROUTE for About Us */}
-            <Route path="/contact" element={<ContactUs />} />    {/* <--- ROUTE for Contact Us */}
+            <Route path="/about-us" element={<AboutUs />} />
+            <Route path="/contact" element={<ContactUs />} />
 
-            {/* You can add a 404 Not Found route here if desired */}
-            {/* <Route path="*" element={<div>404 Page Not Found</div>} /> */}
+            {/* Legal Pages (you'll need to create these components) */}
+            <Route path="/privacy-policy" element={<div>Privacy Policy Page</div>} />
+            <Route path="/terms-of-service" element={<div>Terms of Service Page</div>} />
 
           </Routes>
         </div>
+
+        {/* The Footer component appears on every page */}
+        <Footer /> {/* <--- RENDER THE FOOTER HERE */}
       </div>
     </Router>
   );
