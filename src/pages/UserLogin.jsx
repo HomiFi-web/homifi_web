@@ -5,9 +5,9 @@ import {
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
 } from 'firebase/auth';
-import { auth, db } from '../services/firebase'; // Corrected path
+import { auth, db } from '../services/firebase';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
-import './UserLogin.css'; // You can further refine this CSS for a better look
+import './UserLogin.css';
 
 const UserLogin = () => {
   const navigate = useNavigate();
@@ -18,6 +18,33 @@ const UserLogin = () => {
   const [error, setError] = useState('');
   const [forgotPassword, setForgotPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // --- NEW STATE FOR PASSWORD RULES FEEDBACK ---
+  const [passwordRules, setPasswordRules] = useState({
+    minLength: false,
+    hasUpperCase: false,
+    hasLowerCase: false,
+    hasNumber: false,
+    hasSpecialChar: false,
+  });
+  const [showPasswordRules, setShowPasswordRules] = useState(false);
+  // --- END NEW STATE ---
+
+  // --- NEW HELPER FUNCTION FOR PASSWORD VALIDATION ---
+  const validatePassword = (pwd) => {
+    const minLength = 8;
+    const rules = {
+      minLength: pwd.length >= minLength,
+      hasUpperCase: /[A-Z]/.test(pwd),
+      hasLowerCase: /[a-z]/.test(pwd),
+      hasNumber: /[0-9]/.test(pwd),
+      hasSpecialChar: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(pwd),
+    };
+    setPasswordRules(rules);
+    return Object.values(rules).every(Boolean); // Returns true if all rules are met
+  };
+  // --- END NEW HELPER FUNCTION ---
+
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -46,6 +73,8 @@ const UserLogin = () => {
         errorMessage = 'Incorrect password.';
       } else if (error.code === 'auth/invalid-email') {
         errorMessage = 'Invalid email address.';
+      } else if (error.code === 'auth/too-many-requests') {
+        errorMessage = 'Too many failed login attempts. Please try again later.';
       }
       setError(errorMessage);
     } finally {
@@ -57,26 +86,32 @@ const UserLogin = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
+
     if (!email || !password || !confirmPassword) {
       setError('All fields required.');
       setLoading(false);
       return;
     }
+
     if (password !== confirmPassword) {
       setError('Passwords do not match.');
       setLoading(false);
       return;
     }
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters.');
+
+    // --- Validate password before sending to Firebase ---
+    if (!validatePassword(password)) {
+      setError('Password does not meet all requirements.');
       setLoading(false);
       return;
     }
+    // --- End Validation ---
+
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       const userRef = doc(db, 'users', user.uid);
-      await setDoc(userRef, { uid: user.uid, email: email, role: 'user' });
+      await setDoc(userRef, { uid: user.uid, email: email, role: 'guest' });
       navigate('/guest-dashboard');
     } catch (error) {
       let errorMessage = 'Sign up failed.';
@@ -85,9 +120,8 @@ const UserLogin = () => {
       } else if (error.code === 'auth/invalid-email') {
         errorMessage = 'Invalid email address.';
       } else if (error.code === 'auth/weak-password') {
-        // This case is already handled by the password length check above,
-        // but Firebase might still throw it.
-        errorMessage = 'Password must be at least 6 characters.';
+        // This might still be thrown if Firebase has its own minimum length check
+        errorMessage = 'Password is too weak. Please choose a stronger password.';
       }
       setError(errorMessage);
     } finally {
@@ -163,7 +197,19 @@ const UserLogin = () => {
                 type="password"
                 placeholder="Password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (isSignUp) { // Only validate rules in sign-up mode
+                    validatePassword(e.target.value);
+                  }
+                }}
+                onFocus={() => { if (isSignUp) setShowPasswordRules(true); }} // Show rules on focus
+                onBlur={() => {
+                  // Only hide if password is empty AND all rules are not met
+                  if (isSignUp && password === '') {
+                    setShowPasswordRules(false);
+                  }
+                }}
                 required
               />
             </div>
@@ -178,6 +224,29 @@ const UserLogin = () => {
                 />
               </div>
             )}
+
+            {/* --- NEW: Password Rule Display --- */}
+            {isSignUp && showPasswordRules && (
+              <ul className="password-rules">
+                <li className={passwordRules.minLength ? 'valid' : 'invalid'}>
+                  At least 8 characters
+                </li>
+                <li className={passwordRules.hasUpperCase ? 'valid' : 'invalid'}>
+                  At least one uppercase letter (A-Z)
+                </li>
+                <li className={passwordRules.hasLowerCase ? 'valid' : 'invalid'}>
+                  At least one lowercase letter (a-z)
+                </li>
+                <li className={passwordRules.hasNumber ? 'valid' : 'invalid'}>
+                  At least one number (0-9)
+                </li>
+                <li className={passwordRules.hasSpecialChar ? 'valid' : 'invalid'}>
+                  At least one special character (!@#$%^&*)
+                </li>
+              </ul>
+            )}
+            {/* --- END NEW --- */}
+
             {error && <p className="error-message">{error}</p>}
             <button type="submit" className="role-button user" disabled={loading}>
               {loading ? 'Loading...' : isSignUp ? 'Sign Up' : 'Login'}
@@ -195,6 +264,17 @@ const UserLogin = () => {
                 setIsSignUp(!isSignUp);
                 setForgotPassword(false);
                 setError('');
+                setEmail('');
+                setPassword('');
+                setConfirmPassword('');
+                setShowPasswordRules(false); // Hide rules when toggling
+                setPasswordRules({ // Reset password rules state
+                  minLength: false,
+                  hasUpperCase: false,
+                  hasLowerCase: false,
+                  hasNumber: false,
+                  hasSpecialChar: false,
+                });
               }}
             >
               {isSignUp

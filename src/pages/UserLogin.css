@@ -111,3 +111,36 @@
 .back-to-login {
   margin-top: 0.8rem;
 }
+
+
+/* Password Rules List Styling */
+.password-rules {
+  list-style: none; /* Remove default bullet points */
+  padding: 0;
+  margin-top: -0.5rem; /* Adjust spacing above the list */
+  margin-bottom: 1rem; /* Space below the list */
+  font-size: 0.85rem;
+  color: #555; /* Default text color for rules */
+}
+
+.password-rules li {
+  margin-bottom: 0.3rem; /* Space between rules */
+  display: flex; /* Align icon and text */
+  align-items: center;
+}
+
+.password-rules li::before {
+  content: '✖'; /* Default cross icon */
+  margin-right: 0.5rem;
+  font-weight: bold;
+  color: #dc3545; /* Red for invalid */
+}
+
+.password-rules li.valid {
+  color: #28a745; /* Green for valid */
+}
+
+.password-rules li.valid::before {
+  content: '✔'; /* Checkmark icon for valid */
+  color: #28a745; /* Green for valid */
+}

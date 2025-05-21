@@ -1,0 +1,170 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f0f0f0;
+  background-image:
+    linear-gradient(to bottom, #f0f0f0, #e0e0e0); /* Gradient background */
+}
+
+.login-box {
+  background-color: rgba(255, 255, 255, 0.9); /* Slightly transparent white */
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  width: 90%;
+  max-width: 400px; /* Increased max-width for larger screens */
+  text-align: center;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.3); /* Add a border */
+}
+
+.login-box h2 {
+  margin-bottom: 20px;
+  color: #333; /* Darker heading color */
+  font-size: 24px; /* Increased font size */
+  font-weight: 600; /* Make heading bold */
+}
+
+.login-box form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.login-box input {
+  padding: 12px; /* Increased padding */
+  margin-bottom: 15px; /* Increased margin */
+  border: 1px solid #ddd; /* Lighter border */
+  border-radius: 6px; /* Slightly more rounded corners */
+  width: 100%;
+  max-width: 350px; /* Added max-width for input */
+  box-sizing: border-box; /* Ensure padding doesn't affect width */
+  transition: border-color 0.3s ease; /* Smooth transition */
+}
+
+.login-box input:focus {
+  outline: none;
+  border-color: #4CAF50; /* Highlight on focus */
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.3); /* Add a focus shadow */
+}
+
+
+.login-box .error-message {
+  color: #FF5252;
+  margin-bottom: 15px;
+  font-size: 0.9em;
+  text-align: left;
+}
+
+
+.login-box button {
+  padding: 12px 25px; /* Increased vertical and horizontal padding */
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 18px; /* Increased font size */
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Added transform */
+  width: 100%; /* Make button full width */
+  maxWidth: 350px; /* Added max-width */
+}
+
+.login-box button:hover {
+  background-color: #45a049;
+  transform: translateY(-2px); /* Slight lift on hover */
+}
+
+.login-box button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.login-box .forgot-password {
+  margin-top: 15px;
+  font-size: 0.9em;
+  color: #0078d7;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  text-align: left; /* Align left */
+  padding-left: 0;
+}
+
+.login-box .forgot-password:hover {
+  color: #0056b3;
+}
+
+.login-box .back-to-login {
+  margin-top: 10px;
+  font-size: 0.9em;
+  color: #666;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  text-align: left; /* Align left */
+  padding-left: 0;
+}
+
+.login-box .back-to-login:hover {
+  color: #333;
+}
+
+.login-box .sign-up-link {
+  margin-top: 15px;
+  font-size: 0.9em;
+  color: #0078d7;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  text-align: left; /* Align left */
+  padding-left: 0;
+}
+
+.login-box .sign-up-link:hover {
+  color: #0056b3;
+}
+
+
+.login-box .already-have-account {
+  margin-top: 10px;
+  font-size: 0.9em;
+  color: #666;
+  text-align: left; /* Align left */
+  padding-left: 0;
+}
+
+.login-box .already-have-account a {
+  color: #0078d7;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.login-box .already-have-account a:hover {
+  color: #0056b3;
+}
+
+
+.login-box .password-rules {
+  list-style: none;
+  padding: 0;
+  margin-top: 10px;
+  margin-bottom: 0;
+  font-size: 0.85em;
+  text-align: left;
+}
+
+.login-box .password-rules li {
+  margin-bottom: 5px;
+  color: #666;
+}
+
+.login-box .password-rules li.valid {
+  color: #4CAF50;
+}
+
+.login-box .password-rules li.invalid {
+  color: #FF5252;
+}
