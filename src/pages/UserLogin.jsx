@@ -18,8 +18,8 @@ const UserLogin = () => {
   const [error, setError] = useState('');
   const [forgotPassword, setForgotPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
-  // --- NEW STATE FOR PASSWORD RULES FEEDBACK ---
   const [passwordRules, setPasswordRules] = useState({
     minLength: false,
     hasUpperCase: false,
@@ -28,9 +28,7 @@ const UserLogin = () => {
     hasSpecialChar: false,
   });
   const [showPasswordRules, setShowPasswordRules] = useState(false);
-  // --- END NEW STATE ---
 
-  // --- NEW HELPER FUNCTION FOR PASSWORD VALIDATION ---
   const validatePassword = (pwd) => {
     const minLength = 8;
     const rules = {
@@ -41,14 +39,13 @@ const UserLogin = () => {
       hasSpecialChar: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(pwd),
     };
     setPasswordRules(rules);
-    return Object.values(rules).every(Boolean); // Returns true if all rules are met
+    return Object.values(rules).every(Boolean);
   };
-  // --- END NEW HELPER FUNCTION ---
-
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccessMessage('');
     setLoading(true);
     if (!email || !password) {
       setError('Please fill in all fields.');
@@ -85,6 +82,7 @@ const UserLogin = () => {
   const handleSignUp = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccessMessage('');
     setLoading(true);
 
     if (!email || !password || !confirmPassword) {
@@ -99,20 +97,27 @@ const UserLogin = () => {
       return;
     }
 
-    // --- Validate password before sending to Firebase ---
     if (!validatePassword(password)) {
       setError('Password does not meet all requirements.');
       setLoading(false);
       return;
     }
-    // --- End Validation ---
 
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       const userRef = doc(db, 'users', user.uid);
       await setDoc(userRef, { uid: user.uid, email: email, role: 'guest' });
-      navigate('/guest-dashboard');
+      setSuccessMessage('Account created successfully! Please log in.');
+      setIsSignUp(false);
+      setEmail('');
+      setPassword('');
+      setConfirmPassword('');
+      setShowPasswordRules(false);
+      setPasswordRules({
+        minLength: false, hasUpperCase: false, hasLowerCase: false,
+        hasNumber: false, hasSpecialChar: false,
+      });
     } catch (error) {
       let errorMessage = 'Sign up failed.';
       if (error.code === 'auth/email-already-in-use') {
@@ -120,7 +125,6 @@ const UserLogin = () => {
       } else if (error.code === 'auth/invalid-email') {
         errorMessage = 'Invalid email address.';
       } else if (error.code === 'auth/weak-password') {
-        // This might still be thrown if Firebase has its own minimum length check
         errorMessage = 'Password is too weak. Please choose a stronger password.';
       }
       setError(errorMessage);
@@ -131,6 +135,7 @@ const UserLogin = () => {
 
   const handleForgotPassword = async () => {
     setError('');
+    setSuccessMessage('');
     setLoading(true);
     if (!email) {
       setError('Enter your email to reset password');
@@ -139,8 +144,7 @@ const UserLogin = () => {
     }
     try {
       await sendPasswordResetEmail(auth, email);
-      alert('Password reset link sent to: ' + email);
-      setForgotPassword(false);
+      setSuccessMessage('Password reset link sent to: ' + email);
     } catch (error) {
       let errorMessage = 'Failed to send reset email.';
       if (error.code === 'auth/user-not-found') {
@@ -158,6 +162,8 @@ const UserLogin = () => {
     <div className="login-container">
       <div className="login-box">
         <h2>{isSignUp ? 'Sign Up' : forgotPassword ? 'Reset Password' : 'Login'}</h2>
+
+        {successMessage && <p className="success-message">{successMessage}</p>}
 
         {forgotPassword ? (
           <div className="forgot-password-form">
@@ -177,7 +183,13 @@ const UserLogin = () => {
             >
               {loading ? 'Sending...' : 'Send Reset Link'}
             </button>
-            <p className="back-to-login" onClick={() => setForgotPassword(false)}>
+            {/* This "Back to Login" specifically returns to the LOGIN FORM within UserLogin.js */}
+            <p className="toggle-link" onClick={() => {
+              setForgotPassword(false);
+              setError('');
+              setSuccessMessage('');
+              setEmail('');
+            }}>
               ← Back to Login
             </p>
           </div>
@@ -199,13 +211,12 @@ const UserLogin = () => {
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
-                  if (isSignUp) { // Only validate rules in sign-up mode
+                  if (isSignUp) {
                     validatePassword(e.target.value);
                   }
                 }}
-                onFocus={() => { if (isSignUp) setShowPasswordRules(true); }} // Show rules on focus
+                onFocus={() => { if (isSignUp) setShowPasswordRules(true); }}
                 onBlur={() => {
-                  // Only hide if password is empty AND all rules are not met
                   if (isSignUp && password === '') {
                     setShowPasswordRules(false);
                   }
@@ -225,7 +236,6 @@ const UserLogin = () => {
               </div>
             )}
 
-            {/* --- NEW: Password Rule Display --- */}
             {isSignUp && showPasswordRules && (
               <ul className="password-rules">
                 <li className={passwordRules.minLength ? 'valid' : 'invalid'}>
@@ -245,7 +255,6 @@ const UserLogin = () => {
                 </li>
               </ul>
             )}
-            {/* --- END NEW --- */}
 
             {error && <p className="error-message">{error}</p>}
             <button type="submit" className="role-button user" disabled={loading}>
@@ -253,22 +262,28 @@ const UserLogin = () => {
             </button>
 
             {!isSignUp && (
-              <p className="forgot-password" onClick={() => setForgotPassword(true)}>
+              <p className="forgot-password" onClick={() => {
+                setForgotPassword(true);
+                setError('');
+                setSuccessMessage('');
+              }}>
                 Forgot Password?
               </p>
             )}
 
+            {/* This link toggles between Login and Sign Up within UserLogin.js */}
             <p
               className="toggle-link"
               onClick={() => {
                 setIsSignUp(!isSignUp);
                 setForgotPassword(false);
                 setError('');
+                setSuccessMessage('');
                 setEmail('');
                 setPassword('');
                 setConfirmPassword('');
-                setShowPasswordRules(false); // Hide rules when toggling
-                setPasswordRules({ // Reset password rules state
+                setShowPasswordRules(false);
+                setPasswordRules({
                   minLength: false,
                   hasUpperCase: false,
                   hasLowerCase: false,
@@ -281,6 +296,16 @@ const UserLogin = () => {
                 ? 'Already have an account? Login here →'
                 : "Don't have an account? Sign up here →"}
             </p>
+
+            {/* NEW: Back to a specific Login.jsx page link */}
+            <p
+              className="toggle-link" // Reusing the style for consistency
+              onClick={() => navigate('/login')} // <<-- IMPORTANT: Change '/login' to your actual route for Login.jsx
+              style={{ marginTop: '15px' }} // Add some spacing for better layout
+            >
+              ← Back to Login Page
+            </p>
+
           </form>
         )}
       </div>

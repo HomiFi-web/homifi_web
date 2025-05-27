@@ -10,21 +10,29 @@ import PgOwnerLogin from './pages/PgOwnerLogin';
 import GuestDashboard from './pages/GuestDashboard';
 import AboutUs from './pages/AboutUs';
 import ContactUs from './pages/ContactUs';
-import PgOwnerDashboard from './pages/PgOwnerDashboard'; // Correctly import the renamed component
+import PgOwnerDashboard from './pages/PgOwnerDashboard';
+import PgDetails from './pages/PgDetails'; // Import the new PgDetails component
+
 
 // --- Import your Header and Footer Components ---
 import Header from './components/Header';
-import Footer from './components/Footer'; // <--- IMPORT THE FOOTER HERE
+import Footer from './components/Footer';
 
 // New component to wrap content that uses useLocation
 const MainAppContent = () => {
   const location = useLocation();
 
   // Define an array of routes where you want to hide the footer
-  const hideFooterRoutes = ['/pg-owner-dashboard']; // Updated route for the PG Owner Dashboard
+  const hideFooterRoutes = ['/pg-owner-dashboard', '/pg-details']; // Added /pg-details here
 
   // Check if the current route is in the array of routes where the footer should be hidden
   const shouldHideFooter = hideFooterRoutes.includes(location.pathname);
+
+  // --- DEBUGGING LOGS (Optional, remove after debugging) ---
+  console.log('Current Pathname:', location.pathname);
+  console.log('Hide Footer Routes:', hideFooterRoutes);
+  console.log('Should Hide Footer:', shouldHideFooter);
+  // --- END DEBUGGING LOGS ---
 
   return (
     <div className="App">
@@ -45,8 +53,8 @@ const MainAppContent = () => {
 
           {/* Dashboard Routes */}
           <Route path="/guest-dashboard" element={<GuestDashboard />} />
-          {/* Route for the PG Owner Dashboard */}
           <Route path="/pg-owner-dashboard" element={<PgOwnerDashboard />} />
+          <Route path="/pg-details" element={<PgDetails />} /> {/* New route for PG Details */}
 
           {/* Informational Pages */}
           <Route path="/about-us" element={<AboutUs />} />
@@ -67,7 +75,7 @@ const MainAppContent = () => {
 function App() {
   return (
     <Router>
-      <MainAppContent /> {/* Render the new component inside Router */}
+      <MainAppContent />
     </Router>
   );
 }

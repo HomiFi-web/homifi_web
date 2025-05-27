@@ -1,0 +1,211 @@
+/* UserDashboard.css */
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f4f7f6;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+.user-dashboard-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.user-dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.user-dashboard-header h1 {
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.logout-button {
+    padding: 10px 20px;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.logout-button:hover {
+    background-color: #c0392b;
+}
+
+.error-message {
+    color: #e74c3c;
+    background-color: #fdeded;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.loading-message, .no-listings {
+    text-align: center;
+    color: #7f8c8d;
+    font-size: 1.1rem;
+    padding: 20px 0;
+}
+
+.pg-listings-section h2 {
+    font-size: 1.8rem;
+    color: #34495e;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.pg-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+.pg-card {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pg-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.pg-card-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-bottom: 1px solid #eee;
+}
+
+.pg-card-content {
+    padding: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.pg-card-name {
+    font-size: 1.5rem;
+    color: #2c3e50;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.pg-card-address {
+    font-size: 0.95rem;
+    color: #555;
+    margin-bottom: 15px;
+}
+
+.pg-card-details p {
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    color: #444;
+}
+
+.pg-card-details strong {
+    color: #34495e;
+}
+
+.pg-card-details ul {
+    list-style: none; /* Remove default bullet */
+    padding: 0;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+.pg-card-details ul li {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 3px;
+}
+
+.pg-card-link {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 8px 15px;
+    background-color: #3498db;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    text-align: center;
+    transition: background-color 0.3s ease;
+}
+
+.pg-card-link:hover {
+    background-color: #2980b9;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .user-dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .user-dashboard-header h1 {
+        font-size: 2rem;
+        margin-bottom: 15px;
+    }
+
+    .pg-cards-grid {
+        grid-template-columns: 1fr; /* Stack cards on smaller screens */
+    }
+
+    .pg-card-image {
+        height: 180px;
+    }
+}
+
+@media (max-width: 480px) {
+    .user-dashboard-container {
+        padding: 10px;
+        margin: 10px auto;
+    }
+
+    .user-dashboard-header h1 {
+        font-size: 1.8rem;
+    }
+
+    .logout-button {
+        padding: 8px 15px;
+        font-size: 0.9rem;
+    }
+
+    .pg-card-name {
+        font-size: 1.3rem;
+    }
+
+    .pg-card-address, .pg-card-details p, .pg-card-details ul li {
+        font-size: 0.85rem;
+    }
+
+    .pg-card-link {
+        padding: 7px 12px;
+        font-size: 0.8rem;
+    }
+}

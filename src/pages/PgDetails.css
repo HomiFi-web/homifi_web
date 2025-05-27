@@ -1,0 +1,72 @@
+/* PgDetails.css */
+
+body {
+  background-color: #f8f9fa; /* Light background for the whole page */
+  font-family: 'Inter', sans-serif; /* Modern font */
+  color: #343a40; /* Darker text for readability */
+}
+
+.pg-details-container {
+  max-width: 900px; /* Increased max-width for a more spacious feel */
+  margin: 2rem auto; /* More vertical margin */
+  padding: 1.5rem; /* Increased padding */
+  background-color: #ffffff; /* White background for the main container */
+  border-radius: 12px; /* More rounded corners */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); /* Stronger, softer shadow */
+}
+
+.pg-details-title {
+  font-size: 2.5rem; /* Larger title */
+  font-weight: 700; /* Bolder title */
+  text-align: center;
+  margin-bottom: 2rem; /* More space below title */
+  color: #212529; /* Even darker title color */
+  letter-spacing: -0.02em; /* Slight letter spacing for modern look */
+}
+
+.pg-details-form-container {
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  padding: 2rem;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.pg-details-form-heading {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #343a40;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 0.75rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .pg-details-container {
+    padding: 1rem;
+  }
+
+  .pg-details-title {
+    font-size: 2rem;
+  }
+
+  .pg-details-form-heading {
+    font-size: 1.5rem;
+  }
+
+  .pg-details-form-container {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .pg-details-title {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .pg-details-form-heading {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+}

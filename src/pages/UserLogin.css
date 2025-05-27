@@ -1,146 +1,135 @@
-/* UserLogin.css */
+/* src/UserLogin.css */
 
 .login-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f4f4f4; /* Light background */
+  background-color: #30D5C8; /* This was the teal, now we change it to the new darker background */
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .login-box {
-  background-color: #fff;
-  padding: 2rem;
+  background-color: #ffffff; /* Inner box remains white */
+  padding: 40px;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 400px; /* Adjust width as needed */
-  max-width: 90%;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
 }
 
 .login-box h2 {
-  text-align: center;
-  margin-bottom: 1.5rem;
-  color: #333;
+  margin-bottom: 25px;
+  color: #20143b; /* Heading text changed to #20143b */
+  font-size: 1.8em;
 }
 
 .input-group {
-  margin-bottom: 1rem;
+  margin-bottom: 15px;
 }
 
-.input-group input {
-  width: 100%;
-  padding: 0.8rem;
+.login-box input[type="email"],
+.login-box input[type="password"] {
+  width: calc(100% - 24px);
+  padding: 12px;
   border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 1rem;
+  border-radius: 5px;
+  font-size: 1em;
+  box-sizing: border-box;
+  background-color: #f9f9f9;
+  color: #20143b; /* Input text remains #20143b */
 }
 
-.input-group input:focus {
+.login-box input[type="email"]::placeholder,
+.login-box input[type="password"]::placeholder {
+    color: #808080;
+}
+
+.login-box input[type="email"]:focus,
+.login-box input[type="password"]:focus {
+  border-color: #20143b; /* Focus border changed to #20143b */
   outline: none;
-  border-color: #007bff; /* Primary color for focus */
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-}
-
-.error-message {
-  color: #dc3545; /* Error color */
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
+  box-shadow: 0 0 0 2px rgba(32, 20, 59, 0.25); /* Shadow changed to match #20143b */
 }
 
 .role-button {
   width: 100%;
-  padding: 0.8rem;
-  background-color: #007bff; /* Primary button color */
-  color: white;
+  padding: 12px;
   border: none;
-  border-radius: 4px;
-  font-size: 1.1rem;
+  border-radius: 5px;
+  font-size: 1.1em;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  margin-top: 10px;
 }
 
-.role-button:hover {
-  background-color: #0056b3; /* Darker shade on hover */
+.role-button.user {
+  background-color: #20143b; /* Button background changed to #20143b */
+  color: #ffffff; /* Button text remains white */
 }
 
-.forgot-password,
-.toggle-link,
-.back-to-login {
-  text-align: center;
-  margin-top: 1rem;
-  font-size: 0.9rem;
-  color: #007bff;
-  cursor: pointer;
+.role-button.user:hover:not(:disabled) {
+  background-color: #311c4d; /* Slightly lighter shade for hover effect */
 }
 
-.forgot-password:hover,
-.toggle-link:hover,
-.back-to-login:hover {
-  text-decoration: underline;
+.role-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
 }
 
-.forgot-password-form {
-  margin-top: 1rem;
+.error-message {
+  color: #dc3545;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  font-size: 0.9em;
 }
 
-.forgot-password-form input {
-  width: 100%;
-  padding: 0.8rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 1rem;
-  margin-bottom: 0.8rem;
+.success-message {
+  color: #28a745;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  font-size: 0.95em;
 }
 
-.forgot-password-form button {
-  width: 100%;
-  padding: 0.8rem;
-  background-color: #28a745; /* Success button color */
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.forgot-password-form button:hover {
-  background-color: #1e7e34;
-}
-
-.back-to-login {
-  margin-top: 0.8rem;
-}
-
-
-/* Password Rules List Styling */
 .password-rules {
-  list-style: none; /* Remove default bullet points */
+  list-style: none;
   padding: 0;
-  margin-top: -0.5rem; /* Adjust spacing above the list */
-  margin-bottom: 1rem; /* Space below the list */
-  font-size: 0.85rem;
-  color: #555; /* Default text color for rules */
+  margin: -5px 0 15px 0;
+  text-align: left;
+  font-size: 0.85em;
+  color: #20143b; /* Password rules text remains #20143b */
 }
 
 .password-rules li {
-  margin-bottom: 0.3rem; /* Space between rules */
-  display: flex; /* Align icon and text */
+  margin-bottom: 3px;
+  display: flex;
   align-items: center;
 }
 
 .password-rules li::before {
-  content: '✖'; /* Default cross icon */
-  margin-right: 0.5rem;
+  content: '✖';
+  color: #dc3545;
+  margin-right: 5px;
   font-weight: bold;
-  color: #dc3545; /* Red for invalid */
-}
-
-.password-rules li.valid {
-  color: #28a745; /* Green for valid */
 }
 
 .password-rules li.valid::before {
-  content: '✔'; /* Checkmark icon for valid */
-  color: #28a745; /* Green for valid */
+  content: '✔';
+  color: #28a745;
+}
+
+.forgot-password,
+.toggle-link {
+  margin-top: 20px;
+  font-size: 0.9em;
+  color: #20143b; /* Link text changed to #20143b */
+  cursor: pointer;
+}
+
+.forgot-password:hover,
+.toggle-link:hover {
+  text-decoration: underline;
 }

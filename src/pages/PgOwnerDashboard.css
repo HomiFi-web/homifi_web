@@ -1,3 +1,4 @@
+/* PgOwnerDashboard.css - Refined for better aesthetics and single-line textboxes */
 
 body {
   background-color: #f8f9fa; /* Light background for the whole page */
@@ -23,79 +24,138 @@ body {
   letter-spacing: -0.02em; /* Slight letter spacing for modern look */
 }
 
-.pg-details-form-card { /* New class name */
-  background-color: #f8f9fa; /* Light grey background for the form card */
-  border-radius: 10px; /* Rounded corners for the card */
-  padding: 2rem; /* Generous padding inside the card */
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); /* Inner shadow for depth */
+.pg-details-form-card {
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  padding: 2rem;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-.pg-details-section-heading { /* New class name */
-  font-size: 1.8rem; /* Larger section heading */
+.pg-details-section-heading {
+  font-size: 1.8rem;
   font-weight: 600;
-  margin-bottom: 1.5rem; /* More space below heading */
+  margin-bottom: 1.5rem;
   color: #343a40;
-  border-bottom: 2px solid #e9ecef; /* Subtle separator */
+  border-bottom: 2px solid #e9ecef;
   padding-bottom: 0.75rem;
 }
 
+/* Wrapper for individual form groups to manage label/input layout and error placement */
+.form-group-wrapper {
+  margin-bottom: 1.5rem; /* Space between each logical form group */
+}
+
 .form-group {
-  margin-bottom: 1.5rem; /* Increased margin between form groups */
+  display: flex; /* Use flexbox for label and input */
+  flex-wrap: wrap; /* Allow items to wrap */
+  align-items: center; /* Vertically align items */
+  gap: 10px; /* Space between label and input */
+  margin-bottom: 0.5rem; /* Reduced margin to make space for error message */
 }
 
 .form-label {
-  display: block;
-  font-size: 0.95rem; /* Slightly larger label font */
-  font-weight: 600; /* Bolder labels */
-  color: #495057; /* Darker label color */
-  margin-bottom: 0.6rem; /* More space below label */
+  flex-shrink: 0; /* Prevent label from shrinking */
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0; /* Remove default block margin */
 }
 
 .required-field {
-  color: #dc3545; /* Standard red for required indicator */
+  color: #dc3545;
   font-weight: 700;
 }
 
 .form-input,
 .form-textarea,
-.form-select { /* Combined styling for inputs, textarea, and select */
-  width: 100%;
-  padding: 0.8rem 1rem; /* More padding */
-  border: 1px solid #ced4da; /* Lighter, subtle border */
-  border-radius: 8px; /* More rounded corners */
+.form-select {
+  flex-grow: 1; /* Allow input to grow and take available space */
+  min-width: 150px; /* Ensure input has a minimum width */
+  padding: 0.8rem 1rem;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
   font-size: 1rem;
   color: #495057;
   background-color: #ffffff;
   transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
+/* For textarea, make it span full width within its flex container */
+.form-group textarea.form-textarea {
+  flex-basis: 100%; /* Make textarea take full width inside flex container */
+  min-width: auto; /* Reset min-width for textarea if it interferes */
+}
+
+
 .form-input:focus,
 .form-textarea:focus,
 .form-select:focus {
   outline: none;
-  border-color: #007bff; /* Primary color for focus */
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Subtle focus glow */
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
 .form-textarea {
   resize: vertical;
-  min-height: 100px; /* Minimum height for textarea */
+  min-height: 100px;
 }
 
 .form-select {
-  appearance: none; /* Remove default select arrow */
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-  background-size: 0.8em 0.8em;
-  padding-right: 2.5rem; /* Space for custom arrow */
+  appearance: none; /* Removed default select arrow */
+  background-image: none; /* Removed custom arrow image */
+  padding-right: 1rem; /* Adjusted padding as no arrow is present */
 }
 
-.photo-preview-grid { /* New class name */
+/* Hide spinner buttons for number input */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield; /* Firefox */
+}
+
+
+/* Styles for inline form groups (e.g., state/country) */
+.form-group-inline-wrapper {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap; /* Allow halves to wrap */
+  margin-bottom: 1.5rem; /* Space below the inline group */
+}
+
+.form-group-half-wrapper {
+  flex: 1; /* Allow halves to share space */
+  min-width: 200px; /* Ensure halves don't get too small */
+  margin-bottom: 0; /* Handled by parent wrapper */
+}
+
+.form-group-half {
+  display: flex; /* Make label and input within half inline */
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 0.5rem; /* Space for error message */
+}
+.form-group-half .form-label {
+  margin-bottom: 0;
+}
+.form-group-half .form-input {
+  flex-grow: 1;
+}
+
+
+.photo-preview-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* Larger photo previews */
-  gap: 0.8rem; /* Increased gap */
+  grid-template-columns: repeat(5, 1fr); /* 5 columns */
+  gap: 0.8rem;
   margin-top: 1rem;
+  /* Ensure 2 rows max if more than 5 images */
+  grid-auto-rows: minmax(auto, auto);
+  overflow-x: auto; /* Enable horizontal scrolling if more than 10 images */
+  padding-bottom: 5px; /* Space for scrollbar */
 }
 
 .photo-preview-item {
@@ -103,6 +163,11 @@ body {
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column; /* Stack image and caption */
+  background-color: #fff;
+  padding-bottom: 5px; /* Space for caption */
+  aspect-ratio: 1 / 1.2; /* Maintain aspect ratio for items */
 }
 
 .photo-preview-image {
@@ -110,36 +175,243 @@ body {
   width: 100%;
   object-fit: cover;
   display: block;
+  border-radius: 8px 8px 0 0; /* Rounded top corners */
 }
 
-.price-input-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Responsive grid for prices */
-  gap: 1rem; /* Consistent gap */
+.photo-caption-input {
+  width: calc(100% - 10px); /* Adjust for padding */
+  padding: 5px;
+  border: 1px solid #eee;
+  border-top: none;
+  border-radius: 0 0 8px 8px; /* Rounded bottom corners */
+  font-size: 0.85rem;
+  resize: vertical;
+  min-height: 40px;
+  max-height: 80px;
+  margin: 0 5px 5px 5px;
+}
+
+.remove-photo-button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: rgba(220, 53, 69, 0.8); /* Red with transparency */
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  z-index: 10;
+  transition: background-color 0.2s ease;
+}
+
+.remove-photo-button:hover {
+  background-color: #dc3545;
+}
+
+
+.sharing-options-grid {
+  display: flex; /* Changed to flex */
+  flex-direction: row; /* Arrange items in a row */
+  flex-wrap: wrap; /* Allow items to wrap to the next line */
+  gap: 1.5rem; /* Space between items */
   margin-top: 0.8rem;
 }
 
-.price-input-group { /* New class name */
-  background-color: #e9ecef; /* Light background for each price input group */
-  padding: 0.8rem;
+.sharing-option-item {
+  background-color: #e9ecef;
+  padding: 1rem;
   border-radius: 8px;
   border: 1px solid #dee2e6;
+  display: flex;
+  flex-direction: column; /* Stack elements vertically within each item */
+  gap: 0.8rem; /* Space between stacked elements */
+  flex-basis: calc(25% - 1.125rem); /* Roughly 4 items per row, accounting for gap */
+  min-width: 180px; /* Ensure items don't get too small */
+  flex-grow: 1; /* Allow items to grow to fill space */
 }
 
-.price-label {
-  font-size: 0.85rem; /* Slightly larger price label */
-  font-weight: 500;
-  color: #6c757d;
-  margin-bottom: 0.4rem;
-  display: block;
+.sharing-details-stack { /* Wrapper to hold label, status, price in a column */
+  display: flex;
+  flex-direction: column; /* Stack label, select, price */
+  align-items: flex-start; /* Align items to the start */
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  gap: 0.5rem; /* Space between elements in this stack */
 }
 
-.price-input {
-  /* Inherits from .form-input, but can add specific overrides here if needed */
+.sharing-option-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0;
+  flex-shrink: 0; /* Prevent label from shrinking */
+  min-width: 60px; /* Minimum width for the label */
+  width: 100%; /* Make label take full width */
 }
 
-.error-error-message { /* New class name */
-  color: #dc3545;
+.sharing-status-select {
+  flex-grow: 1; /* Allow select to grow */
+  min-width: 80px; /* Min width for status select */
+  max-width: 120px; /* Max width for status select */
+  width: 100%; /* Make select take full width */
+}
+
+/* Styles for phone number input with country code */
+.phone-input-group {
+  display: flex; /* Use flexbox to put select and input side-by-side */
+  gap: 5px; /* Small gap between select and input */
+  flex-grow: 1; /* Allow the group to take available space */
+  align-items: center;
+  flex-wrap: wrap; /* Allow elements to wrap on small screens */
+}
+
+.country-code-select {
+  flex-shrink: 0; /* Prevent shrinking */
+  min-width: 100px; /* Ensure it has a reasonable width */
+  max-width: 120px;
+}
+
+.phone-number-input {
+  flex-grow: 1; /* Allow phone number input to take remaining space */
+  min-width: 150px; /* Ensure it doesn't get too small */
+}
+
+
+/* Styles for price input with rupee symbol */
+.price-input-wrapper {
+  position: relative;
+  display: flex; /* Use flex to align symbol and input */
+  align-items: center;
+  flex-grow: 1; /* Allow it to grow */
+  min-width: 100px; /* Minimum width for price input */
+  max-width: 150px; /* Max width for price input */
+  width: 100%; /* Make wrapper take full width */
+}
+
+.rupee-symbol {
+  position: absolute;
+  left: 10px; /* Position the symbol inside the input */
+  color: #6c757d; /* Match placeholder color */
+  font-size: 1rem;
+  z-index: 1; /* Ensure it's above the input */
+}
+
+.sharing-price-input {
+  padding-left: 25px; /* Make space for the rupee symbol */
+  /* Inherit other styles from .form-input */
+}
+
+
+.sharing-price-input:disabled {
+  background-color: #f0f2f5;
+  color: #a0aec0;
+  cursor: not-allowed;
+}
+
+/* Room Availability Grid - CSS rules removed as elements are removed from JSX */
+/* .room-availability-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed #ced4da;
+  margin-top: 0.5rem;
+} */
+
+/* .room-availability-input {
+  padding: 0.6rem 0.4rem;
+  text-align: center;
+  font-size: 0.9rem;
+  width: 100%;
+  min-width: auto;
+} */
+
+/* .room-availability-input:disabled {
+  background-color: #f0f2f5;
+  color: #a0aec0;
+  cursor: not-allowed;
+} */
+
+
+/* New styles for Amenities/Services checkboxes */
+.amenities-section h4 {
+  font-size: 1.2rem;
+  color: #343a40;
+  margin-top: 1.5rem;
+  margin-bottom: 0.8rem;
+  border-bottom: 1px dashed #ced4da; /* Subtle separator */
+  padding-bottom: 0.5rem;
+}
+
+.amenities-checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Responsive grid for checkboxes */
+  gap: 0.8rem;
+  background-color: #f0f2f5; /* Light background for the grid */
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  color: #495057;
+  cursor: pointer;
+}
+
+.checkbox-item input[type="checkbox"] {
+  /* Style the checkbox itself */
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid #007bff;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.checkbox-item input[type="checkbox"]:checked {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.checkbox-item input[type="checkbox"]:checked::before {
+  content: '✓'; /* Checkmark */
+  font-size: 14px;
+  color: white;
+}
+
+.checkbox-item label {
+  cursor: pointer;
+  margin-bottom: 0; /* Override default label margin */
+  font-weight: normal; /* Override default label font-weight */
+}
+
+/* New style for field-specific error messages */
+.field-error-message {
+  color: #dc3545; /* Red color for error messages */
+  font-size: 0.85rem;
+  margin-top: 0.25rem; /* Small space above error */
+  margin-left: 10px; /* Indent to align with input */
+  text-align: left;
+  flex-basis: 100%; /* Ensure error takes full width in its wrapper */
+}
+
+
+.error-error-message { /* This is now for general form errors */
+  color: #dc3545; /* Red color for general error messages */
   font-size: 0.9rem;
   margin-top: 1rem;
   text-align: center;
@@ -149,25 +421,25 @@ body {
   border-radius: 8px;
 }
 
-.form-actions { /* New class name */
+.form-actions {
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
-  margin-top: 2rem; /* More space above buttons */
+  margin-top: 2rem;
 }
 
-.button { /* Base button style */
-  padding: 0.8rem 1.8rem; /* Generous padding */
-  border-radius: 8px; /* Consistent rounded corners */
-  font-size: 1.05rem; /* Slightly larger font */
+.button {
+  padding: 0.8rem 1.8rem;
+  border-radius: 8px;
+  font-size: 1.05rem;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out, box-shadow 0.2s ease-in-out;
-  border: none; /* Remove default button border */
+  border: none;
 }
 
 .button:hover {
-  transform: translateY(-2px); /* Slight lift effect */
+  transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -178,7 +450,7 @@ body {
   box-shadow: none;
 }
 
-.button-outline { /* Edit button style */
+.button-outline {
   background-color: #f0f2f5;
   color: #495057;
   border: 1px solid #adb5bd;
@@ -189,13 +461,13 @@ body {
   color: #343a40;
 }
 
-.button-primary { /* Send for Validation button style */
-  background-color: #007bff; /* Primary blue */
+.button-primary {
+  background-color: #20143b; /* Updated color for the primary button */
   color: #ffffff;
 }
 
 .button-primary:hover {
-  background-color: #0056b3; /* Darker blue on hover */
+  background-color: #1a0f2e; /* Slightly darker shade for hover */
 }
 
 /* Responsive adjustments */
@@ -212,24 +484,66 @@ body {
     font-size: 1.5rem;
   }
 
+  /* Adjust form-group behavior for smaller screens */
+  .form-group-wrapper {
+    margin-bottom: 1rem; /* Adjust spacing for smaller screens */
+  }
+
   .form-group {
-    margin-bottom: 1rem;
+    flex-direction: column; /* Stack label and input on smaller screens */
+    align-items: flex-start; /* Align label to start */
+    gap: 0.5rem; /* Reduce gap */
+  }
+
+  .form-label {
+    width: 100%; /* Label takes full width */
+    margin-bottom: 0.5rem; /* Add some space below label */
   }
 
   .form-input,
   .form-textarea,
   .form-select {
+    width: 100%; /* Input takes full width */
+    min-width: auto; /* Reset min-width */
     padding: 0.7rem 0.8rem;
     font-size: 0.95rem;
   }
 
-  .form-label {
-    font-size: 0.9rem;
-    margin-bottom: 0.5rem;
+  .form-group-inline-wrapper {
+    flex-direction: column; /* Stack inline groups */
+    gap: 0.5rem;
   }
 
+  .form-group-half-wrapper {
+    width: 100%; /* Make half wrappers full width */
+    min-width: auto;
+  }
+
+  .form-group-half {
+    flex-direction: column; /* Stack label and input within half */
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .form-group-half .form-label {
+    width: 100%;
+  }
+
+  .phone-input-group {
+    flex-direction: column; /* Stack phone number elements */
+    align-items: flex-start;
+    width: 100%;
+  }
+  .country-code-select {
+    width: 100%; /* Make select full width */
+    max-width: none;
+  }
+  .phone-number-input {
+    width: 100%; /* Make input full width */
+  }
+
+
   .photo-preview-grid {
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); /* Auto-fit for smaller screens */
     gap: 0.6rem;
   }
 
@@ -237,8 +551,32 @@ body {
     height: 80px;
   }
 
-  .price-input-grid {
-    grid-template-columns: 1fr; /* Stack prices on small screens */
+  .sharing-options-grid {
+    grid-template-columns: 1fr; /* Stack sharing options on small screens */
+  }
+
+  .sharing-option-item {
+    flex-basis: 100%; /* Full width on small screens */
+    min-width: auto;
+  }
+
+  .sharing-details-stack { /* Stack elements within this row on very small screens */
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%; /* Take full width */
+  }
+
+  .sharing-option-label,
+  .sharing-status-select,
+  .price-input-wrapper {
+    width: 100%; /* Make all elements full width on small screens */
+    min-width: auto;
+    max-width: none;
+    flex-basis: auto; /* Reset flex-basis */
+  }
+
+  .amenities-checkbox-grid {
+    grid-template-columns: 1fr; /* Stack checkboxes on small screens */
   }
 
   .button {
