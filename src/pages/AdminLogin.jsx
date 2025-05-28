@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './UserLogin.css'; // Reuse same styling
+import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { getApps, getApp, initializeApp } from 'firebase/app'; // Import for Firebase app check
+import './UserLogin.css'; // Reuse existing styling for login forms
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -8,30 +11,103 @@ const AdminLogin = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [forgotPassword, setForgotPassword] = useState(false);
+  const [loading, setLoading] = useState(false); // New loading state
 
-  const handleSubmit = (e) => {
+  // Initialize Firebase app if not already initialized
+  // This is a fallback; ideally, Firebase is initialized once at the root of your app.
+  const firebaseConfig = {
+    apiKey: "AIzaSyCwLwrV3yJ4xRt8dw5BPX7ufYnn19Hx71A",
+    authDomain: "homifi-bac92.firebaseapp.com",
+    projectId: "homifi-bac92",
+    storageBucket: "homifi-bac92.appspot.com",
+    messagingSenderId: "876737044340",
+    appId: "1:876737044340:web:07d098db6f17f9c80bd621"
+  };
+  const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true); // Start loading
 
     if (!email || !password) {
       setError('Please fill in both fields.');
+      setLoading(false);
       return;
     }
 
-    console.log('Admin logged in with:', email, password);
-    alert('Login successful!');
-    // Navigate to admin dashboard here
+    // Explicitly check for the allowed admin email
+    const allowedAdminEmail = 'Homifi7@gmail.com';
+    const allowedAdminPassword = 'homifi777@'; // Note: This is hardcoded for demonstration as per request.
+
+    if (email !== allowedAdminEmail || password !== allowedAdminPassword) {
+        setError('Invalid admin credentials.');
+        setLoading(false);
+        return;
+    }
+
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // After successful Firebase Auth login, check user's role in Firestore
+      // The user's UID is used to fetch their specific document from the 'users' collection.
+      const userDocRef = doc(db, 'users', user.uid);
+      const userDocSnap = await getDoc(userDocRef);
+
+      if (userDocSnap.exists() && userDocSnap.data().role === 'admin') {
+        console.log('Admin logged in with:', user.email);
+        // Navigate to Admin Dashboard
+        navigate('/admin-dashboard');
+      } else {
+        // If user is not an admin or role is not 'admin', log them out from Firebase Auth
+        await auth.signOut();
+        setError('Access Denied: You do not have administrator privileges.');
+      }
+    } catch (firebaseError) {
+      let errorMessage = 'Login failed. Please check your credentials.';
+      // Specific Firebase error codes for better user feedback
+      if (firebaseError.code === 'auth/user-not-found' || firebaseError.code === 'auth/wrong-password') {
+        errorMessage = 'Invalid email or password.';
+      } else if (firebaseError.code === 'auth/invalid-email') {
+        errorMessage = 'Invalid email format.';
+      }
+      console.error('Admin login error:', firebaseError);
+      setError(errorMessage);
+    } finally {
+      setLoading(false); // Stop loading
+    }
   };
 
-  const handleForgotPassword = () => {
+  const handleForgotPassword = async () => {
+    setError('');
+    setLoading(true);
+
     if (!email) {
       setError('Please enter your email address.');
+      setLoading(false);
       return;
     }
 
-    console.log('Sending admin password reset to:', email);
-    alert('Password reset email sent!');
-    setForgotPassword(false);
+    try {
+      await sendPasswordResetEmail(auth, email);
+      // Display success message using the error state for consistency with other messages
+      setError('Password reset email sent! Please check your inbox.');
+      setForgotPassword(false); // Go back to login form
+    } catch (firebaseError) {
+      let errorMessage = 'Failed to send reset email. Please try again.';
+      if (firebaseError.code === 'auth/user-not-found') {
+        errorMessage = 'No user found with this email.';
+      } else if (firebaseError.code === 'auth/invalid-email') {
+        errorMessage = 'Invalid email format.';
+      }
+      console.error('Password reset error:', firebaseError);
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -47,6 +123,7 @@ const AdminLogin = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={loading} // Disable input during loading
             />
             <input
               type="password"
@@ -54,11 +131,14 @@ const AdminLogin = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              disabled={loading} // Disable input during loading
             />
             {error && <p className="error-message">{error}</p>}
-            <button type="submit" className="role-button admin">Login</button>
+            <button type="submit" className="role-button admin" disabled={loading}>
+              {loading ? 'Logging In...' : 'Login'}
+            </button>
 
-            <p className="forgot-password" onClick={() => setForgotPassword(true)}>
+            <p className="forgot-password" onClick={() => !loading && setForgotPassword(true)}>
               Forgot Password?
             </p>
             <p className="back-to-login" onClick={() => navigate('/')}>
@@ -74,12 +154,13 @@ const AdminLogin = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={loading}
             />
             {error && <p className="error-message">{error}</p>}
-            <button type="button" className="role-button admin" onClick={handleForgotPassword}>
-              Send Reset Email
+            <button type="button" className="role-button admin" onClick={handleForgotPassword} disabled={loading}>
+              {loading ? 'Sending...' : 'Send Reset Email'}
             </button>
-            <p className="back-to-login" onClick={() => setForgotPassword(false)}>
+            <p className="back-to-login" onClick={() => !loading && setForgotPassword(false)}>
               ← Back to Login
             </p>
           </div>

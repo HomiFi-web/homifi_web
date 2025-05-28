@@ -1,619 +1,677 @@
-/* PgOwnerDashboard.css - Refined for better aesthetics and single-line textboxes */
+/* Define HomiFi Color Palette as CSS Variables */
+:root {
+    --homifi-dark-blue: #20143b; /* Updated to the specified dark indigo color */
+    --homifi-teal: #30D5C8; /* Vibrant, clear teal */
+    --homifi-cyan: #00BCD4; /* A slightly brighter cyan */
+    --homifi-darker-blue: #000069; /* Added from palette */
+    --homifi-deepest-blue: #000040; /* Added from palette */
 
+    --success-green: #28a745; /* Standard success green */
+    --error-red: #dc3545; /* Standard error red */
+    --warning-orange: #ffc107; /* Added from palette */
+
+    --bg-light-grey: #f8f9fa; /* Soft light grey background */
+    --bg-white: #ffffff; /* Clean white background */
+    --bg-soft-blue: #e0f7fa; /* Light background for checkboxes */
+
+    --text-dark: #333333; /* Standard dark gray for main body text */
+    --text-medium: #555555; /* Lighter gray for secondary text */
+    --text-light: #777777; /* For less important text */
+    --border-light: #e0e0e0; /* Light, soft gray for borders */
+    --border-subtle: #eeeeee; /* Even lighter for subtle elements */
+}
+
+/* General Body and Container Styles */
 body {
-  background-color: #f8f9fa; /* Light background for the whole page */
-  font-family: 'Inter', sans-serif; /* Modern font */
-  color: #343a40; /* Darker text for readability */
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-light-grey);
+    color: var(--text-dark);
 }
 
-.pg-details-container {
-  max-width: 900px; /* Increased max-width for a more spacious feel */
-  margin: 2rem auto; /* More vertical margin */
-  padding: 1.5rem; /* Increased padding */
-  background-color: #ffffff; /* White background for the main container */
-  border-radius: 12px; /* More rounded corners */
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); /* Stronger, softer shadow */
+.pg-owner-dashboard-container {
+    display: flex; /* Use flexbox to lay out sidebar and main content */
+    min-height: 100vh;
+    background-color: var(--bg-light-grey);
+    position: relative; /* For positioning the hamburger icon relative to this container */
 }
 
-.pg-details-title {
-  font-size: 2.5rem; /* Larger title */
-  font-weight: 700; /* Bolder title */
-  text-align: center;
-  margin-bottom: 2rem; /* More space below title */
-  color: #212529; /* Even darker title color */
-  letter-spacing: -0.02em; /* Slight letter spacing for modern look */
+/* Sidebar Styles */
+.sidebar {
+    width: 0; /* Hidden by default */
+    background-color: var(--homifi-dark-blue);
+    color: var(--bg-white);
+    padding: 1.5rem 0; /* Padding will adjust when open */
+    position: fixed; /* Fixed position relative to viewport */
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000; /* Ensure it's above other content when open */
+    overflow-x: hidden; /* Hide content that overflows when collapsed */
+    transition: width 0.3s ease-in-out, padding 0.3s ease-in-out;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center content horizontally */
 }
 
+.sidebar.open {
+    width: 250px; /* Open width */
+    padding: 1.5rem;
+}
+
+.sidebar-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    width: 80%; /* Constrain header width */
+}
+
+.sidebar-header .welcome-message {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--bg-white);
+    margin-bottom: 0.5rem;
+}
+
+.sidebar-header .user-email {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+    word-wrap: break-word; /* Ensure long emails wrap */
+}
+
+.sidebar-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+.sidebar-nav li {
+    margin-bottom: 1rem;
+    width: 100%;
+}
+
+.sidebar-button {
+    display: block;
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    text-align: center;
+}
+
+.sidebar-button.reset-password-button {
+    background-color: var(--homifi-teal); /* Teal for reset password */
+    color: var(--bg-white);
+}
+
+.sidebar-button.reset-password-button:hover {
+    background-color: #20a095; /* Darker teal on hover */
+    transform: translateY(-2px);
+}
+
+.sidebar-button.logout-button {
+    background-color: var(--error-red); /* Red for logout */
+    color: var(--bg-white);
+}
+
+.sidebar-button.logout-button:hover {
+    background-color: #c0392b; /* Darker red on hover */
+    transform: translateY(-2px);
+}
+
+/* Main Content Area */
+.main-content {
+    flex-grow: 1; /* Takes remaining space */
+    padding: 2rem; /* Initial padding */
+    margin-left: 0; /* Default position */
+    transition: margin-left 0.3s ease-in-out; /* For shifting when sidebar opens */
+}
+
+.pg-owner-dashboard-container.sidebar-open .main-content {
+    margin-left: 250px; /* Shift main content when sidebar is open */
+}
+
+/* Hamburger Icon (from user provided snippet, adapted for React) */
+.Icon {
+    width: 50px;
+    height: 50px;
+    position: fixed; /* Fixed position relative to viewport */
+    top: 20px; /* Adjust as needed */
+    left: 20px; /* Adjust as needed */
+    transform: rotate(0deg);
+    transition: .5s ease-in-out;
+    cursor: pointer;
+    z-index: 1001; /* Ensure it's above sidebar and main content */
+    background-color: var(--homifi-dark-blue); /* Background for visibility */
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.Icon span {
+    display: block;
+    position: absolute;
+    left: 0;
+    height: 8px;
+    width: 100%;
+    background: var(--bg-white); /* White bars */
+    border-radius: 4px;
+    transform: rotate(0deg);
+    transition: .2s ease-in-out;
+}
+
+.Icon span:nth-child(1) {
+    top: 15px;
+}
+
+.Icon span:nth-child(2) {
+    top: 23px;
+}
+
+.Icon span:nth-child(3) {
+    top: 31px;
+}
+
+.Icon.open span:nth-child(1) {
+    top: 23px;
+    transform: rotate(135deg);
+}
+
+.Icon.open span:nth-child(2) {
+    left: -60px; /* Move middle bar out */
+    opacity: 0;
+}
+
+.Icon.open span:nth-child(3) {
+    top: 23px;
+    transform: rotate(-135deg);
+}
+
+/* Loading Container */
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    width: 100%;
+    background-color: var(--bg-light-grey);
+}
+
+.loading-container .text-center {
+    font-size: 1.5rem;
+    color: var(--text-dark);
+}
+
+/* Form Card Styles */
 .pg-details-form-card {
-  background-color: #f8f9fa;
-  border-radius: 10px;
-  padding: 2rem;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+    background-color: var(--bg-white);
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    padding: 2.5rem;
+    margin: 2rem auto;
+    max-width: 900px;
+    width: 95%;
+    box-sizing: border-box;
 }
 
-.pg-details-section-heading {
-  font-size: 1.8rem;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
-  color: #343a40;
-  border-bottom: 2px solid #e9ecef;
-  padding-bottom: 0.75rem;
+.form-title {
+    text-align: center;
+    color: var(--homifi-dark-blue);
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    font-weight: 700;
 }
 
-/* Wrapper for individual form groups to manage label/input layout and error placement */
 .form-group-wrapper {
-  margin-bottom: 1.5rem; /* Space between each logical form group */
+    margin-bottom: 1.5rem;
 }
 
 .form-group {
-  display: flex; /* Use flexbox for label and input */
-  flex-wrap: wrap; /* Allow items to wrap */
-  align-items: center; /* Vertically align items */
-  gap: 10px; /* Space between label and input */
-  margin-bottom: 0.5rem; /* Reduced margin to make space for error message */
+    display: flex;
+    flex-direction: column;
 }
 
 .form-label {
-  flex-shrink: 0; /* Prevent label from shrinking */
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #495057;
-  margin-bottom: 0; /* Remove default block margin */
+    margin-bottom: 0.5rem;
+    color: var(--text-medium);
+    font-weight: 600;
+    font-size: 0.95rem;
 }
 
 .required-field {
-  color: #dc3545;
-  font-weight: 700;
+    color: var(--error-red);
+    margin-left: 0.2rem;
 }
 
 .form-input,
 .form-textarea,
 .form-select {
-  flex-grow: 1; /* Allow input to grow and take available space */
-  min-width: 150px; /* Ensure input has a minimum width */
-  padding: 0.8rem 1rem;
-  border: 1px solid #ced4da;
-  border-radius: 8px;
-  font-size: 1rem;
-  color: #495057;
-  background-color: #ffffff;
-  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    font-size: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
-
-/* For textarea, make it span full width within its flex container */
-.form-group textarea.form-textarea {
-  flex-basis: 100%; /* Make textarea take full width inside flex container */
-  min-width: auto; /* Reset min-width for textarea if it interferes */
-}
-
 
 .form-input:focus,
 .form-textarea:focus,
 .form-select:focus {
-  outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    border-color: var(--homifi-teal);
+    box-shadow: 0 0 0 3px rgba(48, 213, 200, 0.2);
+    outline: none;
 }
 
 .form-textarea {
-  resize: vertical;
-  min-height: 100px;
+    resize: vertical;
+    min-height: 80px;
 }
 
-.form-select {
-  appearance: none; /* Removed default select arrow */
-  background-image: none; /* Removed custom arrow image */
-  padding-right: 1rem; /* Adjusted padding as no arrow is present */
+.field-error-message {
+    color: var(--error-red);
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    margin-left: 0.2rem;
 }
 
-/* Hide spinner buttons for number input */
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+.error-error-message {
+    color: var(--error-red);
+    font-size: 1rem;
+    margin-top: 1rem;
+    text-align: center;
+    font-weight: bold;
 }
 
-input[type="number"] {
-  -moz-appearance: textfield; /* Firefox */
-}
-
-
-/* Styles for inline form groups (e.g., state/country) */
-.form-group-inline-wrapper {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap; /* Allow halves to wrap */
-  margin-bottom: 1.5rem; /* Space below the inline group */
-}
-
-.form-group-half-wrapper {
-  flex: 1; /* Allow halves to share space */
-  min-width: 200px; /* Ensure halves don't get too small */
-  margin-bottom: 0; /* Handled by parent wrapper */
-}
-
-.form-group-half {
-  display: flex; /* Make label and input within half inline */
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 0.5rem; /* Space for error message */
-}
-.form-group-half .form-label {
-  margin-bottom: 0;
-}
-.form-group-half .form-input {
-  flex-grow: 1;
-}
-
-
-.photo-preview-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr); /* 5 columns */
-  gap: 0.8rem;
-  margin-top: 1rem;
-  /* Ensure 2 rows max if more than 5 images */
-  grid-auto-rows: minmax(auto, auto);
-  overflow-x: auto; /* Enable horizontal scrolling if more than 10 images */
-  padding-bottom: 5px; /* Space for scrollbar */
-}
-
-.photo-preview-item {
-  position: relative;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column; /* Stack image and caption */
-  background-color: #fff;
-  padding-bottom: 5px; /* Space for caption */
-  aspect-ratio: 1 / 1.2; /* Maintain aspect ratio for items */
-}
-
-.photo-preview-image {
-  height: 100px; /* Fixed height for consistency */
-  width: 100%;
-  object-fit: cover;
-  display: block;
-  border-radius: 8px 8px 0 0; /* Rounded top corners */
-}
-
-.photo-caption-input {
-  width: calc(100% - 10px); /* Adjust for padding */
-  padding: 5px;
-  border: 1px solid #eee;
-  border-top: none;
-  border-radius: 0 0 8px 8px; /* Rounded bottom corners */
-  font-size: 0.85rem;
-  resize: vertical;
-  min-height: 40px;
-  max-height: 80px;
-  margin: 0 5px 5px 5px;
-}
-
-.remove-photo-button {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background-color: rgba(220, 53, 69, 0.8); /* Red with transparency */
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 25px;
-  height: 25px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 1.2rem;
-  cursor: pointer;
-  z-index: 10;
-  transition: background-color 0.2s ease;
-}
-
-.remove-photo-button:hover {
-  background-color: #dc3545;
-}
-
-
-.sharing-options-grid {
-  display: flex; /* Changed to flex */
-  flex-direction: row; /* Arrange items in a row */
-  flex-wrap: wrap; /* Allow items to wrap to the next line */
-  gap: 1.5rem; /* Space between items */
-  margin-top: 0.8rem;
-}
-
-.sharing-option-item {
-  background-color: #e9ecef;
-  padding: 1rem;
-  border-radius: 8px;
-  border: 1px solid #dee2e6;
-  display: flex;
-  flex-direction: column; /* Stack elements vertically within each item */
-  gap: 0.8rem; /* Space between stacked elements */
-  flex-basis: calc(25% - 1.125rem); /* Roughly 4 items per row, accounting for gap */
-  min-width: 180px; /* Ensure items don't get too small */
-  flex-grow: 1; /* Allow items to grow to fill space */
-}
-
-.sharing-details-stack { /* Wrapper to hold label, status, price in a column */
-  display: flex;
-  flex-direction: column; /* Stack label, select, price */
-  align-items: flex-start; /* Align items to the start */
-  flex-wrap: wrap; /* Allow wrapping on smaller screens */
-  gap: 0.5rem; /* Space between elements in this stack */
-}
-
-.sharing-option-label {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #495057;
-  margin-bottom: 0;
-  flex-shrink: 0; /* Prevent label from shrinking */
-  min-width: 60px; /* Minimum width for the label */
-  width: 100%; /* Make label take full width */
-}
-
-.sharing-status-select {
-  flex-grow: 1; /* Allow select to grow */
-  min-width: 80px; /* Min width for status select */
-  max-width: 120px; /* Max width for status select */
-  width: 100%; /* Make select take full width */
-}
-
-/* Styles for phone number input with country code */
+/* Phone Input Group */
 .phone-input-group {
-  display: flex; /* Use flexbox to put select and input side-by-side */
-  gap: 5px; /* Small gap between select and input */
-  flex-grow: 1; /* Allow the group to take available space */
-  align-items: center;
-  flex-wrap: wrap; /* Allow elements to wrap on small screens */
+    display: flex;
+    gap: 0.5rem;
 }
 
 .country-code-select {
-  flex-shrink: 0; /* Prevent shrinking */
-  min-width: 100px; /* Ensure it has a reasonable width */
-  max-width: 120px;
+    flex-shrink: 0;
+    width: auto;
+    padding-right: 2rem;
 }
 
 .phone-number-input {
-  flex-grow: 1; /* Allow phone number input to take remaining space */
-  min-width: 150px; /* Ensure it doesn't get too small */
+    flex-grow: 1;
 }
 
+/* Inline Form Group (for State, Country) */
+.form-group-inline-wrapper {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
 
-/* Styles for price input with rupee symbol */
+.form-group-half-wrapper {
+    flex: 1;
+    min-width: 250px;
+}
+
+.form-group-half {
+    width: 100%;
+}
+
+/* Photo Upload and Preview */
+.photo-preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.photo-preview-item {
+    position: relative;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 0.5rem;
+}
+
+.photo-preview-image {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.photo-caption-input {
+    width: calc(100% - 1rem);
+    border: none;
+    padding: 0.5rem;
+    font-size: 0.8rem;
+    text-align: center;
+    resize: none;
+    overflow: hidden;
+    height: auto;
+    min-height: 30px;
+    box-sizing: border-box;
+}
+
+.remove-photo-button {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: rgba(220, 53, 69, 0.7);
+    color: var(--bg-white);
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.remove-photo-button:hover {
+    background-color: var(--error-red);
+}
+
+/* Sharing Options Grid */
+.sharing-options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.sharing-option-item {
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    padding: 1rem;
+    background-color: var(--bg-white);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.sharing-details-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.sharing-option-label {
+    font-weight: 600;
+    color: var(--text-medium);
+}
+
+.sharing-status-select {
+    width: 100%;
+}
+
 .price-input-wrapper {
-  position: relative;
-  display: flex; /* Use flex to align symbol and input */
-  align-items: center;
-  flex-grow: 1; /* Allow it to grow */
-  min-width: 100px; /* Minimum width for price input */
-  max-width: 150px; /* Max width for price input */
-  width: 100%; /* Make wrapper take full width */
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .rupee-symbol {
-  position: absolute;
-  left: 10px; /* Position the symbol inside the input */
-  color: #6c757d; /* Match placeholder color */
-  font-size: 1rem;
-  z-index: 1; /* Ensure it's above the input */
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--text-light);
 }
 
 .sharing-price-input {
-  padding-left: 25px; /* Make space for the rupee symbol */
-  /* Inherit other styles from .form-input */
+    flex-grow: 1;
 }
 
-
-.sharing-price-input:disabled {
-  background-color: #f0f2f5;
-  color: #a0aec0;
-  cursor: not-allowed;
-}
-
-/* Room Availability Grid - CSS rules removed as elements are removed from JSX */
-/* .room-availability-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.5rem;
-  padding-top: 0.5rem;
-  border-top: 1px dashed #ced4da;
-  margin-top: 0.5rem;
-} */
-
-/* .room-availability-input {
-  padding: 0.6rem 0.4rem;
-  text-align: center;
-  font-size: 0.9rem;
-  width: 100%;
-  min-width: auto;
-} */
-
-/* .room-availability-input:disabled {
-  background-color: #f0f2f5;
-  color: #a0aec0;
-  cursor: not-allowed;
-} */
-
-
-/* New styles for Amenities/Services checkboxes */
+/* Amenities and Services Checkboxes */
 .amenities-section h4 {
-  font-size: 1.2rem;
-  color: #343a40;
-  margin-top: 1.5rem;
-  margin-bottom: 0.8rem;
-  border-bottom: 1px dashed #ced4da; /* Subtle separator */
-  padding-bottom: 0.5rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    color: var(--homifi-dark-blue);
+    font-size: 1.2rem;
+    border-bottom: 2px solid var(--border-subtle);
+    padding-bottom: 0.5rem;
 }
 
 .amenities-checkbox-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Responsive grid for checkboxes */
-  gap: 0.8rem;
-  background-color: #f0f2f5; /* Light background for the grid */
-  padding: 1rem;
-  border-radius: 8px;
-  border: 1px solid #e9ecef;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.75rem;
 }
 
 .checkbox-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.95rem;
-  color: #495057;
-  cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--bg-soft-blue);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--homifi-teal);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.checkbox-item:hover {
+    background-color: #d0f8f8;
+    border-color: var(--homifi-cyan);
 }
 
 .checkbox-item input[type="checkbox"] {
-  /* Style the checkbox itself */
-  appearance: none;
-  -webkit-appearance: none;
-  width: 18px;
-  height: 18px;
-  border: 1.5px solid #007bff;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--homifi-teal);
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .checkbox-item input[type="checkbox"]:checked {
-  background-color: #007bff;
-  border-color: #007bff;
+    background-color: var(--homifi-teal);
+    border-color: var(--homifi-teal);
 }
 
-.checkbox-item input[type="checkbox"]:checked::before {
-  content: '✓'; /* Checkmark */
-  font-size: 14px;
-  color: white;
+.checkbox-item input[type="checkbox"]:checked::after {
+    content: '✔';
+    color: var(--bg-white);
+    font-size: 12px;
 }
 
 .checkbox-item label {
-  cursor: pointer;
-  margin-bottom: 0; /* Override default label margin */
-  font-weight: normal; /* Override default label font-weight */
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--text-dark);
 }
 
-/* New style for field-specific error messages */
-.field-error-message {
-  color: #dc3545; /* Red color for error messages */
-  font-size: 0.85rem;
-  margin-top: 0.25rem; /* Small space above error */
-  margin-left: 10px; /* Indent to align with input */
-  text-align: left;
-  flex-basis: 100%; /* Ensure error takes full width in its wrapper */
-}
-
-
-.error-error-message { /* This is now for general form errors */
-  color: #dc3545; /* Red color for general error messages */
-  font-size: 0.9rem;
-  margin-top: 1rem;
-  text-align: center;
-  padding: 0.75rem;
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
-  border-radius: 8px;
-}
-
+/* Form Actions (Buttons) */
 .form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 2rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-subtle);
 }
 
 .button {
-  padding: 0.8rem 1.8rem;
-  border-radius: 8px;
-  font-size: 1.05rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out, box-shadow 0.2s ease-in-out;
-  border: none;
-}
-
-.button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-.button-outline {
-  background-color: #f0f2f5;
-  color: #495057;
-  border: 1px solid #adb5bd;
-}
-
-.button-outline:hover {
-  background-color: #e2e6ea;
-  color: #343a40;
+    padding: 0.8rem 1.8rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .button-primary {
-  background-color: #20143b; /* Updated color for the primary button */
-  color: #ffffff;
+    background-color: var(--success-green);
+    color: var(--bg-white);
 }
 
-.button-primary:hover {
-  background-color: #1a0f2e; /* Slightly darker shade for hover */
+.button-primary:hover:not(:disabled) {
+    background-color: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* Responsive adjustments */
+.button-secondary {
+    background-color: var(--homifi-cyan);
+    color: var(--bg-white);
+}
+
+.button-secondary:hover:not(:disabled) {
+    background-color: #007bb3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.button-outline {
+    background-color: transparent;
+    color: var(--homifi-dark-blue);
+    border: 2px solid var(--homifi-dark-blue);
+}
+
+.button-outline:hover:not(:disabled) {
+    background-color: rgba(33, 39, 74, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.button-small {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+}
+
+.button:disabled {
+    background-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* Owner Listings Section */
+.owner-listings-section {
+    background-color: var(--bg-white);
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    padding: 2.5rem;
+    margin: 2rem auto;
+    max-width: 900px;
+    width: 95%;
+    box-sizing: border-box;
+}
+
+.owner-listings-section .section-title {
+    text-align: center;
+    color: var(--homifi-dark-blue);
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.listings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.listing-card {
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    padding: 1.5rem;
+    background-color: var(--bg-light-grey);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.listing-card h3 {
+    color: var(--homifi-dark-blue);
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.listing-card p {
+    font-size: 0.9rem;
+    color: var(--text-medium);
+}
+
+/* Responsive Adjustments */
 @media (max-width: 768px) {
-  .pg-details-container {
-    padding: 1rem;
-  }
+    .pg-owner-dashboard-container.sidebar-open .main-content {
+        margin-left: 0; /* No shift on small screens, sidebar overlays */
+    }
 
-  .pg-details-title {
-    font-size: 2rem;
-  }
+    .sidebar {
+        width: 0;
+    }
 
-  .pg-details-section-heading {
-    font-size: 1.5rem;
-  }
+    .sidebar.open {
+        width: 100%; /* Full width overlay */
+        padding: 1.5rem;
+    }
 
-  /* Adjust form-group behavior for smaller screens */
-  .form-group-wrapper {
-    margin-bottom: 1rem; /* Adjust spacing for smaller screens */
-  }
+    .main-content {
+        padding: 1rem;
+    }
 
-  .form-group {
-    flex-direction: column; /* Stack label and input on smaller screens */
-    align-items: flex-start; /* Align label to start */
-    gap: 0.5rem; /* Reduce gap */
-  }
+    .pg-details-form-card,
+    .owner-listings-section {
+        padding: 1.5rem;
+        margin: 1rem auto;
+    }
 
-  .form-label {
-    width: 100%; /* Label takes full width */
-    margin-bottom: 0.5rem; /* Add some space below label */
-  }
+    .form-group-inline-wrapper {
+        flex-direction: column;
+        gap: 1rem;
+    }
 
-  .form-input,
-  .form-textarea,
-  .form-select {
-    width: 100%; /* Input takes full width */
-    min-width: auto; /* Reset min-width */
-    padding: 0.7rem 0.8rem;
-    font-size: 0.95rem;
-  }
+    .form-group-half-wrapper {
+        min-width: unset;
+        width: 100%;
+    }
 
-  .form-group-inline-wrapper {
-    flex-direction: column; /* Stack inline groups */
-    gap: 0.5rem;
-  }
+    .sharing-options-grid,
+    .amenities-checkbox-grid,
+    .listings-grid {
+        grid-template-columns: 1fr;
+    }
 
-  .form-group-half-wrapper {
-    width: 100%; /* Make half wrappers full width */
-    min-width: auto;
-  }
+    .form-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
 
-  .form-group-half {
-    flex-direction: column; /* Stack label and input within half */
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-  .form-group-half .form-label {
-    width: 100%;
-  }
+    .button {
+        width: 100%;
+    }
 
-  .phone-input-group {
-    flex-direction: column; /* Stack phone number elements */
-    align-items: flex-start;
-    width: 100%;
-  }
-  .country-code-select {
-    width: 100%; /* Make select full width */
-    max-width: none;
-  }
-  .phone-number-input {
-    width: 100%; /* Make input full width */
-  }
-
-
-  .photo-preview-grid {
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); /* Auto-fit for smaller screens */
-    gap: 0.6rem;
-  }
-
-  .photo-preview-image {
-    height: 80px;
-  }
-
-  .sharing-options-grid {
-    grid-template-columns: 1fr; /* Stack sharing options on small screens */
-  }
-
-  .sharing-option-item {
-    flex-basis: 100%; /* Full width on small screens */
-    min-width: auto;
-  }
-
-  .sharing-details-stack { /* Stack elements within this row on very small screens */
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%; /* Take full width */
-  }
-
-  .sharing-option-label,
-  .sharing-status-select,
-  .price-input-wrapper {
-    width: 100%; /* Make all elements full width on small screens */
-    min-width: auto;
-    max-width: none;
-    flex-basis: auto; /* Reset flex-basis */
-  }
-
-  .amenities-checkbox-grid {
-    grid-template-columns: 1fr; /* Stack checkboxes on small screens */
-  }
-
-  .button {
-    padding: 0.7rem 1.5rem;
-    font-size: 1rem;
-  }
-
-  .form-actions {
-    flex-direction: column;
-    gap: 0.8rem;
-  }
+    .Icon {
+        top: 10px;
+        left: 10px;
+    }
 }
 
 @media (max-width: 480px) {
-  .pg-details-title {
-    font-size: 1.8rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .pg-details-form-card {
-    padding: 1.5rem;
-  }
-
-  .pg-details-section-heading {
-    font-size: 1.3rem;
-    margin-bottom: 1rem;
-  }
-
-  .form-input,
-  .form-textarea,
-  .form-select {
-    padding: 0.6rem 0.7rem;
-    font-size: 0.9rem;
-  }
-
-  .button {
-    padding: 0.6rem 1.2rem;
-    font-size: 0.95rem;
-  }
+    .form-title {
+        font-size: 1.5rem;
+    }
+    .owner-listings-section .section-title {
+        font-size: 1.5rem;
+    }
 }

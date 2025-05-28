@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import './Login.css';
+import './Login.css'; // Assuming this CSS file handles the styling
 
 const Login = () => {
   const navigate = useNavigate();
@@ -21,6 +21,12 @@ const Login = () => {
             className="role-button owner"
           >
             Owner Login
+          </button>
+          <button
+            onClick={() => navigate('/admin-login')} // New Admin Login button
+            className="role-button admin" // You might want to define 'admin' styles in Login.css
+          >
+            Admin Login
           </button>
         </div>
       </div>

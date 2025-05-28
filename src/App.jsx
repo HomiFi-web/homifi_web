@@ -12,6 +12,7 @@ import AboutUs from './pages/AboutUs';
 import ContactUs from './pages/ContactUs';
 import PgOwnerDashboard from './pages/PgOwnerDashboard';
 import PgDetails from './pages/PgDetails'; // Import the new PgDetails component
+import AdminDashboard from './pages/AdminDashboard'; // <<<<< IMPORT ADMIN DASHBOARD HERE <<<<<
 
 
 // --- Import your Header and Footer Components ---
@@ -23,7 +24,7 @@ const MainAppContent = () => {
   const location = useLocation();
 
   // Define an array of routes where you want to hide the footer
-  const hideFooterRoutes = ['/pg-owner-dashboard', '/pg-details']; // Added /pg-details here
+  const hideFooterRoutes = ['/pg-owner-dashboard', '/pg-details', '/admin-dashboard']; // Added /admin-dashboard here
 
   // Check if the current route is in the array of routes where the footer should be hidden
   const shouldHideFooter = hideFooterRoutes.includes(location.pathname);
@@ -55,6 +56,7 @@ const MainAppContent = () => {
           <Route path="/guest-dashboard" element={<GuestDashboard />} />
           <Route path="/pg-owner-dashboard" element={<PgOwnerDashboard />} />
           <Route path="/pg-details" element={<PgDetails />} /> {/* New route for PG Details */}
+          <Route path="/admin-dashboard" element={<AdminDashboard />} /> {/* <<<<< ADD THIS ROUTE <<<<< */}
 
           {/* Informational Pages */}
           <Route path="/about-us" element={<AboutUs />} />
