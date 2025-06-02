@@ -11,8 +11,9 @@ import GuestDashboard from './pages/GuestDashboard';
 import AboutUs from './pages/AboutUs';
 import ContactUs from './pages/ContactUs';
 import PgOwnerDashboard from './pages/PgOwnerDashboard';
-import PgDetails from './pages/PgDetails'; // Import the new PgDetails component
-import AdminDashboard from './pages/AdminDashboard'; // <<<<< IMPORT ADMIN DASHBOARD HERE <<<<<
+// Make sure PgDetails is imported from the correct path (e.g., ./pages/PgDetails)
+import PgDetails from './pages/PgDetails'; // Correct import: this assumes PgDetails.js is in 'pages'
+import AdminDashboard from './pages/AdminDashboard';
 
 
 // --- Import your Header and Footer Components ---
@@ -55,8 +56,10 @@ const MainAppContent = () => {
           {/* Dashboard Routes */}
           <Route path="/guest-dashboard" element={<GuestDashboard />} />
           <Route path="/pg-owner-dashboard" element={<PgOwnerDashboard />} />
-          <Route path="/pg-details" element={<PgDetails />} /> {/* New route for PG Details */}
-          <Route path="/admin-dashboard" element={<AdminDashboard />} /> {/* <<<<< ADD THIS ROUTE <<<<< */}
+          {/* >>>>>> CRITICAL CHANGE HERE <<<<<< */}
+          <Route path="/pg-details/:pgId" element={<PgDetails />} /> {/* This now accepts a dynamic ID */}
+          {/* >>>>>> CRITICAL CHANGE HERE <<<<<< */}
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
 
           {/* Informational Pages */}
           <Route path="/about-us" element={<AboutUs />} />

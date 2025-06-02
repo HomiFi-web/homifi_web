@@ -1,14 +1,14 @@
+// src/pages/PgOwnerDashboard.jsx
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut, sendPasswordResetEmail } from 'firebase/auth';
-import { getFirestore, collection, addDoc, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
-import './PgOwnerDashboard.css'; // Import the CSS file
+import { getFirestore, collection, addDoc, query, where, getDocs, doc, updateDoc, setDoc } from 'firebase/firestore'; // Ensure setDoc is imported
+import './PgOwnerDashboard.css'; // Corrected import path
 
 // Declare global variables for ESLint and provide fallback values
 const __initial_auth_token = typeof window !== 'undefined' && typeof window.__initial_auth_token !== 'undefined' ? window.__initial_auth_token : '';
 const __app_id = typeof window !== 'undefined' && typeof window.__app_id !== 'undefined' ? window.__app_id : 'default-app-id';
-
 
 const PgOwnerDashboard = () => {
   const navigate = useNavigate();
@@ -378,6 +378,9 @@ const PgOwnerDashboard = () => {
     }
 
     try {
+      // Ensure the phone number is correctly formatted before saving
+      const fullPhoneNumber = `${countryCode}${pgOwnerPhoneNumber}`;
+
       const pgDetailsToSave = {
         pgName,
         pgOwnerName,
@@ -387,7 +390,7 @@ const PgOwnerDashboard = () => {
         state,
         country,
         pincode,
-        pgOwnerPhoneNumber: `${countryCode}${pgOwnerPhoneNumber}`,
+        pgOwnerPhoneNumber: fullPhoneNumber, // Use the correctly formatted phone number
         locationLink,
         sharingOptions: activeSharingOptions,
         photos: photos.map(p => ({ url: p.url, caption: p.caption })),
@@ -396,13 +399,27 @@ const PgOwnerDashboard = () => {
         createdAt: new Date(),
       };
 
+      // --- CRITICAL ADDITION: Save/Update Owner Details to 'pg_owners' collection ---
+      const ownerDetailsToSave = {
+        name: pgOwnerName,
+        email: pgOwnerEmail,
+        // Make sure the phone number here is also the correctly formatted one
+        phone: fullPhoneNumber, 
+        // You can add other owner-specific fields here if needed
+      };
+      // Use setDoc with userId as the document ID to create or overwrite the owner's document
+      await setDoc(doc(db, 'pg_owners', userId), ownerDetailsToSave, { merge: true });
+      console.log("Owner details saved/updated for userId: ", userId);
+      // --- END CRITICAL ADDITION ---
+
+
       if (currentPgId) {
-        // Update existing document
+        // Update existing document in pg_listings
         await updateDoc(doc(db, 'pg_listings', currentPgId), pgDetailsToSave);
         console.log("Document updated with ID: ", currentPgId);
         alert(`PG details for "${pgName}" updated successfully!`);
       } else {
-        // Add new document
+        // Add new document to pg_listings
         const docRef = await addDoc(collection(db, `pg_listings`), pgDetailsToSave);
         console.log("Document written with ID: ", docRef.id);
         alert(`PG details for "${pgName}" submitted for verification! An email will be sent to ${pgOwnerEmail} regarding the status.`);
