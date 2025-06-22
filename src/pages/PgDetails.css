@@ -1,4 +1,4 @@
-/* src/PgDetailsPage.css */
+/* src/PgDetails.css */
 
 .pg-details-page {
     padding: 20px;
@@ -43,19 +43,52 @@
     text-align: center;
 }
 
-.pg-details-image-gallery {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 15px;
-    margin-bottom: 30px;
+/* Style for the inline location link */
+.pg-details-location .location-link {
+    color: #007bff; /* Standard link color */
+    text-decoration: none; /* No underline by default */
+    font-weight: normal; /* Inherit or explicitly set font-weight */
+    margin-left: 5px; /* Small space after pincode */
 }
 
+.pg-details-location .location-link:hover {
+    text-decoration: underline; /* Underline on hover */
+}
+
+
+.pg-details-image-gallery {
+    display: flex; /* Changed from grid to flex for horizontal scroll */
+    overflow-x: auto; /* Enables horizontal scrolling */
+    gap: 15px; /* Spacing between images */
+    margin-bottom: 30px;
+    padding-bottom: 15px; /* Space for scrollbar */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: #888 #f1f1f1; /* Firefox */
+}
+
+/* Scrollbar styling for Webkit browsers */
+.pg-details-image-gallery::-webkit-scrollbar {
+    height: 8px;
+}
+
+.pg-details-image-gallery::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 4px;
+}
+
+.pg-details-image-gallery::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+}
+
+
 .pg-details-image {
-    width: 100%;
+    width: 250px; /* Fixed width for each image in the scrollable gallery */
     height: 200px; /* Fixed height for consistency */
     object-fit: cover;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0; /* Prevents images from shrinking */
 }
 
 .no-image-placeholder {
@@ -224,4 +257,119 @@
 .error-message {
     color: #dc3545;
     font-weight: bold;
+}
+
+/* Styles for the new Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    max-width: 400px;
+    position: relative;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content h2 {
+    color: #28a745; /* Green for success */
+    margin-bottom: 20px;
+    font-size: 1.8em;
+}
+
+.modal-content p {
+    color: #555;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 2em;
+    cursor: pointer;
+    color: #999;
+    transition: color 0.2s ease;
+}
+
+.close-button:hover {
+    color: #333;
+}
+
+.modal-ok-button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.2s ease;
+    margin-top: 20px;
+    /* New styles for a more prominent button */
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+    /* Updated for better alignment of text and icon */
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center content horizontally */
+    gap: 8px; /* Space between the SVG icon and the text */
+}
+
+.modal-ok-button:hover {
+    background-color: #0056b3;
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.modal-ok-button svg {
+    /* Removed absolute positioning, as flexbox on parent handles layout */
+    fill: currentColor; /* Inherit button's text color */
+    width: 18px;
+    height: 18px;
+}
+
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+.back-button-top {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: #20c997; /* A vibrant blue-green color */
+    color: white;
+    padding: 12px 25px; /* More generous padding */
+    border: none;
+    border-radius: 10px; /* More rounded corners */
+    cursor: pointer;
+    font-size: 16px; /* Slightly larger font */
+    font-weight: bold; /* Bold text */
+    text-decoration: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Smooth transitions */
+}
+
+.back-button-top:hover {
+    background-color: #1aa67e; /* Darker shade on hover */
+    transform: translateY(-2px); /* Slight lift effect */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25); /* Enhanced shadow on hover */
 }

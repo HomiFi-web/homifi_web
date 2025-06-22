@@ -6,14 +6,14 @@ import {
   sendPasswordResetEmail,
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { auth, db } from '../services/firebase'; // Ensure this path is correct
-import './PGOwnerLogin.css'; // We'll update/create this CSS file
+import { auth, db } from '../services/firebase'; // Corrected path: assuming PGOwnerLogin.jsx is in src/pages/
+import './PGOwnerLogin.css'; // Correct path: PGOwnerLogin.css should be in the same directory as PGOwnerLogin.jsx
 
 const PGOwnerLogin = () => {
   const navigate = useNavigate();
   const [isSignUp, setIsSignUp] = useState(false); // State to toggle between login and signup
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [useStatePassword, setUseStatePassword] = useState(''); // Renamed to avoid conflict with validatePassword internal var
   const [confirmPassword, setConfirmPassword] = useState(''); // For signup
   const [error, setError] = useState('');
   const [forgotPassword, setForgotPassword] = useState(false); // State for forgot password flow
@@ -53,22 +53,26 @@ const PGOwnerLogin = () => {
     setSuccessMessage('');
     setLoading(true);
 
-    if (!email || !password) {
+    if (!email || !useStatePassword) {
       setError('Please fill in all fields.');
       setLoading(false);
       return;
     }
 
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, useStatePassword);
       const user = userCredential.user;
-      const userRef = doc(db, 'users', user.uid);
-      const userDoc = await getDoc(userRef);
 
-      if (userDoc.exists() && userDoc.data().role === 'owner') {
+      // CRITICAL FIX: Check role in 'pg_owners' collection
+      const pgOwnerRef = doc(db, 'pg_owners', user.uid);
+      const pgOwnerDoc = await getDoc(pgOwnerRef);
+
+      if (pgOwnerDoc.exists() && pgOwnerDoc.data().role === 'owner') {
         navigate('/pg-owner-dashboard'); // Navigate to PG Owner Dashboard
       } else {
         setError('Invalid credentials or unauthorized role. Please check your email and password.');
+        // Optional: If user exists in Auth but not in pg_owners, sign them out.
+        // await auth.signOut();
       }
     } catch (error) {
       let errorMessage = 'Login failed.';
@@ -94,39 +98,40 @@ const PGOwnerLogin = () => {
     setSuccessMessage('');
     setLoading(true);
 
-    if (!email || !password || !confirmPassword) {
+    if (!email || !useStatePassword || !confirmPassword) {
       setError('All fields required.');
       setLoading(false);
       return;
     }
 
-    if (password !== confirmPassword) {
+    if (useStatePassword !== confirmPassword) {
       setError('Passwords do not match.');
       setLoading(false);
       return;
     }
 
-    if (!validatePassword(password)) {
+    if (!validatePassword(useStatePassword)) {
       setError('Password does not meet all requirements.');
       setLoading(false);
       return;
     }
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, useStatePassword);
       const user = userCredential.user;
 
-      // Store user role as 'owner' in Firestore
-      await setDoc(doc(db, 'users', user.uid), {
+      // CRITICAL FIX: Store user role in 'pg_owners' collection
+      await setDoc(doc(db, 'pg_owners', user.uid), {
         email: user.email,
         role: 'owner', // Explicitly set role to 'owner'
         createdAt: new Date(),
+        // You can add more fields here relevant to a PG owner profile
       });
 
       setSuccessMessage('Account created successfully! Please log in.');
       setIsSignUp(false); // Switch back to login form
       setEmail(''); // Clear email field
-      setPassword(''); // Clear password field
+      setUseStatePassword(''); // Clear password field
       setConfirmPassword(''); // Clear confirm password field
       setShowPasswordRules(false); // Hide rules
       setPasswordRules({ // Reset password rules state
@@ -183,6 +188,7 @@ const PGOwnerLogin = () => {
         </h2>
 
         {successMessage && <p className="success-message">{successMessage}</p>}
+        {error && !successMessage && <p className="error-message">{error}</p>} {/* Display error only if no success message */}
 
         {forgotPassword ? (
           <div className="forgot-password-form">
@@ -193,7 +199,6 @@ const PGOwnerLogin = () => {
               onChange={(e) => setEmail(e.target.value)}
               required
             />
-            {error && <p className="error-message">{error}</p>}
             <button
               type="button"
               className="pg-owner-button"
@@ -221,9 +226,9 @@ const PGOwnerLogin = () => {
               <input
                 type="password"
                 placeholder="Password"
-                value={password}
+                value={useStatePassword}
                 onChange={(e) => {
-                  setPassword(e.target.value);
+                  setUseStatePassword(e.target.value);
                   if (isSignUp) { // Only validate rules in sign-up mode
                     validatePassword(e.target.value);
                   }
@@ -231,7 +236,8 @@ const PGOwnerLogin = () => {
                 onFocus={() => { if (isSignUp) setShowPasswordRules(true); }} // Show rules on focus
                 onBlur={() => {
                   // Only hide if password is empty AND all rules are not met
-                  if (isSignUp && password === '') {
+                  // If password is not empty, rules stay visible for user to review
+                  if (isSignUp && useStatePassword === '') {
                     setShowPasswordRules(false);
                   }
                 }}
@@ -272,7 +278,6 @@ const PGOwnerLogin = () => {
             )}
             {/* --- End Password Rule Display --- */}
 
-            {error && <p className="error-message">{error}</p>}
             <button type="submit" className="pg-owner-button" disabled={loading}>
               {loading ? 'Loading...' : isSignUp ? 'Sign Up' : 'Login'}
             </button>
@@ -291,7 +296,7 @@ const PGOwnerLogin = () => {
                 setError(''); // Clear errors
                 setSuccessMessage(''); // Clear success messages
                 setEmail(''); // Clear form fields
-                setPassword('');
+                setUseStatePassword(''); // Clear password field
                 setConfirmPassword('');
                 setShowPasswordRules(false); // Hide rules
                 setPasswordRules({ // Reset password rules state
@@ -308,7 +313,7 @@ const PGOwnerLogin = () => {
             {/* NEW: Back to Main Login Page (Login.jsx) link */}
             <p
               className="toggle-link" // Reusing the style for consistency
-              onClick={() => navigate('/login')} // <<-- IMPORTANT: Change '/login' to your actual route for Login.jsx
+              onClick={() => navigate('/login')} // Navigate back to the main login route
               style={{ marginTop: '15px' }} // Add some spacing for better layout
             >
               ← Back to Login Page

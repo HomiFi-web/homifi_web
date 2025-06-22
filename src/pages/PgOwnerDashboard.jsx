@@ -126,12 +126,12 @@ const PgOwnerDashboard = () => {
   useEffect(() => {
     try {
       const firebaseConfig = {
-        apiKey: "AIzaSyCwLwrV3yJ4xRt8dw5BPX7ufYnn19Hx71A",
-        authDomain: "homifi-bac92.firebaseapp.com",
-        projectId: "homifi-bac92",
-        storageBucket: "homifi-bac92.appspot.com",
-        messagingSenderId: "876737044340",
-        appId: "1:876737044340:web:07d098db6f17f9c80bd621"
+        apiKey: "AIzaSyCENbG6LtD_dVaNoqyoJuLmxiyTQNi6e0E", // API key for homifi-4d283
+        authDomain: "homifi-4d283.firebaseapp.com",
+        projectId: "homifi-4d283",
+        storageBucket: "homifi-4d283.appspot.com", // Storage bucket for homifi-4d283
+        messagingSenderId: "434013049134", // Messaging sender ID for homifi-4d283
+        appId: "1:434013049134:web:YOUR_ACTUAL_WEB_APP_ID", // Placeholder: REPLACE with your specific web app ID from Firebase console for homifi-4d283
       };
 
       const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
