@@ -19,6 +19,7 @@ const PGOwnerLogin = () => {
   const [forgotPassword, setForgotPassword] = useState(false); // State for forgot password flow
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState(''); // For showing success messages
+  const [showPassword, setShowPassword] = useState(false); // State for password visibility
 
   // --- Password Rules Feedback ---
   const [passwordRules, setPasswordRules] = useState({
@@ -181,8 +182,10 @@ const PGOwnerLogin = () => {
   };
 
   return (
-    <div className="pg-owner-login-container">
-      <div className="pg-owner-login-box">
+    // Corrected className to match CSS: pg-owner-login-container -> login-container
+    <div className="login-container">
+      {/* Corrected className to match CSS: pg-owner-login-box -> login-box */}
+      <div className="login-box">
         <h2>
           {isSignUp ? 'PG Owner Sign Up' : forgotPassword ? 'Reset Password' : 'PG Owner Login'}
         </h2>
@@ -199,9 +202,10 @@ const PGOwnerLogin = () => {
               onChange={(e) => setEmail(e.target.value)}
               required
             />
+            {/* Corrected className to match CSS: pg-owner-button -> role-button user */}
             <button
               type="button"
-              className="pg-owner-button"
+              className="role-button user"
               onClick={handleForgotPassword}
               disabled={loading}
             >
@@ -222,9 +226,10 @@ const PGOwnerLogin = () => {
                 required
               />
             </div>
-            <div className="input-group">
+            {/* Password input with show/hide toggle */}
+            <div className="input-group password-input-group"> {/* Added a class for styling the container */}
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'} // Dynamically change type
                 placeholder="Password"
                 value={useStatePassword}
                 onChange={(e) => {
@@ -235,24 +240,34 @@ const PGOwnerLogin = () => {
                 }}
                 onFocus={() => { if (isSignUp) setShowPasswordRules(true); }} // Show rules on focus
                 onBlur={() => {
-                  // Only hide if password is empty AND all rules are not met
-                  // If password is not empty, rules stay visible for user to review
                   if (isSignUp && useStatePassword === '') {
                     setShowPasswordRules(false);
                   }
                 }}
                 required
               />
+              <span
+                className="show-password-toggle"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? 'Hide' : 'Show'}
+              </span>
             </div>
             {isSignUp && (
-              <div className="input-group">
+              <div className="input-group password-input-group"> {/* Added a class for styling the container */}
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'} // Dynamically change type
                   placeholder="Confirm Password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                 />
+                <span
+                  className="show-password-toggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? 'Hide' : 'Show'}
+                </span>
               </div>
             )}
 
@@ -278,7 +293,8 @@ const PGOwnerLogin = () => {
             )}
             {/* --- End Password Rule Display --- */}
 
-            <button type="submit" className="pg-owner-button" disabled={loading}>
+            {/* Corrected className to match CSS: pg-owner-button -> role-button user */}
+            <button type="submit" className="role-button user" disabled={loading}>
               {loading ? 'Loading...' : isSignUp ? 'Sign Up' : 'Login'}
             </button>
 

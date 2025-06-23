@@ -101,13 +101,7 @@ const GuestDashboard = () => {
             </div>
 
             <div className="container mx-auto px-4 py-8">
-                <div className="flex justify-between items-center mb-4">
-                    <p className="text-gray-600">📍 PG Near Kristu Jayanti College, Kothanur Bengaluru</p>
-                    <div className="flex space-x-2">
-                        <button className="filter-button">⚙️ Filters</button>
-                        <button className="wishlist-button">❤️ Wishlist (0)</button>
-                    </div>
-                </div>
+              
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {pgListings.length === 0 ? (
