@@ -1,8 +1,13 @@
+// src/App.jsx
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { app } from './services/firebase'; // Ensure this path is correct if you're using Firebase
+import { app } from './services/firebase'; // Keep this if you're using Firebase
 
-// --- Import ALL your Page Components ---
+// --- Import Global CSS ---
+// Corrected path based on user's input: main.css is in 'src/pages'
+import './pages/main.css'; 
+
+// --- Import Pages ---
 import Login from './pages/Login';
 import UserLogin from './pages/UserLogin';
 import AdminLogin from './pages/AdminLogin';
@@ -11,43 +16,44 @@ import GuestDashboard from './pages/GuestDashboard';
 import AboutUs from './pages/AboutUs';
 import ContactUs from './pages/ContactUs';
 import PgOwnerDashboard from './pages/PgOwnerDashboard';
-// Make sure PgDetails is imported from the correct path (e.g., ./pages/PgDetails)
-import PgDetails from './pages/PgDetails'; // Correct import: this assumes PgDetails.js is in 'pages'
+import PgDetails from './pages/PgDetails';
 import AdminDashboard from './pages/AdminDashboard';
+import UserDashboard from './pages/UserDashboard'; 
 
-
-// --- Import your Header and Footer Components ---
+// --- Import Layout Components ---
 import Header from './components/Header';
 import Footer from './components/Footer';
 
-// New component to wrap content that uses useLocation
+// Main content component to handle route-based layout
 const MainAppContent = () => {
   const location = useLocation();
 
-  // Define an array of routes where you want to hide the footer
-  const hideFooterRoutes = ['/pg-owner-dashboard', '/pg-details', '/admin-dashboard']; // Added /admin-dashboard here
+  // List of routes where footer should be hidden (excluding user-dashboard now)
+  const hideFooterRoutes = [
+    '/pg-owner-dashboard',
+    '/pg-details',
+    '/admin-dashboard',
+  ];
 
-  // Check if the current route is in the array of routes where the footer should be hidden
+  // List of routes where header should be hidden
+  const hideHeaderRoutes = [
+    '/user-dashboard', // Added user-dashboard to hide header
+    '/pg-owner-dashboard', // Assuming PG Owner dashboard also has its own header
+    '/admin-dashboard', // Assuming Admin dashboard also has its own header
+  ];
+
   const shouldHideFooter = hideFooterRoutes.includes(location.pathname);
-
-  // --- DEBUGGING LOGS (Optional, remove after debugging) ---
-  console.log('Current Pathname:', location.pathname);
-  console.log('Hide Footer Routes:', hideFooterRoutes);
-  console.log('Should Hide Footer:', shouldHideFooter);
-  // --- END DEBUGGING LOGS ---
+  const shouldHideHeader = hideHeaderRoutes.includes(location.pathname); // New condition for header
 
   return (
     <div className="App">
-      {/* The Header component appears on every page */}
-      <Header />
+      {!shouldHideHeader && <Header />} {/* Conditionally render Header */}
 
       <div className="content-wrapper">
-        {/* Optional: A wrapper for your main content/pages */}
         <Routes>
-          {/* Default/Landing Page Route */}
           <Route path="/" element={<Navigate to="/guest-dashboard" />} />
 
-          {/* Authentication/Login Routes */}
+          {/* Auth Routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/user-login" element={<UserLogin />} />
           <Route path="/admin-login" element={<AdminLogin />} />
@@ -56,22 +62,21 @@ const MainAppContent = () => {
           {/* Dashboard Routes */}
           <Route path="/guest-dashboard" element={<GuestDashboard />} />
           <Route path="/pg-owner-dashboard" element={<PgOwnerDashboard />} />
-          {/* >>>>>> CRITICAL CHANGE HERE <<<<<< */}
-          <Route path="/pg-details/:pgId" element={<PgDetails />} /> {/* This now accepts a dynamic ID */}
-          {/* >>>>>> CRITICAL CHANGE HERE <<<<<< */}
+          <Route path="/pg-details/:pgId" element={<PgDetails />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/user-dashboard" element={<UserDashboard />} /> 
 
-          {/* Informational Pages */}
+          {/* Info Pages */}
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/contact" element={<ContactUs />} />
 
-          {/* Legal Pages (you'll need to create these components) */}
+          {/* Extras */}
           <Route path="/privacy-policy" element={<div>Privacy Policy Page</div>} />
           <Route path="/terms-of-service" element={<div>Terms of Service Page</div>} />
         </Routes>
       </div>
 
-      {/* The Footer component appears conditionally */}
+      {/* Footer appears on all pages except the ones listed above */}
       {!shouldHideFooter && <Footer />}
     </div>
   );

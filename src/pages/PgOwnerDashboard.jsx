@@ -1,14 +1,19 @@
-// src/pages/PgOwnerDashboard.jsx
+// src/pages/PgOwnerDashboard.jsx - Last updated: 2025-06-26
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut, sendPasswordResetEmail } from 'firebase/auth';
-import { getFirestore, collection, addDoc, query, where, getDocs, doc, updateDoc, setDoc } from 'firebase/firestore'; // Ensure setDoc is imported
+import { getFirestore, collection, addDoc, query, where, getDocs, doc, updateDoc, setDoc } from 'firebase/firestore'; 
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'; // Import Firebase Storage functions
 import './PgOwnerDashboard.css'; // Corrected import path
+
+// Import logo image (assuming it's in src/assets and PgOwnerDashboard.jsx is in src/pages)
+import homifiLogo from '../assets/logo.png'; 
 
 // Declare global variables for ESLint and provide fallback values
 const __initial_auth_token = typeof window !== 'undefined' && typeof window.__initial_auth_token !== 'undefined' ? window.__initial_auth_token : '';
 const __app_id = typeof window !== 'undefined' && typeof window.__app_id !== 'undefined' ? window.__app_id : 'default-app-id';
+
 
 const PgOwnerDashboard = () => {
   const navigate = useNavigate();
@@ -22,22 +27,35 @@ const PgOwnerDashboard = () => {
   const [countryCode, setCountryCode] = useState('+91');
   const [pgOwnerPhoneNumber, setPgOwnerPhoneNumber] = useState('');
   const [locationLink, setLocationLink] = useState('');
-  const [photos, setPhotos] = useState([]);
+  const [photos, setPhotos] = useState([]); // Stores { url: string, caption: string }
   const [facilities, setFacilities] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentPgId, setCurrentPgId] = useState(null); // To store ID of PG being edited
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State for sidebar visibility
+  
+  // New state for gender preference
+  const [genderPreference, setGenderPreference] = useState(''); // 'male', 'female', 'unisex'
 
   // Firebase state
   const [db, setDb] = useState(null);
   const [auth, setAuth] = useState(null);
+  const [storage, setStorage] = useState(null); // New state for Firebase Storage
   const [userId, setUserId] = useState(null);
   const [userEmail, setUserEmail] = useState(''); // To display user's email in sidebar
   const [isAuthReady, setIsAuthReady] = useState(false);
   const [userListings, setUserListings] = useState([]); // New state for owner's listings
+  const [photoUploadProgress, setPhotoUploadProgress] = useState(0); // New state for upload progress
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State for sidebar visibility
+
+  // State to manage hovered button text in sidebar
+  const [hoveredButton, setHoveredButton] = useState(null);
+
+  // Message states for displaying feedback to the user
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState(''); // 'success', 'error', 'info'
 
   // Ref for the file input to clear its value
   const fileInputRef = useRef(null);
+  const sidebarRef = useRef(null); // Ref for the sidebar menu to detect clicks outside
 
   // Individual error states for each field
   const [pgNameError, setPgNameError] = useState('');
@@ -51,14 +69,14 @@ const PgOwnerDashboard = () => {
   const [photosError, setPhotosError] = useState('');
   const [sharingOptionsError, setSharingOptionsError] = useState('');
   const [facilitiesError, setFacilitiesError] = useState('');
-  const [generalError, setGeneralError] = useState('');
+  const [genderPreferenceError, setGenderPreferenceError] = useState(''); // New error state
 
   // Combined state for sharing options (1, 2, 3, 4 Share)
   const [sharingOptions, setSharingOptions] = useState([
-    { type: '1 Share', status: '', price: '' },
-    { type: '2 Share', status: '', price: '' },
-    { type: '3 Share', status: '', price: '' },
-    { type: '4 Share', status: '', price: '' },
+    { type: '1 Share', status: '', price: '', hasMess: false },
+    { type: '2 Share', status: '', price: '', hasMess: false },
+    { type: '3 Share', status: '', price: '', hasMess: false },
+    { type: '4 Share', status: '', price: '', hasMess: false },
   ]);
 
   // Predefined lists for amenities and services
@@ -74,10 +92,22 @@ const PgOwnerDashboard = () => {
     'Hot Water Supply', 'Water Purifier', 'In-House Cafeteria',
   ];
 
+  // Function to display messages to the user
+  const displayMessage = useCallback((text, type, duration = 5000) => {
+    setMessage(text);
+    setMessageType(type);
+    // Automatically clear success/info messages after a duration
+    if (type !== 'error') { // Keep error messages until manually dismissed or new action
+      setTimeout(() => {
+        setMessage('');
+        setMessageType('');
+      }, duration);
+    }
+  }, []);
+
   // Function to clear all form fields and errors
   const clearForm = useCallback(() => {
     console.log('clearForm called: Resetting form fields and errors.');
-    // Log current state before reset for debugging
     console.log(`State before reset - PG Name: "${pgName}", Photos count: ${photos.length}, currentPgId: ${currentPgId}`);
 
     setPgName('');
@@ -92,12 +122,13 @@ const PgOwnerDashboard = () => {
     setPhotos([]); // Clear photos state
     setFacilities([]);
     setSharingOptions([
-      { type: '1 Share', status: '', price: '' },
-      { type: '2 Share', status: '', price: '' },
-      { type: '3 Share', status: '', price: '' },
-      { type: '4 Share', status: '', price: '' },
+      { type: '1 Share', status: '', price: '', hasMess: false },
+      { type: '2 Share', status: '', price: '', hasMess: false },
+      { type: '3 Share', status: '', price: '', hasMess: false },
+      { type: '4 Share', status: '', price: '', hasMess: false },
     ]);
     setCurrentPgId(null); // Clear current PG ID when adding a new one
+    setGenderPreference(''); // Clear gender preference
 
     // Clear the file input's value directly
     if (fileInputRef.current) {
@@ -117,29 +148,34 @@ const PgOwnerDashboard = () => {
     setPhotosError('');
     setSharingOptionsError('');
     setFacilitiesError('');
-    setGeneralError('');
+    setGenderPreferenceError('');
+    setMessage(''); // Also clear general messages
+    setMessageType('');
 
     console.log('Form reset initiated. Next render should show empty fields.');
-  }, []); // Removed dependencies from useCallback as it only uses setter functions
+  }, [pgName, photos, currentPgId]); // Dependencies added to useCallback for correct closure behavior and logging.
+
 
   // Firebase Initialization and Auth
   useEffect(() => {
     try {
       const firebaseConfig = {
-        apiKey: "AIzaSyCENbG6LtD_dVaNoqyoJuLmxiyTQNi6e0E", // API key for homifi-4d283
+        apiKey: "AIzaSyCENbG6LtD_dVaNoqyoJuLmxiyTQNi6e0E", 
         authDomain: "homifi-4d283.firebaseapp.com",
         projectId: "homifi-4d283",
-        storageBucket: "homifi-4d283.appspot.com", // Storage bucket for homifi-4d283
-        messagingSenderId: "434013049134", // Messaging sender ID for homifi-4d283
-        appId: "1:434013049134:web:YOUR_ACTUAL_WEB_APP_ID", // Placeholder: REPLACE with your specific web app ID from Firebase console for homifi-4d283
+        storageBucket: "homifi-4d283.appspot.com", // This directly points to gs://homifi-4d283.firebasestorage.app
+        messagingSenderId: "434013049134", 
+        appId: "1:434013049134:web:YOUR_ACTUAL_WEB_APP_ID", 
       };
 
       const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
       const authInstance = getAuth(app);
       const dbInstance = getFirestore(app);
+      const storageInstance = getStorage(app); // Initialize Firebase Storage
 
       setAuth(authInstance);
       setDb(dbInstance);
+      setStorage(storageInstance); // Set storage instance
 
       const unsubscribe = onAuthStateChanged(authInstance, async (user) => {
         if (user) {
@@ -158,23 +194,24 @@ const PgOwnerDashboard = () => {
       return () => unsubscribe();
     } catch (error) {
       console.error("Failed to initialize Firebase:", error);
-      setGeneralError(`Failed to initialize the application: ${error.message}. Please try again.`);
+      displayMessage(`Failed to initialize the application: ${error.message}. Please try again.`, 'error');
     }
-  }, []);
+  }, [displayMessage]);
 
   // Fetch user-specific listings when userId or db changes
   useEffect(() => {
     const fetchUserListings = async () => {
       if (db && userId) {
         try {
-          const q = query(collection(db, 'pg_listings'), where('ownerId', '==', userId));
+          const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+          const q = query(collection(db, `artifacts/${appId}/public/data/pg_listings`), where('ownerId', '==', userId));
           const querySnapshot = await getDocs(q);
           const listings = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
           setUserListings(listings);
           console.log("Fetched user listings:", listings);
         } catch (error) {
           console.error("Error fetching user listings:", error);
-          setGeneralError("Failed to load your existing PG listings.");
+          displayMessage("Failed to load your existing PG listings.", 'error');
         }
       }
     };
@@ -182,27 +219,39 @@ const PgOwnerDashboard = () => {
     if (isAuthReady) {
         fetchUserListings();
     }
-  }, [db, userId, isAuthReady]);
+  }, [db, userId, isAuthReady, displayMessage]);
 
   // Handle changes for status or price of a specific sharing option
   const handleSharingOptionChange = (index, field, value) => {
     const newSharingOptions = [...sharingOptions];
-    newSharingOptions[index][field] = value;
+    // Special handling for checkbox which returns boolean
+    newSharingOptions[index][field] = (field === 'hasMess') ? value : value;
     setSharingOptions(newSharingOptions);
     setSharingOptionsError('');
   };
 
-  const handlePhotoUpload = (e) => {
-    setPhotosError('');
-    if (e.target.files) {
-      const newFiles = Array.from(e.target.files);
-      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/heic', 'image/png'];
-      const maxFileSize = 30 * 1024 * 1024;
+  const handleGenderChange = (e) => {
+    setGenderPreference(e.target.value);
+    setGenderPreferenceError('');
+  };
 
-      const validNewFiles = [];
+  // Modified handlePhotoUpload to use Firebase Storage
+  const handlePhotoUpload = async (e) => {
+    setPhotosError('');
+    if (!storage || !userId) {
+        displayMessage("Storage not initialized or user not authenticated.", 'error');
+        return;
+    }
+
+    if (e.target.files) {
+      const filesToUpload = Array.from(e.target.files);
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/heic', 'image/png'];
+      const maxFileSize = 30 * 1024 * 1024; // 30 MB
+
+      const validFiles = [];
       let uploadError = '';
 
-      for (const file of newFiles) {
+      for (const file of filesToUpload) {
         if (!allowedTypes.includes(file.type)) {
           uploadError = `File '${file.name}' is not a supported image type (JPG, JPEG, PNG, HEIC).`;
           break;
@@ -211,30 +260,50 @@ const PgOwnerDashboard = () => {
           uploadError = `File '${file.name}' exceeds the 30MB limit.`;
           break;
         }
-        validNewFiles.push(file);
+        validFiles.push(file);
       }
 
       if (uploadError) {
         setPhotosError(uploadError);
-        e.target.value = null; // Clear the input value
+        if (fileInputRef.current) fileInputRef.current.value = ''; // Clear input
         return;
       }
 
-      if (photos.length + validNewFiles.length > 10) {
+      if (photos.length + validFiles.length > 10) {
         setPhotosError('You can upload a maximum of 10 photos in total.');
-        e.target.value = null; // Clear the input value
+        if (fileInputRef.current) fileInputRef.current.value = ''; // Clear input
         return;
       }
 
-      const newPhotoEntries = validNewFiles.map(file => ({
-        file: file,
-        caption: '',
-        url: URL.createObjectURL(file)
-      }));
-      setPhotos(prevPhotos => [...prevPhotos, ...newPhotoEntries]);
-      e.target.value = null; // Clear the input value after adding files
+      setLoading(true); // Indicate loading for photo upload
+      let uploadedCount = 0;
+      const newPhotoEntries = [];
+
+      try {
+        for (const file of validFiles) {
+          // Create a unique path in storage: pg_images/userId/timestamp_filename
+          const storagePath = `pg_images/${userId}/${Date.now()}_${file.name}`;
+          const imageRef = ref(storage, storagePath);
+          await uploadBytes(imageRef, file);
+          const downloadURL = await getDownloadURL(imageRef);
+          
+          newPhotoEntries.push({ url: downloadURL, caption: '' });
+          uploadedCount++;
+          setPhotoUploadProgress(Math.floor((uploadedCount / validFiles.length) * 100));
+        }
+        setPhotos(prevPhotos => [...prevPhotos, ...newPhotoEntries]);
+        displayMessage("Photos uploaded successfully!", 'success', 3000);
+        setPhotoUploadProgress(0); // Reset progress
+      } catch (error) {
+        console.error("Error uploading photos:", error);
+        displayMessage(`Failed to upload photos: ${error.message}`, 'error');
+      } finally {
+        setLoading(false);
+        if (fileInputRef.current) fileInputRef.current.value = ''; // Clear the input field
+      }
     }
   };
+
 
   const handlePhotoCaptionChange = (index, caption) => {
     const newPhotos = [...photos];
@@ -246,6 +315,7 @@ const PgOwnerDashboard = () => {
     const newPhotos = photos.filter((_, i) => i !== index);
     setPhotos(newPhotos);
     setPhotosError('');
+    displayMessage("Photo removed.", 'info', 2000);
     // If photos become empty, also clear the file input
     if (newPhotos.length === 0 && fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -272,6 +342,7 @@ const PgOwnerDashboard = () => {
     setState(listing.state || '');
     setCountry(listing.country || '');
     setPincode(listing.pincode || '');
+    setGenderPreference(listing.genderPreference || ''); // Load gender preference
     const storedPhoneNumber = listing.pgOwnerPhoneNumber || '';
     const codeMatch = storedPhoneNumber.match(/^\+(\d+)/); // Capture the country code digits
     if (codeMatch) {
@@ -282,14 +353,14 @@ const PgOwnerDashboard = () => {
       setPgOwnerPhoneNumber(storedPhoneNumber);
     }
     setLocationLink(listing.locationLink || '');
-    // Ensure photos are correctly mapped to expected structure
-    setPhotos(listing.photos ? listing.photos.map(p => ({ url: p.url, caption: p.caption || '', file: null })) : []);
+    // Photos now directly contain URLs from Firebase Storage
+    setPhotos(listing.photos ? listing.photos.map(p => ({ url: p.url, caption: p.caption || '' })) : []);
     setFacilities(listing.facilities || []);
     
-    // Populate sharing options, ensuring all 4 types are present and prices/status are set
+    // Populate sharing options, ensuring all 4 types are present and prices/status are set, including hasMess
     const updatedSharingOptions = sharingOptions.map(optionType => {
         const found = (listing.sharingOptions || []).find(so => so.type === optionType.type);
-        return found ? { ...found } : { type: optionType.type, status: '', price: '' };
+        return found ? { ...found } : { type: optionType.type, status: '', price: '', hasMess: false };
     });
     setSharingOptions(updatedSharingOptions);
     setCurrentPgId(listing.id);
@@ -299,15 +370,18 @@ const PgOwnerDashboard = () => {
       fileInputRef.current.value = '';
     }
 
-    // Clear all errors when loading for edit
+    // Clear all errors and messages when loading for edit
     setPgNameError(''); setPgOwnerNameError(''); setPgOwnerEmailError(''); setAddressError('');
     setStateError(''); setCountryError(''); setPincodeError(''); setPgOwnerPhoneNumberError('');
-    setPhotosError(''); setSharingOptionsError(''); setFacilitiesError(''); setGeneralError('');
-  }, [sharingOptions]); // Dependency for sharingOptions to ensure correct mapping
+    setPhotosError(''); setSharingOptionsError(''); setFacilitiesError(''); setGenderPreferenceError('');
+    setMessage('');
+    setMessageType('');
+    displayMessage(`Editing listing: "${listing.pgName}"`, 'info', 3000);
+  }, [sharingOptions, displayMessage]); // Dependency for sharingOptions to ensure correct mapping
 
   const handleSendForValidation = async () => {
     setLoading(true);
-    // Clear all previous errors before validation
+    // Clear all previous errors and messages before validation
     setPgNameError('');
     setPgOwnerNameError('');
     setPgOwnerEmailError('');
@@ -319,7 +393,9 @@ const PgOwnerDashboard = () => {
     setPhotosError('');
     setSharingOptionsError('');
     setFacilitiesError('');
-    setGeneralError('');
+    setMessage('');
+    setMessageType('');
+    setGenderPreferenceError('');
 
     let isValid = true;
 
@@ -331,6 +407,8 @@ const PgOwnerDashboard = () => {
 
     if (!pgOwnerEmail) { setPgOwnerEmailError('PG Owner Email is required.'); isValid = false; }
     else if (!/\S+@\S+\.\S+/.test(pgOwnerEmail)) { setPgOwnerEmailError('Please enter a valid email address.'); isValid = false; }
+
+    if (!genderPreference) { setGenderPreferenceError('Please select PG gender preference.'); isValid = false; } // New validation
 
     if (!address) { setAddressError('Address is required.'); isValid = false; }
     if (!state) { setStateError('State is required.'); isValid = false; }
@@ -368,11 +446,12 @@ const PgOwnerDashboard = () => {
 
     if (!isValid) {
       setLoading(false);
+      displayMessage('Please correct the highlighted errors.', 'error');
       return;
     }
 
     if (!db || !userId) {
-      setGeneralError("Application not ready. Please wait for Firebase to initialize and user to authenticate.");
+      displayMessage("Application not ready. Please wait for Firebase to initialize and user to authenticate.", 'error');
       setLoading(false);
       return;
     }
@@ -386,56 +465,55 @@ const PgOwnerDashboard = () => {
         pgOwnerName,
         pgOwnerEmail,
         ownerId: userId,
+        genderPreference, // Save gender preference
         address,
         state,
         country,
         pincode,
         pgOwnerPhoneNumber: fullPhoneNumber, // Use the correctly formatted phone number
         locationLink,
-        sharingOptions: activeSharingOptions,
-        photos: photos.map(p => ({ url: p.url, caption: p.caption })),
+        sharingOptions: activeSharingOptions, // includes hasMess now
+        photos: photos.map(p => ({ url: p.url, caption: p.caption })), // Photos array contains URLs
         facilities,
         status: 'pending',
         createdAt: new Date(),
       };
 
-      // --- CRITICAL ADDITION: Save/Update Owner Details to 'pg_owners' collection ---
+      // --- Save/Update Owner Details to 'pg_owners' collection ---
       const ownerDetailsToSave = {
         name: pgOwnerName,
         email: pgOwnerEmail,
-        // Make sure the phone number here is also the correctly formatted one
         phone: fullPhoneNumber, 
-        // You can add other owner-specific fields here if needed
       };
-      // Use setDoc with userId as the document ID to create or overwrite the owner's document
-      await setDoc(doc(db, 'pg_owners', userId), ownerDetailsToSave, { merge: true });
+      const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+      await setDoc(doc(db, `artifacts/${appId}/users/${userId}/pg_owners`), ownerDetailsToSave, { merge: true });
       console.log("Owner details saved/updated for userId: ", userId);
       // --- END CRITICAL ADDITION ---
 
 
       if (currentPgId) {
         // Update existing document in pg_listings
-        await updateDoc(doc(db, 'pg_listings', currentPgId), pgDetailsToSave);
+        await updateDoc(doc(db, `artifacts/${appId}/public/data/pg_listings`, currentPgId), pgDetailsToSave);
         console.log("Document updated with ID: ", currentPgId);
-        alert(`PG details for "${pgName}" updated successfully!`);
+        displayMessage(`PG details for "${pgName}" updated successfully!`, 'success'); 
       } else {
         // Add new document to pg_listings
-        const docRef = await addDoc(collection(db, `pg_listings`), pgDetailsToSave);
+        const docRef = await addDoc(collection(db, `artifacts/${appId}/public/data/pg_listings`), pgDetailsToSave);
         console.log("Document written with ID: ", docRef.id);
-        alert(`PG details for "${pgName}" submitted for verification! An email will be sent to ${pgOwnerEmail} regarding the status.`);
+        displayMessage(`PG details for "${pgName}" submitted for verification! An email will be sent to ${pgOwnerEmail} regarding the status.`, 'success'); 
       }
       
       clearForm(); // Clear form after successful submission/update
       
       // Re-fetch listings to update the displayed list
-      const q = query(collection(db, 'pg_listings'), where('ownerId', '==', userId));
+      const q = query(collection(db, `artifacts/${appId}/public/data/pg_listings`), where('ownerId', '==', userId));
       const querySnapshot = await getDocs(q);
       const listings = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setUserListings(listings);
 
     } catch (e) {
       console.error("Error adding/updating document: ", e);
-      setGeneralError("Failed to submit PG details. Please try again.");
+      displayMessage(`Failed to submit PG details: ${e.message}. Please try again.`, 'error');
     } finally {
       setLoading(false);
     }
@@ -444,6 +522,7 @@ const PgOwnerDashboard = () => {
   const handleAddAnotherBuilding = () => {
     console.log('Add Another Building button clicked. Current loading state:', loading);
     clearForm(); // Clears the form to add a new building
+    displayMessage('Form cleared. Ready to add a new building.', 'info', 3000);
     console.log('Form reset initiated by Add Another Building button.');
   };
 
@@ -458,7 +537,7 @@ const PgOwnerDashboard = () => {
         navigate('/login');
       } catch (error) {
         console.error("Error logging out:", error);
-        setGeneralError(`Failed to log out: ${error.message}`);
+        displayMessage(`Failed to log out: ${error.message}`, 'error');
       }
     }
   };
@@ -467,19 +546,34 @@ const PgOwnerDashboard = () => {
     if (auth && userEmail && userEmail !== 'Anonymous User') {
       try {
         await sendPasswordResetEmail(auth, userEmail);
-        alert('Password reset email sent! Please check your inbox.');
+        displayMessage('Password reset email sent! Please check your inbox.', 'success'); 
       } catch (error) {
         console.error("Error sending password reset email:", error);
-        setGeneralError(`Failed to send password reset email: ${error.message}`);
+        displayMessage(`Failed to send password reset email: ${error.message}`, 'error');
       }
     } else {
-      setGeneralError("Cannot reset password for anonymous or invalid users.");
+      displayMessage("Cannot reset password for anonymous or invalid users.", 'error');
     }
   };
 
+  // Toggle sidebar visibility
   const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
+    setIsSidebarOpen(prevState => !prevState);
   };
+
+  // Close sidebar if clicked outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+        setIsSidebarOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
 
   if (!isAuthReady) {
     return (
@@ -490,41 +584,164 @@ const PgOwnerDashboard = () => {
   }
 
   return (
-    <div className={`pg-owner-dashboard-container ${isSidebarOpen ? 'sidebar-open' : ''}`}>
-      {/* Sidebar */}
-      <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-        <div className="sidebar-header">
-          <h2 className="welcome-message">Welcome, PG Owner!</h2>
-          {userEmail && <p className="user-email">{userEmail}</p>}
+    <div className="pg-owner-dashboard-container"> {/* Main container for the top nav layout */}
+      {/* Top Navigation Bar */}
+      <nav className="top-nav-bar">
+        <div className="top-nav-left">
+          <img src={homifiLogo} alt="HomiFi Logo" className="top-nav-logo" /> 
         </div>
-        <nav className="sidebar-nav">
-          <ul>
-            <li>
-              <button onClick={handleResetPassword} className="sidebar-button reset-password-button">
-                Reset Password
-              </button>
-            </li>
-            <li>
-              <button onClick={handleLogout} className="sidebar-button logout-button">
-                Logout
-              </button>
+        <div className="top-nav-right">
+          <ul className="top-nav-menu">
+            <li className="top-nav-menu-item profile-menu-item" onClick={toggleSidebar}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-user">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              <span>Profile</span>
             </li>
           </ul>
-        </nav>
+        </div>
+      </nav>
+
+      {/* Right Sidebar for Profile */}
+      <div ref={sidebarRef} className={`profile-sidebar ${isSidebarOpen ? 'open' : ''}`}>
+        <button className="sidebar-close-button" onClick={() => setIsSidebarOpen(false)}>
+          &times;
+        </button>
+        <div className="sidebar-content">
+          <p className="sidebar-user-email">{userEmail || 'PG Owner'}</p>
+          
+          {/* Dashboard Button */}
+          <button 
+            onClick={() => { navigate('/pg-owner-dashboard'); setIsSidebarOpen(false); }} 
+            className="sidebar-button"
+            onMouseEnter={() => setHoveredButton('dashboard')}
+            onMouseLeave={() => setHoveredButton(null)}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-trello">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <rect x="7" y="7" width="3" height="9"></rect>
+              <rect x="14" y="7" width="3" height="5"></rect>
+            </svg>
+            <span>{hoveredButton === 'dashboard' ? 'Go to Dashboard' : 'Dashboard'}</span>
+          </button>
+
+          {/* View Status Button */}
+          <button 
+            onClick={() => { 
+                const listingsSection = document.getElementById('owner-listings-section'); 
+                if (listingsSection) listingsSection.scrollIntoView({ behavior: 'smooth' }); 
+                setIsSidebarOpen(false); 
+            }} 
+            className="sidebar-button"
+            onMouseEnter={() => setHoveredButton('status')}
+            onMouseLeave={() => setHoveredButton(null)}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-check-square">
+              <polyline points="9 11 12 14 22 4"></polyline>
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            </svg>
+            <span>{hoveredButton === 'status' ? 'Check Status' : 'View Status'}</span>
+          </button>
+
+          {/* View Notifications Button */}
+          <button 
+            onClick={() => { displayMessage('Notifications feature coming soon!', 'info'); setIsSidebarOpen(false); }} 
+            className="sidebar-button"
+            onMouseEnter={() => setHoveredButton('notifications')}
+            onMouseLeave={() => setHoveredButton(null)}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-bell">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span>{hoveredButton === 'notifications' ? 'See Alerts' : 'View Notifications'}</span>
+          </button>
+
+          {/* Reset Password Button */}
+          <button 
+            onClick={() => { handleResetPassword(); setIsSidebarOpen(false); }} 
+            className="sidebar-button"
+            onMouseEnter={() => setHoveredButton('reset-password')}
+            onMouseLeave={() => setHoveredButton(null)}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-key">
+              <path d="M5 14L12 14 12 22 5 22 5 14z"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span>{hoveredButton === 'reset-password' ? 'Change Password' : 'Reset Password'}</span>
+          </button>
+          
+          {/* Logout Button */}
+          <button 
+            onClick={() => { handleLogout(); setIsSidebarOpen(false); }} 
+            className="sidebar-button"
+            onMouseEnter={() => setHoveredButton('logout')}
+            onMouseLeave={() => setHoveredButton(null)}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-log-out">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            <span>{hoveredButton === 'logout' ? 'Sign Out' : 'Logout'}</span>
+          </button>
+        </div>
       </div>
 
       {/* Main Content */}
       <div className="main-content">
-        {/* Hamburger Icon to toggle sidebar */}
-        <div className={`Icon ${isSidebarOpen ? 'open' : ''}`} onClick={toggleSidebar}>
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
+        {/* Message Box */}
+        {message && (
+          <div className={`app-message-box ${messageType}`}>
+            <p>{message}</p>
+            <button className="app-message-box-close-button" onClick={() => setMessage('')}>&times;</button>
+          </div>
+        )}
 
         <div className="pg-details-form-card">
           <h2 className="form-title">{currentPgId ? 'Edit PG Property Details' : 'Add New PG Property Details'}</h2>
-          {/* Form Fields */}
+          
+          {/* New: Gender Preference */}
+          <div className="form-group-wrapper">
+              <div className="form-group">
+                  <label className="form-label">
+                      PG for <span className="required-field">*</span>
+                  </label>
+                  <div className="gender-preference-radio-group">
+                      <label>
+                          <input 
+                              type="radio" 
+                              name="genderPreference" 
+                              value="male" 
+                              checked={genderPreference === 'male'} 
+                              onChange={handleGenderChange} 
+                          /> Male
+                      </label>
+                      <label>
+                          <input 
+                              type="radio" 
+                              name="genderPreference" 
+                              value="female" 
+                              checked={genderPreference === 'female'} 
+                              onChange={handleGenderChange} 
+                          /> Female
+                      </label>
+                      <label>
+                          <input 
+                              type="radio" 
+                              name="genderPreference" 
+                              value="unisex" 
+                              checked={genderPreference === 'unisex'} 
+                              onChange={handleGenderChange} 
+                          /> Unisex
+                      </label>
+                  </div>
+              </div>
+              {genderPreferenceError && <p className="field-error-message">{genderPreferenceError}</p>}
+          </div>
+
+          {/* Form Fields - PG Name */}
           <div className="form-group-wrapper">
             <div className="form-group">
               <label htmlFor="pgName" className="form-label">
@@ -543,6 +760,7 @@ const PgOwnerDashboard = () => {
             {pgNameError && <p className="field-error-message">{pgNameError}</p>}
           </div>
 
+          {/* Form Fields - PG Owner Name */}
           <div className="form-group-wrapper">
             <div className="form-group">
               <label htmlFor="pgOwnerName" className="form-label">
@@ -561,6 +779,7 @@ const PgOwnerDashboard = () => {
             {pgOwnerNameError && <p className="field-error-message">{pgOwnerNameError}</p>}
           </div>
 
+          {/* Form Fields - PG Owner Email */}
           <div className="form-group-wrapper">
             <div className="form-group">
               <label htmlFor="pgOwnerEmail" className="form-label">
@@ -579,6 +798,7 @@ const PgOwnerDashboard = () => {
             {pgOwnerEmailError && <p className="field-error-message">{pgOwnerEmailError}</p>}
           </div>
 
+          {/* Phone Number */}
           <div className="form-group-wrapper">
             <div className="form-group">
               <label htmlFor="pgOwnerPhoneNumber" className="form-label">
@@ -615,6 +835,7 @@ const PgOwnerDashboard = () => {
             {pgOwnerPhoneNumberError && <p className="field-error-message">{pgOwnerPhoneNumberError}</p>}
           </div>
 
+          {/* Address */}
           <div className="form-group-wrapper">
             <div className="form-group">
               <label htmlFor="address" className="form-label">
@@ -633,6 +854,7 @@ const PgOwnerDashboard = () => {
             {addressError && <p className="field-error-message">{addressError}</p>}
           </div>
 
+          {/* State & Country */}
           <div className="form-group-inline-wrapper">
             <div className="form-group-half-wrapper">
               <div className="form-group form-group-half">
@@ -670,6 +892,7 @@ const PgOwnerDashboard = () => {
             </div>
           </div>
 
+          {/* Pincode */}
           <div className="form-group-wrapper">
             <div className="form-group">
               <label htmlFor="pincode" className="form-label">
@@ -688,6 +911,7 @@ const PgOwnerDashboard = () => {
             {pincodeError && <p className="field-error-message">{pincodeError}</p>}
           </div>
 
+          {/* Location Link */}
           <div className="form-group-wrapper">
             <div className="form-group">
               <label htmlFor="locationLink" className="form-label">
@@ -704,6 +928,7 @@ const PgOwnerDashboard = () => {
             </div>
           </div>
 
+          {/* Photos */}
           <div className="form-group-wrapper">
             <div className="form-group">
               <label htmlFor="photos" className="form-label">
@@ -719,6 +944,9 @@ const PgOwnerDashboard = () => {
                 ref={fileInputRef} 
               />
             </div>
+            {loading && photoUploadProgress > 0 && (
+                <p className="loading-message">Uploading photos: {photoUploadProgress}%</p>
+            )}
             {photosError && <p className="field-error-message">{photosError}</p>}
             {photos.length > 0 && (
               <div className="photo-preview-grid">
@@ -726,7 +954,7 @@ const PgOwnerDashboard = () => {
                   <div key={index} className="photo-preview-item">
                     <img
                       src={photo.url}
-                      alt={`Uploaded ${index + 1}`}
+                      alt={photo.caption || `Uploaded ${index + 1}`}
                       className="photo-preview-image"
                     />
                     <textarea
@@ -749,6 +977,7 @@ const PgOwnerDashboard = () => {
             )}
           </div>
 
+          {/* Availability & Pricing (with Mess Option) */}
           <div className="form-group-wrapper">
             <div className="form-group">
               <label className="form-label">
@@ -779,6 +1008,14 @@ const PgOwnerDashboard = () => {
                           disabled={option.status === 'Full'}
                         />
                       </div>
+                      {/* New: Mess Option */}
+                      <label className="mess-checkbox-label">
+                          <input
+                              type="checkbox"
+                              checked={option.hasMess}
+                              onChange={(e) => handleSharingOptionChange(optionIndex, 'hasMess', e.target.checked)}
+                          /> Mess Included
+                      </label>
                     </div>
                   </div>
                 ))}
@@ -787,6 +1024,7 @@ const PgOwnerDashboard = () => {
             {sharingOptionsError && <p className="field-error-message">{sharingOptionsError}</p>}
           </div>
 
+          {/* Amenities and Services Checkboxes */}
           <div className="form-group-wrapper">
             <div className="amenities-section">
               <h4>Amenities</h4>
@@ -826,8 +1064,6 @@ const PgOwnerDashboard = () => {
             {facilitiesError && <p className="field-error-message">{facilitiesError}</p>}
           </div>
 
-          {generalError && <p className="error-error-message">{generalError}</p>}
-
           <div className="form-actions">
             <button
               onClick={handleSendForValidation}
@@ -849,7 +1085,7 @@ const PgOwnerDashboard = () => {
 
         {/* Section to display current owner's listings */}
         {userListings.length > 0 && (
-          <div className="owner-listings-section">
+          <div id="owner-listings-section" className="owner-listings-section"> {/* Added ID for scrolling */}
             <h2 className="section-title">Your Existing PG Listings</h2>
             <div className="listings-grid">
               {userListings.map((listing) => (

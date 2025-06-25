@@ -19,11 +19,15 @@
     --text-light: #777777; /* For less important text */
     --border-light: #e0e0e0; /* Light, soft gray for borders */
     --border-subtle: #eeeeee; /* Even lighter for subtle elements */
+
+    /* Fonts */
+    --font-primary: 'Inter', sans-serif;
+    --font-heading: 'Poppins', sans-serif; /* Example for headings */
 }
 
 /* General Body and Container Styles */
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-primary);
     margin: 0;
     padding: 0;
     background-color: var(--bg-light-grey);
@@ -31,170 +35,184 @@ body {
 }
 
 .pg-owner-dashboard-container {
-    display: flex; /* Use flexbox to lay out sidebar and main content */
+    display: flex; /* Use flexbox for overall layout */
+    flex-direction: column; /* Stack top nav and main content */
     min-height: 100vh;
     background-color: var(--bg-light-grey);
-    position: relative; /* For positioning the hamburger icon relative to this container */
 }
 
-/* Sidebar Styles */
-.sidebar {
-    width: 0; /* Hidden by default */
-    background-color: var(--homifi-dark-blue);
-    color: var(--bg-white);
-    padding: 1.5rem 0; /* Padding will adjust when open */
-    position: fixed; /* Fixed position relative to viewport */
-    height: 100%;
-    top: 0;
-    left: 0;
-    z-index: 1000; /* Ensure it's above other content when open */
-    overflow-x: hidden; /* Hide content that overflows when collapsed */
-    transition: width 0.3s ease-in-out, padding 0.3s ease-in-out;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+/* --- Top Navigation Bar Styles (similar to UserDashboard) --- */
+.top-nav-bar {
+    background-color: var(--homifi-dark-blue); /* Dark blue background */
+    color: white;
+    padding: 15px 30px;
     display: flex;
-    flex-direction: column;
-    align-items: center; /* Center content horizontally */
+    justify-content: space-between; /* Space between logo and profile */
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    position: sticky;
+    top: 0;
+    z-index: 1000; /* Ensure it stays on top */
 }
 
-.sidebar.open {
-    width: 250px; /* Open width */
-    padding: 1.5rem;
+.top-nav-left {
+    display: flex;
+    align-items: center;
+    /* No gap needed if only logo */
 }
 
-.sidebar-header {
-    text-align: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    width: 80%; /* Constrain header width */
+.top-nav-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%; /* Make it round */
+    object-fit: cover;
 }
 
-.sidebar-header .welcome-message {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--bg-white);
-    margin-bottom: 0.5rem;
+/* Removed .top-nav-title as per request */
+
+.top-nav-right {
+    display: flex;
+    align-items: center;
+    /* No gap needed if only one profile item */
 }
 
-.sidebar-header .user-email {
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.8);
-    word-wrap: break-word; /* Ensure long emails wrap */
-}
-
-.sidebar-nav ul {
+.top-nav-menu {
     list-style: none;
     padding: 0;
     margin: 0;
-    width: 100%;
+    display: flex; 
+    /* No gap needed if only one profile item */
 }
 
-.sidebar-nav li {
-    margin-bottom: 1rem;
-    width: 100%;
+.top-nav-menu-item {
+    position: relative; /* For dropdown positioning */
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 1rem; 
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+    transition: color 0.3s ease;
+    white-space: nowrap; /* Prevent text wrapping */
+    padding: 5px 0; /* Add some padding for clickable area */
+}
+
+.top-nav-menu-item:hover {
+    color: var(--homifi-teal); /* Highlight on hover */
+}
+
+.top-nav-menu-item.active {
+    color: var(--homifi-teal); /* Highlight active item */
+    font-weight: 600;
+}
+
+.top-nav-menu-item svg {
+    margin-right: 8px; /* Space between icon and text */
+    width: 20px;
+    height: 20px;
+    color: inherit; /* Inherit color from parent */
+}
+
+/* Right Sidebar Styling */
+.profile-sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: 280px; /* Width of the sidebar */
+    background-color: var(--homifi-dark-blue); /* Dark background like the top nav */
+    color: var(--bg-white);
+    z-index: 1001; /* Higher than top nav to overlap */
+    transform: translateX(100%); /* Start off-screen to the right */
+    transition: transform 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    box-shadow: -4px 0 15px rgba(0,0,0,0.2); /* Shadow on the left edge */
+    box-sizing: border-box; /* Include padding in width */
+}
+
+.profile-sidebar.open {
+    transform: translateX(0); /* Slide into view */
+}
+
+.sidebar-close-button {
+    background: none;
+    border: none;
+    color: var(--bg-white);
+    font-size: 2rem;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    cursor: pointer;
+    line-height: 1; /* Align 'x' correctly */
+    transition: color 0.2s ease;
+}
+
+.sidebar-close-button:hover {
+    color: var(--error-red);
+}
+
+.sidebar-content {
+    flex-grow: 1; /* Allow content to take available space */
+    display: flex;
+    flex-direction: column;
+    padding-top: 40px; /* Space for close button */
+}
+
+.sidebar-user-email {
+    color: var(--homifi-teal); /* Highlight user email */
+    font-size: 1em;
+    padding: 10px 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+    word-wrap: break-word; /* Allow long emails to wrap */
 }
 
 .sidebar-button {
-    display: block;
-    width: 100%;
-    padding: 0.8rem 1rem;
+    background: none;
     border: none;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 600;
+    color: var(--bg-white);
+    padding: 15px 10px;
+    text-align: left;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-    text-align: center;
+    font-size: 1.05rem;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    border-radius: 8px; /* Slightly rounded buttons */
+    margin-bottom: 8px;
 }
 
-.sidebar-button.reset-password-button {
-    background-color: var(--homifi-teal); /* Teal for reset password */
-    color: var(--bg-white);
+.sidebar-button:hover {
+    background-color: var(--homifi-deepest-blue); /* Darker shade on hover */
+    color: var(--homifi-teal);
 }
 
-.sidebar-button.reset-password-button:hover {
-    background-color: #20a095; /* Darker teal on hover */
-    transform: translateY(-2px);
+.sidebar-button svg {
+    width: 20px;
+    height: 20px;
+    color: var(--homifi-cyan); /* Icon color */
+    transition: color 0.2s ease;
 }
 
-.sidebar-button.logout-button {
-    background-color: var(--error-red); /* Red for logout */
-    color: var(--bg-white);
+.sidebar-button:hover svg {
+    color: var(--homifi-teal); /* Icon color on hover */
 }
 
-.sidebar-button.logout-button:hover {
-    background-color: #c0392b; /* Darker red on hover */
-    transform: translateY(-2px);
-}
 
 /* Main Content Area */
 .main-content {
     flex-grow: 1; /* Takes remaining space */
-    padding: 2rem; /* Initial padding */
-    margin-left: 0; /* Default position */
-    transition: margin-left 0.3s ease-in-out; /* For shifting when sidebar opens */
-}
-
-.pg-owner-dashboard-container.sidebar-open .main-content {
-    margin-left: 250px; /* Shift main content when sidebar is open */
-}
-
-/* Hamburger Icon (from user provided snippet, adapted for React) */
-.Icon {
-    width: 50px;
-    height: 50px;
-    position: fixed; /* Fixed position relative to viewport */
-    top: 20px; /* Adjust as needed */
-    left: 20px; /* Adjust as needed */
-    transform: rotate(0deg);
-    transition: .5s ease-in-out;
-    cursor: pointer;
-    z-index: 1001; /* Ensure it's above sidebar and main content */
-    background-color: var(--homifi-dark-blue); /* Background for visibility */
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-.Icon span {
-    display: block;
-    position: absolute;
-    left: 0;
-    height: 8px;
-    width: 100%;
-    background: var(--bg-white); /* White bars */
-    border-radius: 4px;
-    transform: rotate(0deg);
-    transition: .2s ease-in-out;
-}
-
-.Icon span:nth-child(1) {
-    top: 15px;
-}
-
-.Icon span:nth-child(2) {
-    top: 23px;
-}
-
-.Icon span:nth-child(3) {
-    top: 31px;
-}
-
-.Icon.open span:nth-child(1) {
-    top: 23px;
-    transform: rotate(135deg);
-}
-
-.Icon.open span:nth-child(2) {
-    left: -60px; /* Move middle bar out */
-    opacity: 0;
-}
-
-.Icon.open span:nth-child(3) {
-    top: 23px;
-    transform: rotate(-135deg);
+    padding: 2rem;
+    margin: 20px; /* Margin around the main content block */
+    background-color: var(--bg-white);
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    overflow-y: auto; /* Enable scrolling for content */
 }
 
 /* Loading Container */
@@ -210,6 +228,62 @@ body {
 .loading-container .text-center {
     font-size: 1.5rem;
     color: var(--text-dark);
+}
+
+/* Message Box Styling */
+.app-message-box {
+  position: relative; /* Changed to relative to sit within the main flow */
+  background-color: var(--bg-light-grey);
+  border-radius: 8px;
+  padding: 15px 20px;
+  margin: 1rem auto; /* Center and add margin */
+  max-width: 600px; /* Max width for message box */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  font-size: 1rem;
+  font-weight: 500;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border-light);
+}
+
+.app-message-box p {
+  margin: 0;
+  flex-grow: 1;
+}
+
+.app-message-box.success {
+  background-color: #d4edda;
+  color: #155724;
+  border-color: #c3e6cb;
+}
+
+.app-message-box.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border-color: #f5c6cb;
+}
+
+.app-message-box.info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border-color: #bee5eb;
+}
+
+.app-message-box-close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: inherit; /* Inherit color from parent message box */
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 5px;
+  transition: opacity 0.2s ease;
+}
+
+.app-message-box-close-button:hover {
+  opacity: 0.7;
 }
 
 /* Form Card Styles */
@@ -285,13 +359,7 @@ body {
     margin-left: 0.2rem;
 }
 
-.error-error-message {
-    color: var(--error-red);
-    font-size: 1rem;
-    margin-top: 1rem;
-    text-align: center;
-    font-weight: bold;
-}
+/* Removed .error-error-message and using .app-message-box.error now */
 
 /* Phone Input Group */
 .phone-input-group {
@@ -434,6 +502,42 @@ body {
     flex-grow: 1;
 }
 
+/* New: Mess checkbox label styling */
+.mess-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.9rem;
+    color: var(--text-medium);
+    cursor: pointer;
+}
+
+.mess-checkbox-label input[type="checkbox"] {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--homifi-teal);
+    border-radius: 3px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.mess-checkbox-label input[type="checkbox"]:checked {
+    background-color: var(--homifi-teal);
+    border-color: var(--homifi-teal);
+}
+
+.mess-checkbox-label input[type="checkbox"]:checked::after {
+    content: '✔';
+    color: var(--bg-white);
+    font-size: 10px;
+    line-height: 1;
+}
+
+
 /* Amenities and Services Checkboxes */
 .amenities-section h4 {
     margin-top: 2rem;
@@ -488,6 +592,7 @@ body {
     content: '✔';
     color: var(--bg-white);
     font-size: 12px;
+    line-height: 1; /* Adjust line height for checkmark */
 }
 
 .checkbox-item label {
@@ -611,23 +716,99 @@ body {
     color: var(--text-medium);
 }
 
+/* New: Gender Preference Radio Group Styling */
+.gender-preference-radio-group {
+    display: flex;
+    gap: 20px; /* Space between radio buttons */
+    margin-top: 10px;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+}
+
+.gender-preference-radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--text-dark);
+}
+
+.gender-preference-radio-group input[type="radio"] {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--homifi-teal);
+    border-radius: 50%;
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+    outline: none; /* Remove default focus outline */
+}
+
+.gender-preference-radio-group input[type="radio"]:checked {
+    background-color: var(--homifi-teal);
+    border-color: var(--homifi-teal);
+}
+
+.gender-preference-radio-group input[type="radio"]:checked::after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    background-color: var(--bg-white);
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
 /* Responsive Adjustments */
+@media (max-width: 1024px) {
+  .top-nav-bar {
+    padding: 10px 20px;
+  }
+  /* .top-nav-title { was removed */
+  .top-nav-menu {
+    gap: 15px;
+  }
+  .top-nav-menu-item {
+    font-size: 0.9em;
+  }
+  .top-nav-menu-item svg {
+    width: 18px;
+    height: 18px;
+  }
+  .main-content {
+    padding: 20px;
+    margin: 15px;
+  }
+}
+
 @media (max-width: 768px) {
-    .pg-owner-dashboard-container.sidebar-open .main-content {
-        margin-left: 0; /* No shift on small screens, sidebar overlays */
+    .top-nav-bar {
+        flex-direction: row; /* Keep row for logo and profile */
+        justify-content: space-between; /* Space out logo and profile */
+        align-items: center; /* Vertically align them */
+        gap: 0; /* Remove gap */
+        padding: 15px 20px;
     }
-
-    .sidebar {
-        width: 0;
+    .top-nav-right {
+        width: auto; /* Allow content to dictate width */
+        justify-content: flex-end; /* Align profile to the right */
+        margin-top: 0; /* No margin top */
     }
-
-    .sidebar.open {
-        width: 100%; /* Full width overlay */
-        padding: 1.5rem;
+    .top-nav-menu {
+        flex-grow: 0; 
+        width: auto;
+        justify-content: flex-end; 
+        gap: 0; /* No gap for single item */
     }
-
+    .profile-sidebar {
+        width: 250px; /* Adjust sidebar width for smaller screens */
+    }
     .main-content {
         padding: 1rem;
+        margin: 1rem auto; /* Center on smaller screens */
     }
 
     .pg-details-form-card,
@@ -660,18 +841,42 @@ body {
     .button {
         width: 100%;
     }
-
-    .Icon {
-        top: 10px;
-        left: 10px;
+    .gender-preference-radio-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .app-message-box {
+        margin: 0.5rem auto; /* Adjust margin for smaller screens */
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+    .app-message-box-close-button {
+        font-size: 1.2rem;
     }
 }
 
 @media (max-width: 480px) {
-    .form-title {
+    .form-title, .owner-listings-section .section-title {
         font-size: 1.5rem;
     }
-    .owner-listings-section .section-title {
-        font-size: 1.5rem;
+    /* .top-nav-title { was removed */
+    .top-nav-menu-item {
+        font-size: 0.85em;
+    }
+    .top-nav-menu-item svg {
+        width: 16px;
+        height: 16px;
+    }
+    .main-content {
+        padding: 10px;
+        margin: 5px;
+    }
+    .profile-sidebar {
+      width: 100%; /* Full width sidebar on very small screens */
+    }
+    .app-message-box {
+        margin: 0.25rem auto;
+        padding: 8px 10px;
+        font-size: 0.8rem;
     }
 }

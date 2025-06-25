@@ -1,6 +1,6 @@
 // src/pages/ContactUs.jsx
 import React from 'react';
-import './ContactUs.css';
+import './main.css'; // This path expects main.css in the 'src' directory
 
 const ContactUs = () => {
   return (
@@ -10,17 +10,14 @@ const ContactUs = () => {
         <p className="subtitle">We're Here to Help!</p>
       </header>
 
-      {/* This section now starts directly with the introductory paragraph
-          without an explicit "Introduction" or "Get in Touch" heading above it. */}
       <section className="contact-us-section info-section">
         <p>
           Have questions, feedback, or need assistance? Don't hesitate to reach out to the HomiFi team.
           We're dedicated to providing you with the best experience and are happy to assist with any inquiries you may have.
         </p>
 
-        {/* The contact details themselves can remain under a logical grouping without a redundant heading */}
         <div className="contact-details">
-          <h3>Reach Out Directly:</h3> {/* Added a smaller, more specific heading here */}
+          <h3>Reach Out Directly:</h3>
           <p>
             <strong>Phone:</strong>
             {' '}
@@ -54,7 +51,6 @@ const ContactUs = () => {
           We'd love to hear from you! For quick inquiries, fill out the form below.
           For detailed support, you can always email us directly.
         </p>
-        {/* Placeholder for a contact form - you'll add input fields and a submit button here */}
         <p>
           <a href="mailto:homifi7@gmail.com" className="email-link">
             Click here to email us directly.

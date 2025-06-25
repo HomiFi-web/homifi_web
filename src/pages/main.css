@@ -1,0 +1,681 @@
+/*
+  This file combines all styles for HomiFi application,
+  including general styles, About Us, Contact Us, and Guest Dashboard.
+  It is recommended to organize CSS in a modular way (e.g., per component or page),
+  but this consolidated file fulfills the request to have all styles in one place.
+*/
+
+/* --- Global Color Palette Variables (Consolidated) --- */
+:root {
+  /* HomiFi Primary & Accent Colors (from ContactUs.css and GuestDashboard.css, with some harmonization) */
+  --homifi-teal-primary: #20143b; /* Original Dark Blue, used as primary in ContactUs */
+  --homifi-dark-blue: #000069;    /* Original Teal Primary, used as dark blue in ContactUs */
+  --homifi-darker-blue: #30D5C8; /* Vibrant Teal from ContactUs. From GuestDashboard.css it's homifi-teal */
+  --homifi-deepest-blue: #000040; /* Deepest Blue - unchanged */
+
+  /* New color from "Our Mission" image for main headings (from ContactUs.css) */
+  --mission-heading-color: #3D3BAF; /* Rich indigo/purple */
+
+  /* Additional colors from GuestDashboard.css to align palette */
+  --homifi-cyan: #00BCD4; /* Cyan from GuestDashboard */
+
+  /* Neutral/Text Colors (harmonized) */
+  --dark-text: #333333; /* From ContactUs.css, matches GuestDashboard --text-dark */
+  --medium-text: #555555; /* From ContactUs.css, matches GuestDashboard --text-medium */
+  --light-text: #777777; /* From ContactUs.css, matches GuestDashboard --text-light */
+  
+  /* Border Colors (harmonized) */
+  --border-light-grey-1: #e0e0e0; /* From ContactUs.css, matches GuestDashboard --border-light */
+  --border-light-grey-2: #eeeeee; /* From ContactUs.css, matches GuestDashboard --border-subtle */
+
+  /* Background Colors (harmonized) */
+  --clean-white: #ffffff; /* From ContactUs.css, matches GuestDashboard --bg-white */
+  --soft-light-grey: #f8f9fa; /* From ContactUs.css, matches GuestDashboard --bg-light-grey */
+  --very-light-blue-teal: #e0f7fa; /* From ContactUs.css, matches GuestDashboard --bg-soft-blue */
+
+  /* Action/Status Colors (consistent across files) */
+  --success-green: #28a745;
+  --error-red: #dc3545;
+  --warning-orange: #ffc107;
+
+  /* Shadows (from GuestDashboard.css) */
+  --shadow-light: rgba(0, 0, 0, 0.08);
+
+  /* Fonts (from GuestDashboard.css - assuming these are imported globally) */
+  --font-primary: 'Inter', sans-serif;
+  --font-heading: 'Poppins', sans-serif;
+}
+
+/* --- Base & Global Styles --- */
+body {
+  font-family: var(--font-primary, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif);
+  margin: 0;
+  padding: 0;
+  background-color: var(--soft-light-grey); /* Overall page background */
+  color: var(--dark-text); /* Default body text color */
+  line-height: 1.6;
+}
+
+/* --- Shared Header Styles (from ContactUs.css and AboutUs.css) --- */
+.contact-us-header,
+.about-us-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--border-light-grey-1); /* Subtle separator */
+}
+
+.contact-us-header h1,
+.about-us-header h1 {
+  font-size: 3em;
+  color: var(--mission-heading-color); /* Applied to Contact Us main title */
+  margin-bottom: 10px;
+}
+
+/* About Us specific main title color, if it differs from mission-heading-color */
+/* If you want About Us h1 to be blue as in its original CSS, uncomment and keep this: */
+/* .about-us-header h1 {
+  color: #007bff;
+} */
+
+.contact-us-header .subtitle,
+.about-us-header .subtitle {
+  font-size: 1.2em;
+  color: var(--medium-text); /* Slightly lighter grey for subtitle */
+  font-style: italic;
+}
+
+/* --- Container Styles --- */
+
+/* Guest Dashboard specific container */
+.guest-dashboard {
+  background-color: var(--soft-light-grey);
+  font-family: var(--font-primary);
+  min-height: 100vh;
+  color: var(--dark-text);
+}
+
+/* About Us container */
+.about-us-container {
+  font-family: var(--font-primary, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif);
+  padding: 40px 20px;
+  max-width: 1000px; /* Limits content width for readability */
+  margin: 0 auto; /* Centers the container */
+  line-height: 1.6;
+  color: var(--dark-text); /* Dark grey for body text */
+}
+
+/* Contact Us container (adjusted based on previous conversation) */
+.contact-us-container {
+  font-family: var(--font-primary, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif);
+  padding: 40px 20px;
+  max-width: 1000px; /* Limits content width for readability */
+  margin: 0 auto; /* Centers the container */
+  line-height: 1.6;
+  background-color: var(--soft-light-grey); /* Overall page background */
+  color: var(--dark-text); /* Dark grey for body text */
+  border-radius: 10px;
+  box-shadow: 0 4px 15px var(--shadow-light); /* Slightly more prominent shadow */
+}
+
+
+/* Page Content Container - To center content (from GuestDashboard.css) */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* --- Section Styling (Shared and Specific) --- */
+.contact-us-section,
+.about-us-section {
+  margin-bottom: 40px;
+  background-color: var(--clean-white); /* White background for sections */
+  padding: 30px;
+  border-radius: 8px; /* Slightly rounded corners */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Soft shadow for depth */
+}
+
+.contact-us-section h2 {
+  font-size: 2em;
+  color: var(--mission-heading-color); /* Applied to Contact Us section titles */
+  margin-bottom: 15px;
+  border-left: 5px solid var(--homifi-darker-blue); /* Decorative left border using vibrant teal */
+  padding-left: 10px;
+}
+
+.about-us-section h2 {
+  font-size: 2em;
+  color: #0056b3; /* Darker blue for About Us section titles (original) */
+  margin-bottom: 15px;
+  border-left: 5px solid #007bff; /* Decorative left border (original) */
+  padding-left: 10px;
+}
+
+.contact-us-section p,
+.about-us-section p {
+  font-size: 1.1em;
+  margin-bottom: 15px;
+  color: var(--dark-text); /* Ensure dark text for contact section paragraphs */
+}
+
+/* --- Contact Us Specific Styles --- */
+.contact-details,
+.business-hours {
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px dashed var(--border-light-grey-2); /* Dotted line for separation */
+}
+
+.contact-details h3,
+.business-hours h3 {
+  color: var(--homifi-dark-blue); /* Specific headings for details, using #000069 */
+  font-size: 1.4em;
+  margin-bottom: 15px;
+  border-left: 4px solid var(--homifi-teal-primary); /* Border using #20143b */
+  padding-left: 10px;
+}
+
+.contact-details p,
+.business-hours p {
+  margin-bottom: 10px;
+  font-size: 1.05em;
+  color: var(--medium-text); /* Secondary text color */
+}
+
+.contact-details strong {
+  color: var(--dark-text); /* Stronger text for labels */
+  margin-right: 5px;
+}
+
+.contact-details a {
+  color: var(--homifi-teal-primary); /* Links in #20143b */
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.contact-details a:hover {
+  color: var(--homifi-darker-blue); /* Hover in vibrant teal #30D5C8 */
+  text-decoration: underline;
+}
+
+.message-section h2 {
+  text-align: center; /* Center the "Send Us a Message" title */
+}
+
+.message-section p {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.email-link {
+  display: inline-block;
+  background-color: var(--homifi-teal-primary); /* Button background #20143b */
+  color: var(--clean-white); /* White text on button */
+  padding: 12px 25px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-size: 1.1em;
+  font-weight: bold;
+  transition: background-color 0.3s ease, transform 0.2s ease, color 0.3s ease;
+  margin: 0 auto;
+  display: block; /* Make it a block element to apply margin:auto */
+  width: fit-content; /* Ensure it only takes content width */
+}
+
+.email-link:hover {
+  background-color: var(--homifi-darker-blue); /* Hover in vibrant teal #30D5C8 */
+  transform: translateY(-2px);
+  color: var(--clean-white); /* KEEP THE TEXT WHITE ON HOVER */
+  text-decoration: none; /* Remove underline on hover for a cleaner button look */
+}
+
+
+/* --- About Us Specific Styles --- */
+.offerings-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* Single column on small screens */
+  gap: 30px; /* Space between cards */
+  margin-top: 20px;
+}
+
+.offering-card {
+  background-color: #f9f9f9; /* Light grey background for cards */
+  padding: 25px;
+  border-radius: 8px;
+  border: 1px solid var(--border-light-grey-1); /* Subtle border */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.offering-card h3 {
+  color: #007bff; /* Blue for offering card titles */
+  font-size: 1.5em;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.offering-card ul {
+  list-style: none; /* Remove default list bullets */
+  padding: 0;
+}
+
+.offering-card ul li {
+  margin-bottom: 10px;
+  padding-left: 20px; /* Space for custom checkmark */
+  position: relative; /* For absolute positioning of checkmark */
+}
+
+.offering-card ul li::before {
+  content: '✔'; /* Custom checkmark icon */
+  color: var(--success-green); /* Green color for checkmark */
+  position: absolute;
+  left: 0;
+  top: 0; /* Align with text */
+}
+
+.vision h2, .why-choose-us h2, .founders-section h2 {
+  text-align: center; /* Center these specific section titles */
+}
+
+.founders-section p {
+  text-align: center; /* Center the text in the founders section */
+  font-size: 1.2em; /* Slightly larger text for emphasis */
+}
+
+
+/* --- Guest Dashboard Specific Styles --- */
+
+/* Hero Section Styles (Image with Overlay) */
+.hero-section {
+  position: relative;
+  width: 100%;
+  height: 60vh; /* Changed from 80vh to 60vh for better balance */
+  min-height: 350px;
+  overflow: hidden;
+  margin-bottom: 3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.7);
+}
+
+.hero-content {
+  position: relative;
+  text-align: center;
+  color: var(--clean-white);
+  z-index: 10;
+  padding: 20px;
+  max-width: 800px;
+}
+
+.hero-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 5;
+}
+
+.hero-title {
+  font-family: var(--font-heading);
+  font-size: 4rem;
+  font-weight: 700;
+  color: var(--clean-white); /* Changed to white for better contrast on dark overlay */
+  margin-bottom: 0.75rem;
+  text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  line-height: 1.1;
+}
+
+.hero-tagline {
+  font-size: 1.8rem;
+  font-weight: 300;
+  opacity: 0.9;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+/* General button styles for the dashboard */
+.filter-button,
+.wishlist-button {
+  background-color: var(--clean-white);
+  border: 1px solid var(--border-light-grey-1);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px var(--shadow-light);
+  padding: 0.75rem 1.5rem;
+  color: var(--medium-text);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 1rem;
+  display: flex; /* Use flex for icon and text alignment */
+  align-items: center;
+  gap: 8px; /* Space between icon and text */
+}
+
+.filter-button:hover {
+  background-color: var(--soft-light-grey);
+  border-color: var(--border-light-grey-2);
+  color: var(--homifi-dark-blue);
+  transform: translateY(-2px);
+}
+
+.wishlist-button {
+  color: var(--error-red);
+  border-color: rgba(220, 53, 69, 0.5);
+}
+
+.wishlist-button:hover {
+  background-color: rgba(220, 53, 69, 0.1);
+  border-color: var(--error-red);
+  transform: translateY(-2px);
+}
+
+/* Grid for property listings */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); /* Adjusted minmax slightly */
+  gap: 2rem;
+  padding-bottom: 4rem;
+}
+
+/* PG Card Styles */
+.pg-card {
+  background-color: var(--clean-white);
+  border-radius: 12px;
+  box-shadow: 0 4px 15px var(--shadow-light);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  height: auto; /* Allow height to adjust based on content */
+}
+
+.pg-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.pg-card-image {
+  width: 100%;
+  height: 220px; /* Slightly taller images */
+  object-fit: cover;
+  border-bottom: 1px solid var(--border-light-grey-2);
+}
+
+.pg-details-section {
+  padding: 15px 20px 10px; /* Padding for name and address */
+  border-bottom: 1px solid var(--border-light-grey-2);
+  margin-bottom: 10px;
+}
+
+.pg-name-in-card {
+  font-size: 1.4em;
+  font-weight: 700;
+  color: var(--homifi-dark-blue);
+  margin: 0 0 5px 0;
+}
+
+.pg-address-in-card {
+  font-size: 0.95em;
+  color: var(--medium-text);
+  margin: 0;
+}
+
+/* Styling for inline available sharing options */
+.pg-sharing-options-summary {
+  padding: 0 20px 10px; /* Padding for summary section */
+  display: flex;
+  flex-wrap: wrap; /* Allow items to wrap to next line */
+  gap: 15px; /* Space between inline options */
+  justify-content: flex-start; /* Align items to the start */
+  border-bottom: 1px solid var(--border-light-grey-2);
+  margin-bottom: 15px;
+}
+
+.pg-sharing-option-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Space between type and price */
+  background-color: var(--very-light-blue-teal); /* Light blue background for available options */
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.9em;
+  font-weight: 600;
+  color: var(--homifi-dark-blue);
+  white-space: nowrap; /* Keep type and price on one line */
+}
+
+.sharing-type {
+  text-transform: capitalize; /* Capitalize the first letter */
+}
+
+.sharing-price {
+  color: var(--success-green); /* Price in green for available */
+  font-weight: 700;
+}
+
+/* Show More/Less Button */
+.show-more-container {
+  padding: 15px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background-color: var(--clean-white); /* Ensure background is white for clarity */
+}
+
+.show-more-button {
+  background-color: var(--homifi-cyan); /* Cyan button */
+  color: var(--clean-white);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 15px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: 600;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  width: fit-content; /* Button width adjusts to content */
+  align-self: center; /* Center the button within the container */
+}
+
+.show-more-button:hover {
+  background-color: var(--homifi-darker-blue); /* Darker teal on hover */
+  transform: translateY(-1px);
+}
+
+/* Styling for ALL sharing options when "Show More" is active */
+.pg-sharing-option-full {
+  background-color: var(--soft-light-grey); /* Light grey background for full details */
+  border: 1px solid var(--border-light-grey-2);
+  border-radius: 8px;
+  padding: 12px 15px;
+  margin-bottom: 10px; /* Space between full detail options */
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.sharing-type-full {
+  font-size: 1.1em;
+  font-weight: 600;
+  color: var(--homifi-dark-blue);
+}
+
+.pg-description-full {
+  font-size: 0.9em;
+  color: var(--medium-text);
+  margin: 0;
+}
+
+.pg-price-full {
+  font-size: 1em;
+  font-weight: 700;
+  color: var(--homifi-dark-blue);
+  margin-top: 5px;
+}
+
+.pg-tag {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 5px;
+  font-size: 0.75em; /* Slightly smaller for tags */
+  font-weight: 600;
+  text-transform: uppercase;
+  color: white;
+  white-space: nowrap; /* Prevent wrapping for tags */
+}
+
+.pg-tag.available {
+  background-color: var(--success-green);
+}
+
+.pg-tag.limited {
+  background-color: var(--warning-orange);
+}
+
+.pg-tag.full { /* Added style for 'Full' status */
+  background-color: var(--error-red); /* Red for 'Full' */
+}
+
+/* Messages */
+.loading-message, .error-message, .no-listings-found {
+  text-align: center;
+  font-size: 1.1em;
+  padding: 20px;
+  color: var(--dark-text);
+}
+
+.error-message {
+  color: var(--error-red);
+  font-weight: bold;
+}
+
+
+/* --- Responsive Adjustments (Consolidated and Harmonized) --- */
+@media (max-width: 768px) {
+  /* Contact Us and About Us Container adjustments */
+  .contact-us-container,
+  .about-us-container {
+    padding: 25px 15px;
+  }
+
+  .about-us-header h1,
+  .contact-us-header h1 {
+    font-size: 2.5em;
+  }
+
+  .about-us-header .subtitle,
+  .contact-us-header .subtitle {
+    font-size: 1.1em;
+  }
+
+  .contact-us-section,
+  .about-us-section {
+    padding: 20px;
+  }
+
+  .contact-us-section h2,
+  .about-us-section h2 {
+    font-size: 1.8em;
+  }
+
+  .contact-us-section p,
+  .about-us-section p {
+    font-size: 1em;
+  }
+
+  .contact-details h3,
+  .business-hours h3 {
+    font-size: 1.3em;
+  }
+
+  .contact-details p,
+  .business-hours p {
+    font-size: 1em;
+  }
+
+  .email-link {
+    padding: 10px 20px;
+    font-size: 1em;
+  }
+
+  /* About Us Grid adjustment */
+  @media (min-width: 768px) { /* This media query should apply only to About Us grid for 2 columns */
+    .offerings-grid {
+      grid-template-columns: 1fr 1fr; /* Two columns on larger screens */
+    }
+  }
+
+  /* Guest Dashboard adjustments */
+  .hero-section {
+    height: 40vh;
+    min-height: 250px;
+  }
+
+  .hero-title {
+    font-size: 2.8rem;
+  }
+
+  .hero-tagline {
+    font-size: 1.3rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr; /* Single column for PG listings on smaller screens */
+  }
+}
+
+@media (max-width: 480px) {
+  /* Contact Us and About Us Container adjustments */
+  .contact-us-container,
+  .about-us-container {
+    padding: 20px 10px;
+  }
+
+  .about-us-header h1,
+  .contact-us-header h1 {
+    font-size: 2em;
+  }
+
+  .about-us-header .subtitle,
+  .contact-us-header .subtitle {
+    font-size: 1em;
+  }
+
+  .contact-us-section h2,
+  .about-us-section h2 {
+    font-size: 1.6em;
+  }
+
+  /* Guest Dashboard adjustments */
+  .hero-title {
+    font-size: 2.2rem;
+  }
+
+  .hero-tagline {
+    font-size: 1.1rem;
+  }
+
+  .filter-button,
+  .wishlist-button {
+    padding: 0.6rem 1rem;
+    font-size: 0.9em;
+  }
+}

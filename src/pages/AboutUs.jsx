@@ -1,6 +1,6 @@
 // src/pages/AboutUs.jsx
 import React from 'react';
-import './AboutUs.css';
+import './main.css'; // Corrected path: main.css is in the same directory
 
 const AboutUs = () => {
   return (
@@ -30,21 +30,23 @@ const AboutUs = () => {
         <h2>What We Offer</h2>
         <div className="offerings-grid">
           <div className="offering-card">
-            <h3>For Users</h3>
+            <h3>For PG Seekers</h3>
             <ul>
-              <li><strong>Extensive Listings:</strong> A wide array of verified PG options in various locations to suit diverse needs and budgets.</li>
-              <li><strong>Detailed Information:</strong> Comprehensive profiles including amenities, photos, reviews, and proximity to key areas.</li>
-              <li><strong>Seamless Search:</strong> Intuitive filters and search capabilities to pinpoint your perfect match quickly.</li>
-              <li><strong>Secure Connection:</strong> Direct and secure communication channels with PG owners.</li>
+              <li>Extensive listings with detailed information</li>
+              <li>High-quality images and virtual tours</li>
+              <li>Filter and search options for tailored results</li>
+              <li>Direct contact with property owners</li>
+              <li>User reviews and ratings for informed decisions</li>
             </ul>
           </div>
           <div className="offering-card">
             <h3>For PG Owners</h3>
             <ul>
-              <li><strong>Effortless Management:</strong> Tools to list, update, and manage your properties, bookings, and tenant information with ease.</li>
-              <li><strong>Wider Reach:</strong> Connect with a vast network of potential tenants actively seeking accommodations.</li>
-              <li><strong>Streamlined Operations:</strong> Simplify administrative tasks, freeing you to focus on providing excellent service.</li>
-              <li><strong>Enhanced Visibility:</strong> Showcase your property with detailed listings and high-quality visuals.</li>
+              <li>Easy property listing and management</li>
+              <li>Reach a wide audience of potential tenants</li>
+              <li>Tools for managing inquiries and bookings</li>
+              <li>Showcase your property with rich media</li>
+              <li>Efficient communication features</li>
             </ul>
           </div>
         </div>
@@ -72,7 +74,7 @@ const AboutUs = () => {
         </p>
       </section>
 
-    </div> // Closing div for about-us-container
+    </div>
   );
 };
 

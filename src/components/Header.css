@@ -40,6 +40,7 @@
   margin-left: 1rem;
 }
 
+/* Base text-xl utility for consistent font size, defined at 1.25rem */
 .text-xl {
   font-size: 1.25rem;
 }
@@ -47,6 +48,7 @@
 .font-semibold {
   font-weight: 600;
 }
+
 .navbar {
   background-color: #20143B;
   color: white;
@@ -77,6 +79,7 @@
 }
 
 .navbar .text-xl,
-.navbar .font-semibold { /* Style the logo text */
+.navbar .font-semibold { /* Ensure logo text uses the defined text-xl size */
   color: white;
+  font-size: 1.25rem; /* Explicitly setting font size for consistency */
 }

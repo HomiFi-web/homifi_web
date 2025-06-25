@@ -5,9 +5,9 @@ import {
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
 } from 'firebase/auth';
-import { auth, db } from '../services/firebase';
+import { auth, db } from '../services/firebase'; // Assumes firebase.js is in src/services
 import { doc, setDoc, getDoc } from 'firebase/firestore';
-import './UserLogin.css';
+import './UserLogin.css'; // Assumes UserLogin.css is in src/pages
 
 const UserLogin = () => {
   const navigate = useNavigate();
@@ -58,7 +58,7 @@ const UserLogin = () => {
       const userRef = doc(db, 'users', user.uid);
       const userDoc = await getDoc(userRef);
       if (userDoc.exists()) {
-        navigate('/guest-dashboard');
+        navigate('/user-dashboard'); // Changed navigation to UserDashboard
       } else {
         setError('User data not found.');
       }
@@ -299,9 +299,9 @@ const UserLogin = () => {
 
             {/* NEW: Back to a specific Login.jsx page link */}
             <p
-              className="toggle-link" // Reusing the style for consistency
-              onClick={() => navigate('/login')} // <<-- IMPORTANT: Change '/login' to your actual route for Login.jsx
-              style={{ marginTop: '15px' }} // Add some spacing for better layout
+              className="toggle-link"
+              onClick={() => navigate('/login')}
+              style={{ marginTop: '15px' }}
             >
               ← Back to Login Page
             </p>
