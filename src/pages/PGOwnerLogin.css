@@ -1,128 +1,169 @@
-/* src/PGOwnerLogin.css */
+/* PgOwnerLogin.css */
+
+/* HomiFi Color Palette */
+:root {
+    --homifi-teal: #30D5C8;
+    --homifi-dark-blue: #20143b;
+    --homifi-darker-blue: #000069;
+    --homifi-deepest-blue: #000040;
+
+    --dark-text: #333333;
+    --medium-text: #555555;
+    --light-text: #777777;
+    --border-light: #e0e0e0;
+    --border-subtle: #eeeeee;
+
+    --clean-white: #ffffff;
+    --soft-light-grey: #f8f9fa;
+    --very-light-blue-teal: #e0f7fa;
+
+    --success-green: #28a745;
+    --error-red: #dc3545;
+    --warning-orange: #ffc107;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
 .login-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #30D5C8; /* This was the teal, now we change it to the new darker background */
+  background-color: var(--homifi-dark-blue); /* Overall page background */
   padding: 20px;
   box-sizing: border-box;
 }
 
 .login-box {
-  background-color: #ffffff; /* Inner box remains white */
+  background-color: var(--clean-white); /* Inner box remains white */
   padding: 40px;
-  border-radius: 8px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(32, 20, 59, 0.1); /* Shadow using HomiFi Dark Blue */
   text-align: center;
   width: 100%;
   max-width: 400px;
   box-sizing: border-box;
+  border: 1px solid var(--border-light);
 }
 
 .login-box h2 {
   margin-bottom: 25px;
-  color: #20143b; /* Heading text changed to #20143b */
+  color: var(--homifi-dark-blue); /* Heading text */
   font-size: 1.8em;
+  font-weight: 700;
 }
 
 .input-group {
   margin-bottom: 15px;
+  position: relative; /* For error messages and password toggle */
 }
 
 .login-box input[type="email"],
 .login-box input[type="password"],
-.login-box input[type="text"] /* Added for show password functionality */ {
-  width: calc(100% - 24px);
+.login-box input[type="text"] {
+  width: 100%; /* Changed from calc(100% - 24px) for consistency */
   padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  border: 1px solid var(--border-light);
+  border-radius: 8px; /* Slightly more rounded inputs */
   font-size: 1em;
   box-sizing: border-box;
-  background-color: #f9f9f9;
-  color: #20143b; /* Input text remains #20143b */
+  background-color: var(--soft-light-grey); /* Light grey input background */
+  color: var(--dark-text); /* Input text color */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .login-box input[type="email"]::placeholder,
 .login-box input[type="password"]::placeholder,
-.login-box input[type="text"]::placeholder { /* Added for show password functionality */
-    color: #808080;
+.login-box input[type="text"]::placeholder {
+    color: var(--medium-text);
 }
 
 .login-box input[type="email"]:focus,
 .login-box input[type="password"]:focus,
-.login-box input[type="text"]:focus { /* Added for show password functionality */
-  border-color: #20143b; /* Focus border changed to #20143b */
+.login-box input[type="text"]:focus {
+  border-color: var(--homifi-teal); /* Focus border changed to HomiFi Teal */
   outline: none;
-  box-shadow: 0 0 0 2px rgba(32, 20, 59, 0.25); /* Shadow changed to match #20143b */
+  box-shadow: 0 0 0 3px rgba(48, 213, 200, 0.25); /* Shadow changed to match HomiFi Teal */
 }
 
 /* New styles for password input group and toggle */
 .password-input-group {
-  position: relative; /* Needed for absolute positioning of the toggle */
-  display: flex; /* To align input and toggle */
+  position: relative;
+  display: flex;
   align-items: center;
 }
 
 .password-input-group input {
-  flex-grow: 1; /* Allow input to take available space */
+  flex-grow: 1;
   padding-right: 40px; /* Make space for the toggle */
 }
 
 .show-password-toggle {
   position: absolute;
-  right: 12px; /* Adjust as needed for spacing from the right edge */
+  right: 12px;
   cursor: pointer;
   font-size: 0.9em;
-  color: #20143b; /* Match text color */
+  color: var(--homifi-dark-blue); /* Match text color */
   font-weight: 500;
-  user-select: none; /* Prevent text selection */
-  padding: 2px 5px; /* Add some padding for easier clicking */
+  user-select: none;
+  padding: 2px 5px;
   border-radius: 3px;
   transition: color 0.2s ease;
 }
 
 .show-password-toggle:hover {
-  color: #000069; /* Darker shade on hover */
+  color: var(--homifi-darker-blue); /* Darker shade on hover */
   text-decoration: underline;
 }
 
 
-.role-button {
+.login-button {
   width: 100%;
-  padding: 12px;
+  padding: 14px;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px; /* Slightly more rounded buttons */
   font-size: 1.1em;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-  margin-top: 10px;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  margin-top: 20px; /* More space above button */
+  background: linear-gradient(135deg, var(--homifi-teal) 0%, var(--homifi-dark-blue) 100%); /* Teal to Dark Blue gradient */
+  color: var(--clean-white); /* White text */
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-.role-button.user { /* This class name is likely for User Login, consider renaming for PG Owner specific button */
-  background-color: #20143b; /* Button background changed to #20143b */
-  color: #ffffff; /* Button text remains white */
+.login-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #27c2b6 0%, #170e28 100%); /* Darker shades on hover */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
 }
 
-.role-button.user:hover:not(:disabled) {
-  background-color: #311c4d; /* Slightly lighter shade for hover effect */
-}
-
-.role-button:disabled {
-  background-color: #cccccc;
+.login-button:disabled {
+  background-color: var(--border-light);
+  color: var(--light-text);
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .error-message {
-  color: #dc3545;
-  margin-top: 10px;
-  margin-bottom: 15px;
-  font-size: 0.9em;
+  color: var(--error-red);
+  margin-top: 5px; /* Closer to the input */
+  margin-bottom: 10px; /* Space before next element */
+  font-size: 0.85em;
+  text-align: left; /* Align with input fields */
+  padding-left: 5px; /* Small indent */
 }
 
 .success-message {
-  color: #28a745;
+  color: var(--success-green);
   margin-top: 10px;
   margin-bottom: 15px;
   font-size: 0.95em;
@@ -131,10 +172,14 @@
 .password-rules {
   list-style: none;
   padding: 0;
-  margin: -5px 0 15px 0;
+  margin: 5px 0 15px 0; /* Adjust margin to be closer to password input */
   text-align: left;
-  font-size: 0.85em;
-  color: #20143b; /* Password rules text remains #20143b */
+  font-size: 0.8em;
+  color: var(--dark-text); /* Password rules text */
+  background-color: var(--soft-light-grey); /* Subtle background for rules */
+  border-radius: 8px;
+  padding: 10px 15px;
+  border: 1px solid var(--border-subtle);
 }
 
 .password-rules li {
@@ -145,25 +190,61 @@
 
 .password-rules li::before {
   content: '✖';
-  color: #dc3545;
-  margin-right: 5px;
+  color: var(--error-red);
+  margin-right: 8px;
   font-weight: bold;
+  font-size: 1.1em;
 }
 
 .password-rules li.valid::before {
   content: '✔';
-  color: #28a745;
+  color: var(--success-green);
 }
 
 .forgot-password,
 .toggle-link {
   margin-top: 20px;
   font-size: 0.9em;
-  color: #20143b; /* Link text changed to #20143b */
+  color: var(--homifi-dark-blue); /* Link text */
   cursor: pointer;
+  transition: color 0.2s ease, text-decoration 0.2s ease;
 }
 
 .forgot-password:hover,
 .toggle-link:hover {
   text-decoration: underline;
+  color: var(--homifi-teal); /* Teal on hover */
+}
+
+.back-to-main-login {
+    margin-top: 15px;
+    font-size: 0.9em;
+    color: var(--medium-text); /* Muted color for this specific link */
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.back-to-main-login:hover {
+    color: var(--dark-text);
+    text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .login-box {
+        padding: 30px 25px;
+        margin: 20px;
+    }
+    .login-box h2 {
+        font-size: 1.6em;
+        margin-bottom: 20px;
+    }
+    .login-box input, .login-button {
+        padding: 10px;
+        font-size: 0.9em;
+    }
+    .password-rules {
+        padding: 8px 10px;
+        font-size: 0.75em;
+    }
 }

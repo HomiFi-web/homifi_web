@@ -1,6 +1,6 @@
 [
   {
-    "origin": ["http://localhost:3000"], 
+    "origin": ["http://localhost:3000", "https://your-deployed-app-domain.web.app"],
     "method": ["GET", "POST", "PUT", "DELETE"],
     "responseHeader": ["Content-Type", "Firebase-Storage-Resumable-Upload-Protocol", "X-Firebase-Storage-Metadata"],
     "maxAgeSeconds": 3600

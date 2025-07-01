@@ -1,20 +1,49 @@
 /* AdminLogin.css */
 
+/* HomiFi Color Palette */
+:root {
+    --homifi-teal: #30D5C8;
+    --homifi-dark-blue: #20143b;
+    --homifi-darker-blue: #000069;
+    --homifi-deepest-blue: #000040;
+
+    --dark-text: #333333;
+    --medium-text: #555555;
+    --light-text: #777777;
+    --border-light: #e0e0e0;
+    --border-subtle: #eeeeee;
+
+    --clean-white: #ffffff;
+    --soft-light-grey: #f8f9fa;
+    --very-light-blue-teal: #e0f7fa;
+
+    --success-green: #28a745;
+    --error-red: #dc3545;
+    --warning-orange: #ffc107;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 /* Overall container for the admin login page */
 .admin-login-container {
   display: flex;
+  flex-direction: column; /* Allow content to stack vertically */
   justify-content: center;
   align-items: center;
   min-height: 100vh; /* Full viewport height */
-  background: #30D5C8; /* HomiFi Teal - Overall page background as per new design */
-  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: var(--homifi-darker-blue); /* Darker blue background */
   padding: 20px;
-  box-sizing: border-box; /* Include padding in element's total width and height */
+  box-sizing: border-box;
 }
 
 /* The central login card */
 .login-card {
-  background-color: #ffffff; /* Clean White - For cards as per new design */
+  background-color: var(--clean-white); /* Clean White - For cards */
   padding: 45px 40px; /* Increased padding for a more spacious feel */
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(32, 20, 59, 0.1); /* Shadow using HomiFi Dark Blue */
@@ -22,13 +51,14 @@
   width: 100%;
   max-width: 450px; /* Slightly wider card for admin login */
   box-sizing: border-box;
-  border: 1px solid #e0e0e0; /* Border using Border/Subtle Elements color */
+  border: 1px solid var(--border-light); /* Border using Border/Subtle Elements color */
+  margin-bottom: 20px; /* Space between card and back link */
 }
 
 /* Header for the admin login form */
 .login-card h2 {
   font-size: 2.2em;
-  color: #333333; /* Dark Text */
+  color: var(--dark-text); /* Dark Text */
   margin-bottom: 30px;
   font-weight: 700;
   letter-spacing: -0.5px;
@@ -38,12 +68,13 @@
 .form-group {
   margin-bottom: 20px;
   text-align: left; /* Align labels and inputs to the left */
+  position: relative; /* For password toggle */
 }
 
 .form-group label {
   display: block; /* Make label take its own line */
   font-size: 0.95em;
-  color: #555555; /* Medium Text for labels */
+  color: var(--medium-text); /* Medium Text for labels */
   margin-bottom: 8px;
   font-weight: 600;
 }
@@ -52,28 +83,48 @@
 .form-input {
   width: 100%;
   padding: 14px 15px;
-  border: 1px solid #e0e0e0; /* Border/Subtle Elements */
+  border: 1px solid var(--border-light); /* Border/Subtle Elements */
   border-radius: 8px;
   font-size: 1em;
-  color: #333333; /* Dark Text */
+  color: var(--dark-text); /* Dark Text */
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
   box-sizing: border-box; /* Ensures padding doesn't increase total width */
 }
 
 .form-input:focus {
-  border-color: #30D5C8; /* HomiFi Teal on focus */
+  border-color: var(--homifi-teal); /* HomiFi Teal on focus */
   box-shadow: 0 0 0 3px rgba(48, 213, 200, 0.2); /* Soft shadow with HomiFi Teal */
   outline: none; /* Remove default outline */
 }
 
+/* Password input wrapper and toggle */
+.password-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-input-wrapper .form-input {
+    padding-right: 40px; /* Make space for the toggle icon */
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 1.2em; /* Adjust emoji size */
+    z-index: 10;
+}
+
 /* Error message styling */
 .error-message {
-  color: #dc3545; /* Error/Red */
+  color: var(--error-red); /* Error/Red */
   font-size: 0.9em;
-  margin-top: -10px; /* Adjust spacing */
+  margin-top: 5px; /* Adjust spacing */
   margin-bottom: 15px;
-  text-align: center;
-  font-weight: 500;
+  text-align: left; /* Align with input fields */
+  padding-left: 5px;
 }
 
 /* Login button styling */
@@ -85,9 +136,8 @@
   font-size: 1.1em;
   font-weight: 600;
   cursor: pointer;
-  /* Updated gradient to match the new design's button, using HomiFi Teal and a darker complementary shade */
-  background: linear-gradient(135deg, #30D5C8 0%, #20143b 100%);
-  color: #ffffff; /* White text */
+  background: linear-gradient(135deg, var(--homifi-teal) 0%, var(--homifi-dark-blue) 100%);
+  color: var(--clean-white); /* White text */
   text-transform: uppercase;
   letter-spacing: 0.8px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -97,76 +147,117 @@
 }
 
 .login-button:hover {
-  background: linear-gradient(135deg, #2abfbe 0%, #170e28 100%); /* Darker shades on hover */
+  background: linear-gradient(135deg, #27c2b6 0%, #170e28 100%); /* Darker shades on hover */
   transform: translateY(-3px) scale(1.02); /* Slight lift and zoom */
   box-shadow: 0 8px 20px rgba(32, 20, 59, 0.2); /* Enhanced shadow using HomiFi Dark Blue */
 }
 
 .login-button:disabled {
-  background: #e0e0e0; /* Border/Subtle Elements for disabled state */
-  color: #777777; /* Light Text */
+  background: var(--border-light); /* Border/Subtle Elements for disabled state */
+  color: var(--light-text); /* Light Text */
   cursor: not-allowed;
   box-shadow: none;
   transform: none; /* No transform when disabled */
 }
 
 /* Styling for additional links/text below the button */
-.forgot-password-link,
-.signup-text {
+.forgot-password-button {
+  background: none;
+  border: none;
+  color: var(--homifi-dark-blue); /* Dark Blue for link */
   font-size: 0.9em;
-  color: #555555; /* Medium Text */
   margin-top: 15px;
-  display: block; /* Ensures each takes its own line */
-  text-decoration: none; /* Remove underline for links */
+  cursor: pointer;
+  text-decoration: underline;
   transition: color 0.3s ease;
 }
 
-.forgot-password-link:hover {
-  color: #30D5C8; /* HomiFi Teal on hover for links */
-  text-decoration: underline; /* Add underline on hover */
-}
-
-.signup-text span {
-  color: #30D5C8; /* HomiFi Teal for the "Sign up here" part */
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.signup-text span:hover {
+.forgot-password-button:hover {
+  color: var(--homifi-teal); /* HomiFi Teal on hover for links */
   text-decoration: underline;
 }
 
-/* Updated styling for "Back to Login Page" to make it look like a subtle button */
-.back-to-login-link {
-  display: inline-block; /* Makes it behave like a block for padding/margin but allows text flow */
-  padding: 10px 20px; /* Padding for button appearance */
-  margin-top: 20px; /* Space from other elements */
-  border: 1px solid #e0e0e0; /* Subtle border */
-  border-radius: 8px; /* Rounded corners */
-  background-color: #f8f9fa; /* Soft Light Grey background */
-  color: #555555; /* Medium Text for the text */
-  font-size: 0.9em;
-  font-weight: 500;
-  text-decoration: none; /* Ensure no underline by default */
-  transition: all 0.3s ease-in-out;
-  cursor: pointer;
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
 }
 
-.back-to-login-link:hover {
-  background-color: #eeeeee; /* Slightly darker grey on hover */
-  border-color: #d0d0d0; /* Darker border on hover */
-  color: #333333; /* Dark Text on hover */
-  transform: translateY(-2px); /* Subtle lift on hover */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); /* Soft shadow on hover */
-  text-decoration: none; /* Ensure no underline on hover */
+.modal-content {
+    background-color: var(--clean-white);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 450px;
+    position: relative;
+    animation: fadeInScale 0.3s ease-out;
 }
 
-/* Arrow styling for "Back to Login Page" */
-.back-to-login-link::before {
-  content: '← '; /* Left arrow character */
-  margin-right: 5px;
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
+.modal-close-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 2em;
+    cursor: pointer;
+    color: var(--medium-text);
+    transition: color 0.2s ease;
+}
+
+.modal-close-button:hover {
+    color: var(--dark-text);
+}
+
+.modal-content h3 {
+    margin-top: 0;
+    margin-bottom: 25px;
+    color: var(--dark-text);
+    font-size: 1.8em;
+    text-align: center;
+}
+
+.info-message {
+    color: var(--success-green);
+    margin-top: 15px;
+    font-size: 0.9em;
+    text-align: center;
+}
+
+.back-to-main-login {
+    margin-top: 20px; /* Space from the login card */
+    font-size: 0.9em;
+    color: var(--medium-text); /* Muted color for this specific link */
+    cursor: pointer;
+    transition: color 0.2s ease;
+    text-decoration: none; /* Ensure no underline by default */
+}
+
+.back-to-main-login:hover {
+    color: var(--dark-text);
+    text-decoration: underline;
+}
 
 /* --- Responsive Design --- */
 @media (max-width: 600px) {

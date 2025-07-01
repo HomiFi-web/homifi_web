@@ -1,25 +1,22 @@
-// src/pages/PgOwnerDashboard.jsx - Last updated: 2025-06-28 (JSX with embedded CSS for reliability and error fixes)
+// src/pages/PgOwnerDashboard.jsx - Last updated: 2025-07-01 (All image functionalities removed)
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut, sendPasswordResetEmail } from 'firebase/auth';
 import { getFirestore, collection, addDoc, query, where, getDocs, doc, updateDoc, setDoc, getDoc, orderBy, writeBatch, onSnapshot } from 'firebase/firestore';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+// Removed all Firebase Storage imports as image functionality is removed
+// import { getStorage, ref, uploadBytes, getDownloadURL, listAll, deleteObject } from 'firebase/storage'; 
 // Import lucide-react icons
-import { User, LayoutDashboard, CheckSquare, Bell, Key, LogOut } from 'lucide-react';
-
-
-// Logo is replaced with text for consistency and to avoid ERR_UNKNOWN_URL_SCHEME for contentFetchId
-// In a production environment, 'homifiLogo' would be a public URL or a bundled asset.
-// If you have a local image file (e.g., in src/assets), you would import it like:
-// import homifiLogo from '../assets/logo.png'; // Assuming logo.png is in src/assets
-// Then use it as <img src={homifiLogo} alt="Homifi Logo" className="homifi-logo" />
+import { User, LayoutDashboard, CheckSquare, Bell, Key, LogOut } from 'lucide-react'; // Removed Image and ArrowLeft icons
 
 // Declare global variables for ESLint and provide fallback values
 const __initial_auth_token = typeof window !== 'undefined' && typeof window.__initial_auth_token !== 'undefined' ? window.__initial_auth_token : '';
-const __app_id = typeof window !== 'undefined' && typeof window.__app_id !== 'undefined' ? window.__app_id : 'default-app-id';
-// Fix: Add the declaration for __firebase_config here
+const __app_id = typeof window !== 'undefined' && typeof window.__app_id !== 'undefined' ? window.__app_id : 'homifi-4d283'; // Default to homifi-4d283
 const __firebase_config = typeof window !== 'undefined' && typeof window.__firebase_config !== 'undefined' ? window.__firebase_config : '{}';
+
+
+// --- ImageManager Component (Completely Removed) ---
+// The ImageManager component and its related code are no longer present here.
 
 
 const PgOwnerDashboard = () => {
@@ -34,8 +31,8 @@ const PgOwnerDashboard = () => {
   const [countryCode, setCountryCode] = useState('+91');
   const [pgOwnerPhoneNumber, setPgOwnerPhoneNumber] = useState('');
   const [locationLink, setLocationLink] = useState('');
-  // Updated photos state to include 'blobUrl' for immediate local preview
-  const [photos, setPhotos] = useState([]); // Stores { url: string, caption: string, blobUrl?: string }
+  // Removed photos state and related photo upload progress
+  // const [photos, setPhotos] = useState([]); 
   const [facilities, setFacilities] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentPgId, setCurrentPgId] = useState(null); // To store ID of PG being edited
@@ -45,14 +42,18 @@ const PgOwnerDashboard = () => {
   // Firebase state
   const [db, setDb] = useState(null);
   const [auth, setAuth] = useState(null);
-  const [storage, setStorage] = useState(null);
+  // Removed storage state
+  // const [storage, setStorage] = useState(null);
   const [userId, setUserId] = useState(null);
   const [userEmail, setUserEmail] = useState('');
   const [isAuthReady, setIsAuthReady] = useState(false);
   const [userListings, setUserListings] = useState([]);
-  const [photoUploadProgress, setPhotoUploadProgress] = useState(0);
+  // Removed photo upload progress
+  // const [photoUploadProgress, setPhotoUploadProgress] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState('form'); // 'form' or 'listings'
+  const [activeSection, setActiveSection] = useState('form'); // 'form', 'listings'
+  // Removed showImageManager state
+  // const [showImageManager, setShowImageManager] = useState(false); 
 
   const [hoveredButton, setHoveredButton] = useState(null);
 
@@ -60,14 +61,13 @@ const PgOwnerDashboard = () => {
   const [notifications, setNotifications] = useState([]); // Stores { id: string, message: string, read: boolean, timestamp: Date }
   const [showNotificationsPopup, setShowNotificationsPopup] = useState(false);
 
-  // Profile photo states - Removed profilePhotoUrl, profilePhotoLoading, profilePhotoError, profilePhotoInputRef
-
 
   // Message states for displaying feedback to the user
   const [message, setMessage] = useState('');
   const [messageType, setMessageType ] = useState(''); // 'success', 'error', 'info'
 
-  const fileInputRef = useRef(null);
+  // Removed fileInputRef
+  // const fileInputRef = useRef(null);
   const sidebarRef = useRef(null);
   const formSectionRef = useRef(null); // Ref for the form section
   const notificationPopupRef = useRef(null); // Ref for the notification popup
@@ -78,11 +78,12 @@ const PgOwnerDashboard = () => {
   const [pgOwnerNameError, setPgOwnerNameError] = useState('');
   const [pgOwnerEmailError, setPgOwnerEmailError] = useState('');
   const [addressError, setAddressError] = useState('');
-  const [stateError, setStateError] = useState('');
+  const [stateError, setStateError] = useState(''); // Corrected syntax here
   const [countryError, setCountryError] = useState('');
   const [pincodeError, setPincodeError] = useState('');
   const [pgOwnerPhoneNumberError, setPgOwnerPhoneNumberError] = useState('');
-  const [photosError, setPhotosError] = useState('');
+  // Removed photosError
+  // const [photosError, setPhotosError] = useState('');
   const [sharingOptionsError, setSharingOptionsError] = useState('');
   const [facilitiesError, setFacilitiesError] = useState('');
   const [genderPreferenceError, setGenderPreferenceError] = useState('');
@@ -137,11 +138,11 @@ const PgOwnerDashboard = () => {
     setPincode('');
     setPgOwnerPhoneNumber('');
     setLocationLink('');
-    // Revoke object URLs when clearing photos to prevent memory leaks
-    photos.forEach(p => {
-        if (p.blobUrl) URL.revokeObjectURL(p.blobUrl);
-    });
-    setPhotos([]);
+    // Removed photo related clear logic
+    // photos.forEach(p => {
+    //     if (p.blobUrl) URL.revokeObjectURL(p.blobUrl);
+    // });
+    // setPhotos([]);
     setFacilities([]);
     setSharingOptions([
       { type: '1 Share', status: '', price: '', hasMess: false },
@@ -152,43 +153,50 @@ const PgOwnerDashboard = () => {
     setCurrentPgId(null);
     setGenderPreference('');
 
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-      console.log('File input value cleared.');
-    }
+    // Removed fileInputRef clear
+    // if (fileInputRef.current) {
+    //   fileInputRef.current.value = '';
+    //   console.log('File input value cleared.');
+    // }
 
     // Clear all errors
     setPgNameError(''); setPgOwnerNameError(''); setPgOwnerEmailError(''); setAddressError('');
     setStateError(''); setCountryError(''); setPincodeError(''); setPgOwnerPhoneNumberError('');
-    setPhotosError(''); setSharingOptionsError(''); setFacilitiesError(''); setGenderPreferenceError('');
+    // Removed photosError clear
+    // setPhotosError('');
+    setSharingOptionsError(''); setFacilitiesError(''); setGenderPreferenceError('');
     setMessage(''); setMessageType('');
-  }, [photos]); // Added photos to dependency array for revokeObjectURL
-
+  }, []); // Removed photos from dependency array
 
   // Firebase Initialization and Auth
   useEffect(() => {
     try {
       // Firebase config must be parsed from the global string variable
       const firebaseConfig = JSON.parse(__firebase_config);
-      // Ensure the correct storage bucket is explicitly set, as Firebase SDK might default to .appspot.com
-      // even if the actual bucket is .firebasestorage.app. Your console screenshot confirms 'firebasestorage.app'
-      // is the valid bucket.
-      if (!firebaseConfig.storageBucket || firebaseConfig.storageBucket.includes('.appspot.com')) {
-          firebaseConfig.storageBucket = 'homifi-4d283.firebasestorage.app'; // Force the correct bucket
-      }
+      
+      // Removed storageBucket configuration as image functionality is removed
+      // if (!firebaseConfig.storageBucket || firebaseConfig.storageBucket.includes('.appspot.com')) {
+      //     firebaseConfig.storageBucket = 'homifi-4d283.firebasestorage.app'; // Force the correct bucket
+      // }
+      
+      // Log the firebaseConfig being used for debugging
+      console.log("PgOwnerDashboard Firebase Config:", firebaseConfig);
+
       const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
       const authInstance = getAuth(app);
-      const dbInstance = getFirestore(app);
+      
+      // Removed storage instance initialization
+      // const storageBucketUrl = `gs://${firebaseConfig.storageBucket}`;
+      // const storageInstance = getStorage(app, storageBucketUrl);
+      // console.log("PgOwnerDashboard Storage Bucket (from instance):", storageInstance.app.options.storageBucket);
 
-      // Explicitly initialize getStorage with the desired bucket URL
-      // This is crucial to ensure all storage operations target the correct bucket with CORS configured
-      const storageBucketUrl = `gs://${firebaseConfig.storageBucket}`;
-      const storageInstance = getStorage(app, storageBucketUrl);
+      const dbInstance = getFirestore(app);
 
 
       setAuth(authInstance);
       setDb(dbInstance);
-      setStorage(storageInstance);
+      // Removed setStorage
+      // setStorage(storageInstance);
 
       const unsubscribe = onAuthStateChanged(authInstance, async (user) => {
         if (user) {
@@ -216,38 +224,48 @@ const PgOwnerDashboard = () => {
       console.error("Failed to initialize Firebase:", error);
       displayMessage(`Failed to initialize the application: ${error.message}. Please try again.`, 'error');
     }
-  }, [displayMessage]);
+  }, [displayMessage, initializeApp, getApps, getApp, getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged, getFirestore]); // Removed getStorage from dependencies
 
   // Helper function to get the correct Firestore collection reference (private for user)
   const getPgListingsCollectionRef = useCallback((uid) => {
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    const appId = __app_id; // Use the global __app_id directly
     // Ensure db is not null before accessing collection
     if (!db) {
         console.error("Firestore database instance is not available.");
         return null;
     }
     return collection(db, `artifacts/${appId}/users/${uid}/pg_listings`);
-  }, [db]); // Depend on db instance
+  }, [db, collection]); // Depend on db instance and collection function
 
   // Helper function to get the correct Firestore notifications collection reference
   const getNotificationsCollectionRef = useCallback((uid) => {
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    const appId = __app_id; // Use the global __app_id directly
     if (!db) {
         console.error("Firestore database instance is not available for notifications.");
         return null;
     }
     return collection(db, `artifacts/${appId}/users/${uid}/notifications`);
-  }, [db]);
+  }, [db, collection]);
 
   // Helper function to get the public collection for admin verifications
   const getAdminVerificationCollectionRef = useCallback(() => {
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    const appId = __app_id; // Use the global __app_id directly
     if (!db) {
         console.error("Firestore database instance is not available for admin verifications.");
         return null;
     }
     return collection(db, `artifacts/${appId}/public/data/admin_pending_pg_verifications`);
-  }, [db]);
+  }, [db, collection]);
+
+  // Helper function to get the public collection for accepted PG listings
+  const getAcceptedPgListingsCollectionRef = useCallback(() => {
+    const appId = __app_id; // Use the global __app_id directly
+    if (!db) {
+        console.error("Firestore database instance is not available for accepted PG listings.");
+        return null;
+    }
+    return collection(db, `artifacts/${appId}/public/data/pg_listings`);
+  }, [db, collection]);
 
 
   // Function to add a notification to Firestore
@@ -285,7 +303,7 @@ const PgOwnerDashboard = () => {
       } catch (error) {
           console.error("Error adding notification to Firestore:", error);
       }
-  }, [db, userId, getNotificationsCollectionRef]);
+  }, [db, userId, getNotificationsCollectionRef, addDoc, query, where, getDocs]);
 
 
   // Function to mark a notification as read in Firestore
@@ -298,7 +316,7 @@ const PgOwnerDashboard = () => {
       } catch (error) {
           console.error("Error marking notification as read:", error);
       }
-  }, [db, userId]);
+  }, [db, userId, doc, updateDoc]);
 
   // Function to clear all notifications from Firestore
   const clearAllNotificationsFromFirestore = useCallback(async () => {
@@ -318,7 +336,44 @@ const PgOwnerDashboard = () => {
       } catch (error) {
           console.error("Error clearing notifications:", error);
       }
-  }, [db, userId, getNotificationsCollectionRef]);
+  }, [db, userId, getNotificationsCollectionRef, query, getDocs, writeBatch]);
+
+  // Helper function to parse and format phone numbers for display
+  const formatPhoneNumberForDisplay = useCallback((phoneNumber) => {
+    if (!phoneNumber) return '';
+    let cleanedNumber = phoneNumber.replace(/[^0-9]/g, ''); // Remove non-digits
+
+    // Attempt to extract country code if present at the beginning
+    let displayCountryCode = '';
+    let displayPhoneNumber = cleanedNumber;
+
+    // Common country codes to check for
+    const commonCodes = ['91', '1', '44', '61', '49', '33', '81', '86', '55', '27'];
+    for (const code of commonCodes) {
+        if (cleanedNumber.startsWith(code) && cleanedNumber.length > code.length) {
+            displayCountryCode = `+${code}`;
+            displayPhoneNumber = cleanedNumber.substring(code.length);
+            break;
+        }
+    }
+
+    // If no specific country code matched, assume it's just the number
+    if (!displayCountryCode) {
+        displayCountryCode = ''; // Or a default like '+91' if that's the primary region
+        displayPhoneNumber = cleanedNumber;
+    }
+
+    // Further clean the parsed phone number by taking only the first 10 digits for common cases
+    // This addresses the issue of concatenated numbers from previous bad saves.
+    if (displayCountryCode === '+91' && displayPhoneNumber.length > 10) {
+        displayPhoneNumber = displayPhoneNumber.substring(0, 10);
+    } else if (displayPhoneNumber.length > 15) { // General fallback for very long numbers
+        displayPhoneNumber = displayPhoneNumber.substring(0, 15);
+    }
+
+    // Format for display: +XX YYYYYYYYYY or YYYYYYYYYY
+    return displayCountryCode ? `${displayCountryCode} ${displayPhoneNumber}` : displayPhoneNumber;
+  }, []);
 
   // Fetch user-specific listings when userId or db changes
   useEffect(() => {
@@ -328,7 +383,15 @@ const PgOwnerDashboard = () => {
         try {
           const q = query(collectionRef, where('ownerId', '==', userId));
           const querySnapshot = await getDocs(q);
-          const listings = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          const listings = querySnapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+              id: doc.id,
+              ...data,
+              // Format the phone number for display here
+              pgOwnerPhoneNumber: formatPhoneNumberForDisplay(data.pgOwnerPhoneNumber),
+            };
+          });
           setUserListings(listings);
           console.log("Fetched user listings:", listings);
         } catch (error) {
@@ -341,7 +404,7 @@ const PgOwnerDashboard = () => {
     if (isAuthReady) {
         fetchUserListings();
     }
-  }, [db, userId, isAuthReady, displayMessage, getPgListingsCollectionRef]);
+  }, [db, userId, isAuthReady, displayMessage, getPgListingsCollectionRef, formatPhoneNumberForDisplay, query, where, getDocs]);
 
   // Effect to listen for real-time notifications from Firestore
   useEffect(() => {
@@ -366,7 +429,7 @@ const PgOwnerDashboard = () => {
       });
 
       return () => unsubscribe(); // Cleanup listener on unmount
-  }, [db, userId, getNotificationsCollectionRef]);
+  }, [db, userId, getNotificationsCollectionRef, query, orderBy, onSnapshot]);
 
   // Effect to check PG listing status changes and create notifications (Admin Simulation)
   useEffect(() => {
@@ -413,112 +476,17 @@ const PgOwnerDashboard = () => {
     setGenderPreferenceError('');
   };
 
-  // Modified handlePhotoUpload to use Firebase Storage and create local blob URLs
-  const handlePhotoUpload = async (e) => {
-    setPhotosError('');
-    if (!storage || !userId) {
-        displayMessage("Storage not initialized or user not authenticated.", 'error');
-        return;
-    }
+  // Removed handlePhotoUpload function
+  // const handlePhotoUpload = async (e) => { ... };
 
-    if (e.target.files) {
-      const filesToUpload = Array.from(e.target.files);
-      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/heic', 'image/png'];
-      const maxFileSize = 30 * 1024 * 1024; // 30 MB
+  // Removed useEffect for revoking blob URLs
+  // useEffect(() => { ... }, [photos]);
 
-      const validFiles = [];
-      let uploadError = '';
+  // Removed handlePhotoCaptionChange function
+  // const handlePhotoCaptionChange = (index, caption) => { ... };
 
-      for (const file of filesToUpload) {
-        if (!allowedTypes.includes(file.type)) {
-          uploadError = `File '${file.name}' is not a supported image type (JPG, JPEG, PNG, HEIC).`;
-          break;
-        }
-        if (file.size > maxFileSize) {
-          uploadError = `File '${file.name}' exceeds the 30MB limit.`;
-          break;
-        }
-        validFiles.push(file);
-      }
-
-      if (uploadError) {
-        setPhotosError(uploadError);
-        if (fileInputRef.current) fileInputRef.current.value = ''; // Clear input
-        return;
-      }
-
-      if (photos.length + validFiles.length > 10) {
-        setPhotosError('You can upload a maximum of 10 photos in total.');
-        if (fileInputRef.current) fileInputRef.current.value = ''; // Clear input
-        return;
-      }
-
-      setLoading(true);
-      let uploadedCount = 0;
-      const newPhotoEntries = [];
-
-      try {
-        for (const file of validFiles) {
-          const storagePath = `pg_images/${userId}/${Date.now()}_${file.name}`;
-          const imageRef = ref(storage, storagePath);
-          await uploadBytes(imageRef, file);
-          // Modification Start: Construct the URL to use firebasestorage.app
-          // This ensures the URL matches the bucket you successfully configured CORS on
-          // The bucket name is now ensured to be correct by firebaseConfig.storageBucket
-          const downloadURL = `https://firebasestorage.googleapis.com/v0/b/${storage.app.options.storageBucket}/o/${encodeURIComponent(storagePath)}?alt=media`;
-          // Modification End
-
-          // Create a temporary object URL for immediate local display
-          const blobUrl = URL.createObjectURL(file);
-          newPhotoEntries.push({ url: downloadURL, caption: '', blobUrl: blobUrl }); // Store both URLs
-          uploadedCount++;
-          setPhotoUploadProgress(Math.floor((uploadedCount / validFiles.length) * 100));
-        }
-        setPhotos(prevPhotos => [...prevPhotos, ...newPhotoEntries]);
-        displayMessage("Photos uploaded successfully!", 'success', 3000);
-        setPhotoUploadProgress(0);
-      } catch (error) {
-        console.error("Error uploading photos:", error);
-        displayMessage(`Failed to upload photos: ${error.message}. Please check your Firebase Storage CORS policy and Firebase Storage Rules.`, 'error');
-      } finally {
-        setLoading(false);
-        if (fileInputRef.current) fileInputRef.current.value = '';
-      }
-    }
-  };
-
-  // Ensure blob URLs are revoked when component unmounts or photos change
-  useEffect(() => {
-    return () => {
-      photos.forEach(p => {
-        if (p.blobUrl) URL.revokeObjectURL(p.blobUrl);
-      });
-    };
-  }, [photos]);
-
-
-  const handlePhotoCaptionChange = (index, caption) => {
-    const newPhotos = [...photos];
-    newPhotos[index].caption = caption;
-    setPhotos(newPhotos);
-  };
-
-  const handleRemovePhoto = (indexToRemove) => {
-    setPhotos((prevPhotos) => {
-      const photoToRemove = prevPhotos[indexToRemove];
-      if (photoToRemove && photoToRemove.blobUrl) {
-        URL.revokeObjectURL(photoToRemove.blobUrl); // Revoke the blob URL
-      }
-      const newPhotos = prevPhotos.filter((_, i) => i !== indexToRemove);
-      setPhotosError('');
-      displayMessage("Photo removed.", 'info', 2000);
-      // If newPhotos become empty, also clear the file input
-      if (newPhotos.length === 0 && fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-      return newPhotos;
-    });
-  };
+  // Removed handleRemovePhoto function
+  // const handleRemovePhoto = (indexToRemove) => { ... };
 
   const handleFacilityChange = (facility) => {
     setFacilities((prevFacilities) => {
@@ -542,29 +510,34 @@ const PgOwnerDashboard = () => {
     setPincode(listing.pincode || '');
     setGenderPreference(listing.genderPreference || '');
     const storedPhoneNumber = listing.pgOwnerPhoneNumber || '';
+
+    // --- Start of Phone Number Parsing Improvement ---
+    let parsedCountryCode = '+91'; // Default to +91
+    let parsedPhoneNumber = storedPhoneNumber;
+
+    // Attempt to extract country code if present at the beginning
     const codeMatch = storedPhoneNumber.match(/^\+(\d+)/);
     if (codeMatch) {
-      setCountryCode(codeMatch[0]);
-      setPgOwnerPhoneNumber(storedPhoneNumber.substring(codeMatch[0].length));
-    } else {
-      setCountryCode('+91');
-      setPgOwnerPhoneNumber(storedPhoneNumber);
+      parsedCountryCode = codeMatch[0];
+      parsedPhoneNumber = storedPhoneNumber.substring(codeMatch[0].length);
     }
+
+    // Further clean the parsed phone number by taking only the first 10 digits
+    // This addresses the issue of concatenated numbers from previous bad saves.
+    // Adjust this logic if other countries require different lengths.
+    if (parsedCountryCode === '+91' && parsedPhoneNumber.length > 10) {
+        parsedPhoneNumber = parsedPhoneNumber.substring(0, 10);
+    } else if (parsedPhoneNumber.length > 15) { // General fallback for very long numbers
+        parsedPhoneNumber = parsedPhoneNumber.substring(0, 15);
+    }
+    // --- End of Phone Number Parsing Improvement ---
+
+    setCountryCode(parsedCountryCode);
+    setPgOwnerPhoneNumber(parsedPhoneNumber);
+
     setLocationLink(listing.locationLink || '');
-    // Modification Start: Ensure photos loaded from Firestore use the firebasestorage.app domain
-    setPhotos(listing.photos ? listing.photos.map(p => {
-        // If the URL from Firestore still uses .appspot.com, try to convert it.
-        // This is a defensive measure in case old data exists or getDownloadURL behavior changes.
-        if (p.url && storage && storage.app && storage.app.options.storageBucket && p.url.includes('.appspot.com')) {
-            const path = p.url.split('/o/')[1].split('?')[0]; // Extract the path after /o/ and before ?
-            return {
-                url: `https://firebasestorage.googleapis.com/v0/b/${storage.app.options.storageBucket}/o/${path}?alt=media`,
-                caption: p.caption || ''
-            };
-        }
-        return { url: p.url, caption: p.caption || '' };
-    }) : []);
-    // Modification End
+    // Removed photos loading logic
+    // setPhotos(listing.photos ? listing.photos.map(p => ({ url: p.url, caption: p.caption || '' })) : []);
 
     setFacilities(listing.facilities || []);
 
@@ -576,23 +549,28 @@ const PgOwnerDashboard = () => {
     setCurrentPgId(listing.id);
     setActiveSection('form'); // When loading for edit, always show the form
 
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+    // Removed fileInputRef clear
+    // if (fileInputRef.current) {
+    //   fileInputRef.current.value = '';
+    // }
 
     setPgNameError(''); setPgOwnerNameError(''); setPgOwnerEmailError(''); setAddressError('');
     setStateError(''); setCountryError(''); setPincodeError(''); setPgOwnerPhoneNumberError('');
-    setPhotosError(''); setSharingOptionsError(''); setFacilitiesError(''); setGenderPreferenceError('');
+    // Removed photosError clear
+    // setPhotosError('');
+    setSharingOptionsError(''); setFacilitiesError(''); setGenderPreferenceError('');
     setMessage(''); setMessageType('');
     displayMessage(`Editing listing: "${listing.pgName}"`, 'info', 3000);
-  }, [sharingOptions, displayMessage, storage]); // Added storage to dependencies
+  }, [sharingOptions, displayMessage]);
 
   const handleSendForValidation = async () => {
     setLoading(true);
     // Clear all previous errors and messages before validation
     setPgNameError(''); setPgOwnerNameError(''); setPgOwnerEmailError(''); setAddressError('');
     setStateError(''); setCountryError(''); setPincodeError(''); setPgOwnerPhoneNumberError('');
-    setPhotosError(''); setSharingOptionsError(''); setFacilitiesError('');
+    // Removed photosError clear
+    // setPhotosError('');
+    setSharingOptionsError(''); setFacilitiesError('');
     setMessage(''); setMessageType(''); setGenderPreferenceError('');
 
     let isValid = true;
@@ -615,11 +593,28 @@ const PgOwnerDashboard = () => {
     if (!pincode) { setPincodeError('Pincode is required.'); isValid = false; }
     else if (!/^\d+$/.test(pincode)) { setPincodeError('Pincode can only contain digits.'); isValid = false; }
 
-    if (!pgOwnerPhoneNumber) { setPgOwnerPhoneNumberError('Phone Number is required.'); isValid = false; }
-    else if (!/^\d+$/.test(pgOwnerPhoneNumber)) { setPgOwnerPhoneNumberError('Phone Number can only contain digits.'); isValid = false; }
+    // --- Start of Phone Number Validation Improvement ---
+    if (!pgOwnerPhoneNumber) {
+        setPgOwnerPhoneNumberError('Phone Number is required.');
+        isValid = false;
+    } else if (!/^\d+$/.test(pgOwnerPhoneNumber)) {
+        setPgOwnerPhoneNumberError('Phone Number can only contain digits.');
+        isValid = false;
+    } else {
+        // Specific length validation based on country code
+        if (countryCode === '+91' && pgOwnerPhoneNumber.length !== 10) {
+            setPgOwnerPhoneNumberError('Indian phone numbers must be 10 digits long.');
+            isValid = false;
+        } else if (pgOwnerPhoneNumber.length < 7 || pgOwnerPhoneNumber.length > 15) { // General fallback for other countries
+            setPgOwnerPhoneNumberError('Phone number must be between 7 and 15 digits long.');
+            isValid = false;
+        }
+    }
+    // --- End of Phone Number Validation Improvement ---
 
-    if (photos.length < 3) { setPhotosError('Please upload a minimum of 3 photos.'); isValid = false; }
-    else if (photos.length > 10) { setPhotosError('You can upload a maximum of 10 photos.'); isValid = false; }
+    // Removed photos validation
+    // if (photos.length < 3) { setPhotosError('Please upload a minimum of 3 photos.'); isValid = false; }
+    // else if (photos.length > 10) { setPhotosError('You can upload a maximum of 10 photos.'); isValid = false; }
 
     const activeSharingOptions = sharingOptions.filter(
       (option) => option.status || option.price
@@ -651,7 +646,9 @@ const PgOwnerDashboard = () => {
     // Ensure db and userId are available before proceeding with Firestore operations
     const collectionRef = getPgListingsCollectionRef(userId);
     const adminVerificationCollectionRef = getAdminVerificationCollectionRef();
-    if (!db || !userId || !collectionRef || !adminVerificationCollectionRef) {
+    const acceptedPgListingsCollectionRef = getAcceptedPgListingsCollectionRef(); // Get reference to public accepted listings
+
+    if (!db || !userId || !collectionRef || !adminVerificationCollectionRef || !acceptedPgListingsCollectionRef) {
       displayMessage("Application not ready for submission. Please wait for Firebase to initialize and user to authenticate.", 'error');
       setLoading(false);
       return;
@@ -664,19 +661,8 @@ const PgOwnerDashboard = () => {
         pgName, pgOwnerName, pgOwnerEmail, ownerId: userId, genderPreference,
         address, state, country, pincode, pgOwnerPhoneNumber: fullPhoneNumber,
         locationLink,
-        // Ensure photos saved to Firestore use the firebasestorage.app domain
-        photos: photos.map(p => {
-          // If the URL created by getDownloadURL (which uses .appspot.com)
-          // is being used, convert it to the .firebasestorage.app format before saving.
-          if (p.url && storage && storage.app && storage.app.options.storageBucket && p.url.includes('.appspot.com')) {
-              const path = p.url.split('/o/')[1].split('?')[0];
-              return {
-                  url: `https://firebasestorage.googleapis.com/v0/b/${storage.app.options.storageBucket}/o/${path}?alt=media`,
-                  caption: p.caption || ''
-              };
-          }
-          return { url: p.url, caption: p.caption || '' };
-        }),
+        // Removed photos field from pgDetailsToSave
+        // photos: photos.map(p => ({ url: p.url, caption: p.caption || '' })),
         facilities,
         sharingOptions: activeSharingOptions,
         status: currentPgId ? (userListings.find(l => l.id === currentPgId)?.status || 'pending') : 'pending', // Keep existing status if editing, else 'pending'
@@ -688,9 +674,9 @@ const PgOwnerDashboard = () => {
         userName: pgOwnerName, // This stores the name entered in the form.
         email: pgOwnerEmail,
         phone: fullPhoneNumber,
-        // profilePhotoUrl: profilePhotoUrl // Removed profilePhotoUrl from ownerDetailsToSave
       };
-      await setDoc(doc(db, 'artifacts', __app_id, 'users', userId, 'pg_owners', userId), ownerDetailsToSave, { merge: true });
+      // Save owner details to the top-level 'pg_owners' collection
+      await setDoc(doc(db, 'pg_owners', userId), ownerDetailsToSave, { merge: true });
       console.log("Owner details saved/updated for userId: ", userId);
       // IMPORTANT: DO NOT setUserName(pgOwnerName) here.
       // The userName state for display should remain user.email as per user request.
@@ -714,6 +700,15 @@ const PgOwnerDashboard = () => {
         }, { merge: true });
         console.log("Admin verification document updated with ID: ", currentPgId);
 
+        // If the PG was already accepted, update it in the public accepted listings collection
+        if (oldStatus === 'accepted') {
+            await setDoc(doc(acceptedPgListingsCollectionRef, currentPgId), {
+                ...pgDetailsToSave,
+                pgListingId: currentPgId
+            }, { merge: true });
+            console.log("Accepted PG listing updated in public collection with ID: ", currentPgId);
+        }
+
       } else {
         const docRef = await addDoc(collectionRef, pgDetailsToSave);
         newOrUpdatedPgId = docRef.id;
@@ -734,7 +729,14 @@ const PgOwnerDashboard = () => {
       // Re-fetch listings to update the displayed list
       const q = query(collectionRef, where('ownerId', '==', userId));
       const querySnapshot = await getDocs(q);
-      const listings = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const listings = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          pgOwnerPhoneNumber: formatPhoneNumberForDisplay(data.pgOwnerPhoneNumber),
+        };
+      });
       setUserListings(listings);
       setActiveSection('listings'); // Automatically switch to listings view after submission/update
 
@@ -762,7 +764,6 @@ const PgOwnerDashboard = () => {
         setUserEmail('');
         setUserListings([]);
         setUserName('PG Owner'); // Reset username on logout
-        // setProfilePhotoUrl(''); // Removed clear profile photo on logout
         console.log("User logged out successfully.");
         navigate('/login');
       } catch (error) {
@@ -779,7 +780,13 @@ const PgOwnerDashboard = () => {
         displayMessage('Password reset email sent! Please check your inbox.', 'success');
       } catch (error) {
         console.error("Error sending password reset email:", error);
-        displayMessage(`Failed to send password reset email: ${error.message}`, 'error');
+        let errorMessage = "Failed to send password reset email.";
+        if (error.code === 'auth/user-not-found') {
+          errorMessage = "No user found with this email.";
+        } else if (error.code === 'auth/invalid-email') {
+          errorMessage = "Invalid email format.";
+        }
+        displayMessage(errorMessage, 'error');
       }
     } else {
       displayMessage("Cannot reset password for anonymous or invalid users.", 'error');
@@ -793,6 +800,7 @@ const PgOwnerDashboard = () => {
   // New function to handle Dashboard click
   const handleDashboardClick = () => {
     setActiveSection('form'); // Set active section to form
+    // Removed setShowImageManager(false)
     setIsSidebarOpen(false); // Close sidebar after clicking
     displayMessage('Displaying PG Property Details form.', 'info', 2000);
   };
@@ -800,15 +808,21 @@ const PgOwnerDashboard = () => {
   // New function to handle View Status click
   const handleViewStatusClick = () => {
     setActiveSection('listings'); // Set active section to listings
+    // Removed setShowImageManager(false)
     setIsSidebarOpen(false); // Close sidebar after clicking
     displayMessage('Displaying your existing PG listings.', 'info', 2000);
   };
 
-  // Updated handleViewNotifications to show the notification popup
+  // New function to handle View Notifications click
   const handleViewNotifications = () => {
     setShowNotificationsPopup(true);
+    // Removed setShowImageManager(false)
     setIsSidebarOpen(false); // Close sidebar after clicking
   };
+
+  // Removed handleManageImagesClick function
+  // const handleManageImagesClick = () => { ... };
+
 
   // Mark notification as read (calls Firestore function)
   const markNotificationAsRead = (id) => {
@@ -1049,7 +1063,7 @@ const PgOwnerDashboard = () => {
             display: flex;
             align-items: center;
             gap: 0.8rem; /* Adjusted from 1rem for less space for icons */
-            font-size: 1rem; /* Adjusted from 1.05rem for slightly smaller */
+            font-size: 1rem;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -1338,79 +1352,12 @@ const PgOwnerDashboard = () => {
             transform: translate(-50%, -50%);
         }
 
-        /* Photo Upload and Preview */
-        .photo-preview-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 1.2rem;
-            margin-top: 1.2rem;
-            background-color: var(--bg-light-grey);
-            padding: 1.2rem;
-            border-radius: var(--border-radius-medium);
-            border: 1px solid var(--border-light);
-        }
-
-        .photo-preview-item {
-            position: relative;
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--border-radius-small);
-            padding: 0.6rem;
-            background-color: var(--bg-white);
-            box-shadow: var(--shadow-sm);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .photo-preview-item:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .photo-preview-image {
-            width: 100%;
-            height: 110px;
-            object-fit: cover;
-            border-radius: var(--border-radius-small);
-            margin-bottom: 0.6rem;
-        }
-
-        .photo-caption-input {
-            width: calc(100% - 12px);
-            padding: 0.35rem;
-            border: 1px solid var(--border-light);
-            border-radius: var(--border-radius-small);
-            font-size: 0.85rem;
-            resize: vertical;
-            margin-bottom: 0.6rem;
-        }
-
-        .remove-photo-button {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background-color: var(--error-red);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.3rem;
-            cursor: pointer;
-            opacity: 0.9;
-            transition: opacity 0.2s, transform 0.2s;
-            line-height: 1;
-            padding: 0;
-        }
-
-        .remove-photo-button:hover {
-            opacity: 1;
-            transform: scale(1.1);
-        }
+        /* Photo Upload and Preview (Removed) */
+        /* .photo-preview-grid { ... } */
+        /* .photo-preview-item { ... } */
+        /* .photo-preview-image { ... } */
+        /* .photo-caption-input { ... } */
+        /* .remove-photo-button { ... } */
 
         .loading-message {
             font-size: 0.95rem;
@@ -1950,8 +1897,7 @@ const PgOwnerDashboard = () => {
                 width: 250px;
             }
             .notification-popup {
-                width: 95%;
-                padding: 1.2rem;
+                padding: 1.5rem;
             }
             .notification-popup-header h3 {
                 font-size: 1.3rem;
@@ -1997,7 +1943,7 @@ const PgOwnerDashboard = () => {
                 gap: 0.6rem;
             }
             .sidebar-button svg {
-                font-size: 1rem;
+                font-size: 1.1rem;
             }
             .profile-sidebar {
                 width: 220px;
@@ -2069,6 +2015,17 @@ const PgOwnerDashboard = () => {
             )}
           </button>
 
+          {/* Removed Manage Images Button */}
+          {/* <button
+            onClick={handleManageImagesClick}
+            className="sidebar-button"
+            onMouseEnter={() => setHoveredButton('manage-images')}
+            onMouseLeave={() => setHoveredButton(null)}
+          >
+            <Image size={20} />
+            <span>{hoveredButton === 'manage-images' ? 'Clean Images' : 'Manage Images'}</span>
+          </button> */}
+
           {/* Reset Password Button */}
           <button
             onClick={() => { handleResetPassword(); setIsSidebarOpen(false); }}
@@ -2105,428 +2062,434 @@ const PgOwnerDashboard = () => {
           </div>
         )}
 
-        {/* Conditionally render the form or the listings based on activeSection state */}
-        {activeSection === 'form' && (
-          <div ref={formSectionRef} className="pg-details-form-card">
-            <h2 className="form-title">{currentPgId ? 'Edit PG Property Details' : 'Add New PG Property Details'}</h2>
+        {/* Removed conditional rendering for ImageManager */}
+        {/* {showImageManager ? (
+          <ImageManager onBackToDashboard={() => setShowImageManager(false)} />
+        ) : ( */}
+          <>
+            {/* Conditionally render the form or the listings based on activeSection state */}
+            {activeSection === 'form' && (
+              <div ref={formSectionRef} className="pg-details-form-card">
+                <h2 className="form-title">{currentPgId ? 'Edit PG Property Details' : 'Add New PG Property Details'}</h2>
 
-            {/* Gender Preference */}
-            <div className="form-group-wrapper">
-                <div className="form-group">
-                    <label className="form-label">
-                        PG for <span className="required-field">*</span>
-                    </label>
-                    <div className="gender-preference-radio-group">
-                        <label>
-                            <input
-                                type="radio"
-                                name="genderPreference"
-                                value="male"
-                                checked={genderPreference === 'male'}
-                                onChange={handleGenderChange}
-                            /> Male
+                {/* Gender Preference */}
+                <div className="form-group-wrapper">
+                    <div className="form-group">
+                        <label className="form-label">
+                            PG for <span className="required-field">*</span>
                         </label>
-                        <label>
-                            <input
-                                type="radio"
-                                name="genderPreference"
-                                value="female"
-                                checked={genderPreference === 'female'}
-                                onChange={handleGenderChange}
-                            /> Female
-                        </label>
-                        <label>
-                            <input
-                                type="radio"
-                                name="genderPreference"
-                                value="unisex"
-                                checked={genderPreference === 'unisex'}
-                                onChange={handleGenderChange}
-                            /> Unisex
-                        </label>
+                        <div className="gender-preference-radio-group">
+                            <label>
+                                <input
+                                    type="radio"
+                                    name="genderPreference"
+                                    value="male"
+                                    checked={genderPreference === 'male'}
+                                    onChange={handleGenderChange}
+                                /> Male
+                            </label>
+                            <label>
+                                <input
+                                    type="radio"
+                                    name="genderPreference"
+                                    value="female"
+                                    checked={genderPreference === 'female'}
+                                    onChange={handleGenderChange}
+                                /> Female
+                            </label>
+                            <label>
+                                <input
+                                    type="radio"
+                                    name="genderPreference"
+                                    value="unisex"
+                                    checked={genderPreference === 'unisex'}
+                                    onChange={handleGenderChange}
+                                /> Unisex
+                            </label>
+                        </div>
                     </div>
+                    {genderPreferenceError && <p className="field-error-message">{genderPreferenceError}</p>}
                 </div>
-                {genderPreferenceError && <p className="field-error-message">{genderPreferenceError}</p>}
-            </div>
 
-            {/* Form Fields - PG Name */}
-            <div className="form-group-wrapper">
-              <div className="form-group">
-                <label htmlFor="pgName" className="form-label">
-                  PG Name <span className="required-field">*</span>
-                </label>
-                <input
-                  id="pgName"
-                  type="text"
-                  value={pgName}
-                  onChange={(e) => { setPgName(e.target.value.replace(/[^a-zA-Z\s]/g, '')); setPgNameError(''); }}
-                  placeholder="Enter PG Name"
-                  className="form-input"
-                  required
-                />
-              </div>
-              {pgNameError && <p className="field-error-message">{pgNameError}</p>}
-            </div>
-
-            {/* Form Fields - PG Owner Name */}
-            <div className="form-group-wrapper">
-              <div className="form-group">
-                <label htmlFor="pgOwnerName" className="form-label">
-                  PG Owner Name <span className="required-field">*</span>
-                </label>
-                <input
-                  id="pgOwnerName"
-                  type="text"
-                  value={pgOwnerName}
-                  onChange={(e) => { setPgOwnerName(e.target.value.replace(/[^a-zA-Z\s]/g, '')); setPgOwnerNameError(''); }}
-                  placeholder="Enter PG Owner's Name"
-                  className="form-input"
-                  required
-                />
-              </div>
-              {pgOwnerNameError && <p className="field-error-message">{pgOwnerNameError}</p>}
-            </div>
-
-            {/* Form Fields - PG Owner Email */}
-            <div className="form-group-wrapper">
-              <div className="form-group">
-                <label htmlFor="pgOwnerEmail" className="form-label">
-                  PG Owner Email <span className="required-field">*</span>
-                </label>
-                <input
-                  id="pgOwnerEmail"
-                  type="email"
-                  value={pgOwnerEmail}
-                  onChange={(e) => { setPgOwnerEmail(e.target.value); setPgOwnerEmailError(''); }}
-                  placeholder="Enter PG Owner's Email"
-                  className="form-input"
-                  required
-                />
-              </div>
-              {pgOwnerEmailError && <p className="field-error-message">{pgOwnerEmailError}</p>}
-            </div>
-
-            {/* Phone Number */}
-            <div className="form-group-wrapper">
-              <div className="form-group">
-                <label htmlFor="pgOwnerPhoneNumber" className="form-label">
-                  PG Owner Phone Number <span className="required-field">*</span>
-                </label>
-                <div className="phone-input-group">
-                  <select
-                    value={countryCode}
-                    onChange={(e) => setCountryCode(e.target.value)}
-                    className="form-select country-code-select"
-                  >
-                    <option value="+91">+91 (India)</option>
-                    <option value="+1">+1 (USA/Canada)</option>
-                    <option value="+44">+44 (UK)</option>
-                    <option value="+61">+61 (Australia)</option>
-                    <option value="+49">+49 (Germany)</option>
-                    <option value="+33">+33 (France)</option>
-                    <option value="+81">+81 (Japan)</option>
-                    <option value="+86">+86 (China)</option>
-                    <option value="+55">+55 (Brazil)</option>
-                    <option value="+27">+27 (South Africa)</option>
-                  </select>
-                  <input
-                    id="pgOwnerPhoneNumber"
-                    type="tel"
-                    value={pgOwnerPhoneNumber}
-                    onChange={(e) => { setPgOwnerPhoneNumber(e.target.value.replace(/[^0-9]/g, '')); setPgOwnerPhoneNumberError(''); }}
-                    placeholder="e.g., 9876543210"
-                    className="form-input phone-number-input"
-                    required
-                  />
+                {/* Form Fields - PG Name */}
+                <div className="form-group-wrapper">
+                  <div className="form-group">
+                    <label htmlFor="pgName" className="form-label">
+                      PG Name <span className="required-field">*</span>
+                    </label>
+                    <input
+                      id="pgName"
+                      type="text"
+                      value={pgName}
+                      onChange={(e) => { setPgName(e.target.value.replace(/[^a-zA-Z\s]/g, '')); setPgNameError(''); }}
+                      placeholder="Enter PG Name"
+                      className="form-input"
+                      required
+                    />
+                  </div>
+                  {pgNameError && <p className="field-error-message">{pgNameError}</p>}
                 </div>
-              </div>
-              {pgOwnerPhoneNumberError && <p className="field-error-message">{pgOwnerPhoneNumberError}</p>}
-            </div>
 
-            {/* Address */}
-            <div className="form-group-wrapper">
-              <div className="form-group">
-                <label htmlFor="address" className="form-label">
-                  Address <span className="required-field">*</span>
-                </label>
-                <textarea
-                  id="address"
-                  value={address}
-                  onChange={(e) => { setAddress(e.target.value); setAddressError(''); }}
-                  placeholder="Enter full address including street, locality"
-                  className="form-textarea"
-                  rows="3"
-                  required
-                />
-              </div>
-              {addressError && <p className="field-error-message">{addressError}</p>}
-            </div>
-
-            {/* State & Country */}
-            <div className="form-group-inline-wrapper">
-              <div className="form-group-half-wrapper">
-                <div className="form-group form-group-half">
-                  <label htmlFor="state" className="form-label">
-                    State <span className="required-field">*</span>
-                  </label>
-                  <input
-                    id="state"
-                    type="text"
-                    value={state}
-                    onChange={(e) => { setState(e.target.value); setStateError(''); }}
-                    placeholder="e.g., Karnataka"
-                    className="form-input"
-                    required
-                  />
+                {/* Form Fields - PG Owner Name */}
+                <div className="form-group-wrapper">
+                  <div className="form-group">
+                    <label htmlFor="pgOwnerName" className="form-label">
+                      PG Owner Name <span className="required-field">*</span>
+                    </label>
+                    <input
+                      id="pgOwnerName"
+                      type="text"
+                      value={pgOwnerName}
+                      onChange={(e) => { setPgOwnerName(e.target.value.replace(/[^a-zA-Z\s]/g, '')); setPgOwnerNameError(''); }}
+                      placeholder="Enter PG Owner's Name"
+                      className="form-input"
+                      required
+                    />
+                  </div>
+                  {pgOwnerNameError && <p className="field-error-message">{pgOwnerNameError}</p>}
                 </div>
-                {stateError && <p className="field-error-message">{stateError}</p>}
-              </div>
-              <div className="form-group-half-wrapper">
-                <div className="form-group form-group-half">
-                  <label htmlFor="country" className="form-label">
-                    Country <span className="required-field">*</span>
-                  </label>
-                  <input
-                    id="country"
-                    type="text"
-                    value={country}
-                    onChange={(e) => { setCountry(e.target.value); setCountryError(''); }}
-                    placeholder="e.g., India"
-                    className="form-input"
-                    required
-                  />
+
+                {/* Form Fields - PG Owner Email */}
+                <div className="form-group-wrapper">
+                  <div className="form-group">
+                    <label htmlFor="pgOwnerEmail" className="form-label">
+                      PG Owner Email <span className="required-field">*</span>
+                    </label>
+                    <input
+                      id="pgOwnerEmail"
+                      type="email"
+                      value={pgOwnerEmail}
+                      onChange={(e) => { setPgOwnerEmail(e.target.value); setPgOwnerEmailError(''); }}
+                      placeholder="Enter PG Owner's Email"
+                      className="form-input"
+                      required
+                    />
+                  </div>
+                  {pgOwnerEmailError && <p className="field-error-message">{pgOwnerEmailError}</p>}
                 </div>
-                {countryError && <p className="field-error-message">{countryError}</p>}
-              </div>
-            </div>
 
-            {/* Pincode */}
-            <div className="form-group-wrapper">
-              <div className="form-group">
-                <label htmlFor="pincode" className="form-label">
-                  Pincode <span className="required-field">*</span>
-                </label>
-                <input
-                  id="pincode"
-                  type="text"
-                  value={pincode}
-                  onChange={(e) => { setPincode(e.target.value.replace(/[^0-9]/g, '')); setPincodeError(''); }}
-                  placeholder="e.g., 560001"
-                  className="form-input"
-                  required
-                />
-              </div>
-              {pincodeError && <p className="field-error-message">{pincodeError}</p>}
-            </div>
-
-            {/* Location Link */}
-            <div className="form-group-wrapper">
-              <div className="form-group">
-                <label htmlFor="locationLink" className="form-label">
-                  Location Link (Optional - Google Maps URL)
-                </label>
-                <input
-                  id="locationLink"
-                  type="url"
-                  value={locationLink}
-                  onChange={(e) => setLocationLink(e.target.value)}
-                  placeholder="e.g., https://goo.gl/maps/example"
-                  className="form-input"
-                />
-              </div>
-            </div>
-
-            {/* Photos */}
-            <div className="form-group-wrapper">
-              <div className="form-group">
-                <label htmlFor="photos" className="form-label">
-                  Photos of PG <span className="required-field">*</span> (Min 3, Max 10, JPG/JPEG/PNG/HEIC, &lt;30MB each)
-                </label>
-                <input
-                  id="photos"
-                  type="file"
-                  multiple
-                  onChange={handlePhotoUpload}
-                  className="form-input"
-                  accept="image/jpeg, image/jpg, image/png, image/heic"
-                  ref={fileInputRef}
-                />
-              </div>
-              {loading && photoUploadProgress > 0 && (
-                  <p className="loading-message">Uploading photos: {photoUploadProgress}%</p>
-              )}
-              {photosError && <p className="field-error-message">{photosError}</p>}
-              {photos.length > 0 && (
-                <div className="photo-preview-grid">
-                  {photos.map((photo, index) => (
-                    // Use photo.blobUrl for immediate preview, fallback to photo.url if from Firestore
-                    <div key={photo.url || index} className="photo-preview-item">
-                      <img
-                        src={photo.blobUrl || photo.url}
-                        alt={photo.caption || `Uploaded ${index + 1}`}
-                        className="photo-preview-image"
-                        // Add onError to handle CORS blocked images from Firebase after refresh
-                        onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/110x110/f0f2f5/7f8c8d?text=Image+Load+Error"; }}
-                      />
-                      <textarea
-                        value={photo.caption}
-                        onChange={(e) => handlePhotoCaptionChange(index, e.target.value)}
-                        placeholder="Add caption..."
-                        className="photo-caption-input"
-                        rows="2"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleRemovePhoto(index)}
-                        className="remove-photo-button"
+                {/* Phone Number */}
+                <div className="form-group-wrapper">
+                  <div className="form-group">
+                    <label htmlFor="pgOwnerPhoneNumber" className="form-label">
+                      PG Owner Phone Number <span className="required-field">*</span>
+                    </label>
+                    <div className="phone-input-group">
+                      <select
+                        value={countryCode}
+                        onChange={(e) => setCountryCode(e.target.value)}
+                        className="form-select country-code-select"
                       >
-                        &times;
+                        <option value="+91">+91 (India)</option>
+                        <option value="+1">+1 (USA/Canada)</option>
+                        <option value="+44">+44 (UK)</option>
+                        <option value="+61">+61 (Australia)</option>
+                        <option value="+49">+49 (Germany)</option>
+                        <option value="+33">+33 (France)</option>
+                        <option value="+81">+81 (Japan)</option>
+                        <option value="+86">+86 (China)</option>
+                        <option value="+55">+55 (Brazil)</option>
+                        <option value="+27">+27 (South Africa)</option>
+                      </select>
+                      <input
+                        id="pgOwnerPhoneNumber"
+                        type="tel"
+                        value={pgOwnerPhoneNumber}
+                        onChange={(e) => { setPgOwnerPhoneNumber(e.target.value.replace(/[^0-9]/g, '')); setPgOwnerPhoneNumberError(''); }}
+                        placeholder="e.g., 9876543210"
+                        className="form-input phone-number-input"
+                        required
+                      />
+                    </div>
+                  </div>
+                  {pgOwnerPhoneNumberError && <p className="field-error-message">{pgOwnerPhoneNumberError}</p>}
+                </div>
+
+                {/* Address */}
+                <div className="form-group-wrapper">
+                  <div className="form-group">
+                    <label htmlFor="address" className="form-label">
+                      Address <span className="required-field">*</span>
+                    </label>
+                    <textarea
+                      id="address"
+                      value={address}
+                      onChange={(e) => { setAddress(e.target.value); setAddressError(''); }}
+                      placeholder="Enter full address including street, locality"
+                      className="form-textarea"
+                      rows="3"
+                      required
+                    />
+                  </div>
+                  {addressError && <p className="field-error-message">{addressError}</p>}
+                </div>
+
+                {/* State & Country */}
+                <div className="form-group-inline-wrapper">
+                  <div className="form-group-half-wrapper">
+                    <div className="form-group form-group-half">
+                      <label htmlFor="state" className="form-label">
+                        State <span className="required-field">*</span>
+                      </label>
+                      <input
+                        id="state"
+                        type="text"
+                        value={state}
+                        onChange={(e) => { setState(e.target.value); setStateError(''); }}
+                        placeholder="e.g., Karnataka"
+                        className="form-input"
+                        required
+                      />
+                    </div>
+                    {stateError && <p className="field-error-message">{stateError}</p>}
+                  </div>
+                  <div className="form-group-half-wrapper">
+                    <div className="form-group form-group-half">
+                      <label htmlFor="country" className="form-label">
+                        Country <span className="required-field">*</span>
+                      </label>
+                      <input
+                        id="country"
+                        type="text"
+                        value={country}
+                        onChange={(e) => { setCountry(e.target.value); setCountryError(''); }}
+                        placeholder="e.g., India"
+                        className="form-input"
+                        required
+                      />
+                    </div>
+                    {countryError && <p className="field-error-message">{countryError}</p>}
+                  </div>
+                </div>
+
+                {/* Pincode */}
+                <div className="form-group-wrapper">
+                  <div className="form-group">
+                    <label htmlFor="pincode" className="form-label">
+                      Pincode <span className="required-field">*</span>
+                    </label>
+                    <input
+                      id="pincode"
+                      type="text"
+                      value={pincode}
+                      onChange={(e) => { setPincode(e.target.value.replace(/[^0-9]/g, '')); setPincodeError(''); }}
+                      placeholder="e.g., 560001"
+                      className="form-input"
+                      required
+                    />
+                  </div>
+                  {pincodeError && <p className="field-error-message">{pincodeError}</p>}
+                </div>
+
+                {/* Location Link */}
+                <div className="form-group-wrapper">
+                  <div className="form-group">
+                    <label htmlFor="locationLink" className="form-label">
+                      Location Link (Optional - Google Maps URL)
+                    </label>
+                    <input
+                      id="locationLink"
+                      type="url"
+                      value={locationLink}
+                      onChange={(e) => setLocationLink(e.target.value)}
+                      placeholder="e.g., https://goo.gl/maps/example"
+                      className="form-input"
+                    />
+                  </div>
+                </div>
+
+                {/* Photos (Completely Removed) */}
+                {/* <div className="form-group-wrapper">
+                  <div className="form-group">
+                    <label htmlFor="photos" className="form-label">
+                      Photos of PG <span className="required-field">*</span> (Min 3, Max 10, JPG/JPEG/PNG/HEIC, &lt;30MB each)
+                    </label>
+                    <input
+                      id="photos"
+                      type="file"
+                      multiple
+                      onChange={handlePhotoUpload}
+                      className="form-input"
+                      accept="image/jpeg, image/jpg, image/png, image/heic"
+                      ref={fileInputRef}
+                    />
+                  </div>
+                  {loading && photoUploadProgress > 0 && (
+                      <p className="loading-message">Uploading photos: {photoUploadProgress}%</p>
+                  )}
+                  {photosError && <p className="field-error-message">{photosError}</p>}
+                  {photos.length > 0 && (
+                    <div className="photo-preview-grid">
+                      {photos.map((photo, index) => (
+                        <div key={photo.url || index} className="photo-preview-item">
+                          <img
+                            src={photo.blobUrl || photo.url}
+                            alt={photo.caption || `Uploaded ${index + 1}`}
+                            className="photo-preview-image"
+                            onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/110x110/f0f2f5/7f8c8d?text=Image+Load+Error"; }}
+                          />
+                          <textarea
+                            value={photo.caption}
+                            onChange={(e) => handlePhotoCaptionChange(index, e.target.value)}
+                            placeholder="Add caption..."
+                            className="photo-caption-input"
+                            rows="2"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemovePhoto(index)}
+                            className="remove-photo-button"
+                          >
+                            &times;
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div> */}
+
+                {/* Availability & Pricing (with Mess Option) */}
+                <div className="form-group-wrapper">
+                  <div className="form-group">
+                    <label className="form-label">
+                      Availability & Pricing <span className="required-field">*</span>
+                    </label>
+                    <div className="sharing-options-grid">
+                      {sharingOptions.map((option, optionIndex) => (
+                        <div key={option.type} className="sharing-option-item">
+                          <div className="sharing-details-stack">
+                            <label className="sharing-option-label">{option.type}</label>
+                            <select
+                              value={option.status}
+                              onChange={(e) => handleSharingOptionChange(optionIndex, 'status', e.target.value)}
+                              className="form-select sharing-status-select"
+                            >
+                              <option value="">Status</option>
+                              <option value="Available">Available</option>
+                              <option value="Full">Full</option>
+                            </select>
+                            {/* Only show price input if status is 'Available' */}
+                            {option.status === 'Available' && (
+                              <div className="price-input-wrapper">
+                                <span className="rupee-symbol">₹</span>
+                                <input
+                                  type="number"
+                                  value={option.price}
+                                  onChange={(e) => handleSharingOptionChange(optionIndex, 'price', e.target.value)}
+                                  placeholder="Price"
+                                  className="form-input sharing-price-input"
+                                />
+                              </div>
+                            )}
+                            {/* New: Mess Option */}
+                            <label className="mess-checkbox-label">
+                                <input
+                                    type="checkbox"
+                                    checked={option.hasMess}
+                                    onChange={(e) => handleSharingOptionChange(optionIndex, 'hasMess', e.target.checked)}
+                                    disabled={option.status === 'Full'}
+                                /> Mess Included
+                            </label>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  {sharingOptionsError && <p className="field-error-message">{sharingOptionsError}</p>}
+                </div>
+
+                {/* Amenities and Services Checkboxes */}
+                <div className="form-group-wrapper">
+                  <div className="amenities-section">
+                    <h4>Amenities</h4>
+                    <div className="amenities-checkbox-grid">
+                      {amenitiesList.map((amenity) => (
+                        <div key={amenity} className="checkbox-item">
+                          <input
+                            type="checkbox"
+                            id={amenity.replace(/\s/g, '-').toLowerCase()}
+                            checked={facilities.includes(amenity)}
+                            onChange={() => handleFacilityChange(amenity)}
+                          />
+                          <label htmlFor={amenity.replace(/\s/g, '-').toLowerCase()}>
+                            {amenity}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+
+                    <h4>Services</h4>
+                    <div className="amenities-checkbox-grid">
+                      {servicesList.map((service) => (
+                        <div key={service} className="checkbox-item">
+                          <input
+                            type="checkbox"
+                            id={service.replace(/\s/g, '-').toLowerCase()}
+                            checked={facilities.includes(service)}
+                            onChange={() => handleFacilityChange(service)}
+                          />
+                          <label htmlFor={service.replace(/\s/g, '-').toLowerCase()}>
+                            {service}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  {facilitiesError && <p className="field-error-message">{facilitiesError}</p>}
+                </div>
+
+                <div className="form-actions">
+                  <button
+                    onClick={handleSendForValidation}
+                    className="button button-primary"
+                    disabled={loading}
+                  >
+                    {currentPgId ? (loading ? 'Updating...' : 'Update PG Details') : (loading ? 'Sending...' : 'Send for Validation')}
+                  </button>
+
+                  <button
+                    onClick={handleAddAnotherBuilding}
+                    className="button button-secondary"
+                    disabled={loading}
+                  >
+                    Add Another Building
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Conditionally render the listings section */}
+            {activeSection === 'listings' && userListings.length > 0 && (
+              <div id="owner-listings-section" className="owner-listings-section">
+                <h2 className="section-title">Your Existing PG Listings</h2>
+                <div className="listings-grid">
+                  {userListings.map((listing) => (
+                    <div key={listing.id} className="listing-card">
+                      <h3>{listing.pgName}</h3>
+                      <p>Address: {listing.address}, {listing.state}</p>
+                      {/* Display the formatted phone number */}
+                      <p>Contact: {listing.pgOwnerPhoneNumber}</p>
+                      <p>Status: {listing.status}</p>
+                      <button
+                        onClick={() => loadListingForEdit(listing)}
+                        className="button button-outline button-small"
+                      >
+                        Edit
                       </button>
                     </div>
                   ))}
                 </div>
-              )}
-            </div>
-
-            {/* Availability & Pricing (with Mess Option) */}
-            <div className="form-group-wrapper">
-              <div className="form-group">
-                <label className="form-label">
-                  Availability & Pricing <span className="required-field">*</span>
-                </label>
-                <div className="sharing-options-grid">
-                  {sharingOptions.map((option, optionIndex) => (
-                    <div key={option.type} className="sharing-option-item">
-                      <div className="sharing-details-stack">
-                        <label className="sharing-option-label">{option.type}</label>
-                        <select
-                          value={option.status}
-                          onChange={(e) => handleSharingOptionChange(optionIndex, 'status', e.target.value)}
-                          className="form-select sharing-status-select"
-                        >
-                          <option value="">Status</option>
-                          <option value="Available">Available</option>
-                          <option value="Full">Full</option>
-                        </select>
-                        {/* Only show price input if status is 'Available' */}
-                        {option.status === 'Available' && (
-                          <div className="price-input-wrapper">
-                            <span className="rupee-symbol">₹</span>
-                            <input
-                              type="number"
-                              value={option.price}
-                              onChange={(e) => handleSharingOptionChange(optionIndex, 'price', e.target.value)}
-                              placeholder="Price"
-                              className="form-input sharing-price-input"
-                            />
-                          </div>
-                        )}
-                        {/* New: Mess Option */}
-                        <label className="mess-checkbox-label">
-                            <input
-                                type="checkbox"
-                                checked={option.hasMess}
-                                onChange={(e) => handleSharingOptionChange(optionIndex, 'hasMess', e.target.checked)}
-                                disabled={option.status === 'Full'}
-                            /> Mess Included
-                        </label>
-                      </div>
-                    </div>
-                  ))}
-                </div>
               </div>
-              {sharingOptionsError && <p className="field-error-message">{sharingOptionsError}</p>}
-            </div>
+            )}
 
-            {/* Amenities and Services Checkboxes */}
-            <div className="form-group-wrapper">
-              <div className="amenities-section">
-                <h4>Amenities</h4>
-                <div className="amenities-checkbox-grid">
-                  {amenitiesList.map((amenity) => (
-                    <div key={amenity} className="checkbox-item">
-                      <input
-                        type="checkbox"
-                        id={amenity.replace(/\s/g, '-').toLowerCase()}
-                        checked={facilities.includes(amenity)}
-                        onChange={() => handleFacilityChange(amenity)}
-                      />
-                      <label htmlFor={amenity.replace(/\s/g, '-').toLowerCase()}>
-                        {amenity}
-                      </label>
-                    </div>
-                  ))}
+            {activeSection === 'listings' && userListings.length === 0 && (
+                <div className="owner-listings-section">
+                    <h2 className="section-title">Your Existing PG Listings</h2>
+                    <p className="text-center" style={{ color: 'var(--text-medium)' }}>No PG listings found. Click "Dashboard" to add a new PG property.</p>
                 </div>
-
-                <h4>Services</h4>
-                <div className="amenities-checkbox-grid">
-                  {servicesList.map((service) => (
-                    <div key={service} className="checkbox-item">
-                      <input
-                        type="checkbox"
-                        id={service.replace(/\s/g, '-').toLowerCase()}
-                        checked={facilities.includes(service)}
-                        onChange={() => handleFacilityChange(service)}
-                      />
-                      <label htmlFor={service.replace(/\s/g, '-').toLowerCase()}>
-                        {service}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              {facilitiesError && <p className="field-error-message">{facilitiesError}</p>}
-            </div>
-
-            <div className="form-actions">
-              <button
-                onClick={handleSendForValidation}
-                className="button button-primary"
-                disabled={loading}
-              >
-                {currentPgId ? (loading ? 'Updating...' : 'Update PG Details') : (loading ? 'Sending...' : 'Send for Validation')}
-              </button>
-
-              <button
-                onClick={handleAddAnotherBuilding}
-                className="button button-secondary"
-                disabled={loading}
-              >
-                Add Another Building
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Conditionally render the listings section */}
-        {activeSection === 'listings' && userListings.length > 0 && (
-          <div id="owner-listings-section" className="owner-listings-section">
-            <h2 className="section-title">Your Existing PG Listings</h2>
-            <div className="listings-grid">
-              {userListings.map((listing) => (
-                <div key={listing.id} className="listing-card">
-                  <h3>{listing.pgName}</h3>
-                  <p>Address: {listing.address}, {listing.state}</p>
-                  <p>Contact: {listing.pgOwnerPhoneNumber}</p>
-                  <p>Status: {listing.status}</p>
-                  <button
-                    onClick={() => loadListingForEdit(listing)}
-                    className="button button-outline button-small"
-                  >
-                    Edit
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {activeSection === 'listings' && userListings.length === 0 && (
-            <div className="owner-listings-section">
-                <h2 className="section-title">Your Existing PG Listings</h2>
-                <p className="text-center">No PG listings found. Click "Dashboard" to add a new PG property.</p>
-            </div>
-        )}
+            )}
+          </>
+        {/* )} */} {/* Closing tag for the removed conditional rendering */}
       </div>
 
       {/* Notification Popup Modal */}
@@ -2566,7 +2529,7 @@ const PgOwnerDashboard = () => {
                     <button className="notification-action-button secondary" onClick={clearAllNotifications}>
                         Clear All
                     </button>
-                </div>
+                </div >
             )}
           </div>
         </div>
