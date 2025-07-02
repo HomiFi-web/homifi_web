@@ -1,35 +1,258 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate, Link } from 'react-router-dom'; // Added Link import
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth, signInAnonymously, signInWithCustomToken, signOut, onAuthStateChanged, sendPasswordResetEmail } from 'firebase/auth';
 import { getFirestore, collection, query, where, onSnapshot, doc, getDoc, deleteDoc, addDoc, serverTimestamp, updateDoc, getDocs, writeBatch, orderBy } from 'firebase/firestore';
-import { User, LayoutDashboard, Heart, LogOut, Menu, Key } from 'lucide-react';
+import {
+  User, LayoutDashboard, Heart, LogOut, Menu, Key, ChevronLeft, ChevronRight, // Existing imports
+  Info, Edit, Trash2, PlusCircle, MapPin, Bed, HeartCrack // New imports for icons
+} from 'lucide-react';
 
 // Declare global variables for ESLint and provide fallback values
 const __initial_auth_token = typeof window !== 'undefined' && typeof window.__initial_auth_token !== 'undefined' ? window.__initial_auth_token : '';
 const __app_id = typeof window !== 'undefined' && typeof window.__app_id !== 'undefined' ? window.__app_id : 'homifi-4d283'; // UPDATED: Set fallback to your project ID
 const firebaseConfig = typeof window !== 'undefined' && typeof window.__firebase_config !== 'undefined' ? JSON.parse(window.__firebase_config) : {
-  apiKey: "AIzaSyCENbG6LtD_dVaNoqyoJuLmxiyTQNi6e0E", // UPDATED: Your Web API Key
+  apiKey: "AIzaSyCENbG6LtD_dVaNoqyoJuLmx1yTQNi6e0E", // UPDATED: Your Web API Key
   authDomain: "homifi-4d283.firebaseapp.com", // UPDATED: Derived from your Project ID
   projectId: "homifi-4d283", // UPDATED: Your Project ID
   storageBucket: "homifi-4d283.appspot.com", // UPDATED: Derived from your Project ID
-  messagingSenderId: "434013049134", // UPDATED: Your Project Number
-  appId: "1:434013049134:web:a_unique_hash_from_firebase" // UPDATED: Use your project number; replace 'a_unique_hash_from_firebase' with the actual hash from your Firebase console if known
+  messagingSenderId: "1076632421711", // UPDATED: Your Sender ID
+  appId: "1:1076632421711:web:35544047a2963065a2d67d", // UPDATED: Your App ID
+  measurementId: "G-XXXXXXXXXX" // UPDATED: Your Measurement ID
 };
+
+// Initialize Firebase only once
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+// HeartIconSVG Component - Renders the custom SVG heart icon with animation classes
+const HeartIconSVG = ({ isActive, isAnimating }) => {
+  return (
+    // The button container now has no background, border, or shadow
+    <div className={`button ${isActive ? 'active' : ''} ${isAnimating ? 'animate' : ''}`}>
+      <svg width="35px" height="25px" viewBox="0 0 35 25" xmlns="http://www.w3.org/2000/svg">
+        <g fill="none" fillRule="evenodd">
+          {/* heart-stroke: visible when not active, represents the outlined heart */}
+          <path className="heart-stroke" d="M13.0185191,4.25291223 L12.9746137,4.25291223 C10.1097846,4.25291223 8.67188189,6.6128289 8.5182129,8.92335198 C8.39747298,10.6740809 8.73225185,12.8528876 14.0777375,18.4782704 C14.7127154,19.1080239 15.5654911,19.4695694 16.4596069,19.4880952 C17.3247917,19.4700909 18.1444718,19.0969678 18.7262246,18.4563177 C19.3189478,17.9074999 24.5052763,12.5894551 24.3570955,8.98921012 C24.2363556,6.42623084 22.123407,4.25291223 19.7525139,4.25291223 C18.5053576,4.22947431 17.3125171,4.76253118 16.4980242,5.70727948 C15.6177331,4.73767759 14.354699,4.20555668 13.04596,4.25291223 L13.0185191,4.25291223 Z" fill="none" stroke="#FFFFFF"/> {/* Changed fill to none and stroke to white */}
+          {/* heart-full: visible when active, represents the filled heart */}
+          <path className="heart-full" d="M13.0185191,4.25291223 L12.9746137,4.25291223 C10.1097846,4.25291223 8.67188189,6.6128289 8.5182129,8.92335198 C8.39747298,10.6740809 8.73225185,12.8528876 14.0777375,18.4782704 C14.7127154,19.1080239 15.5654911,19.4695694 16.4596069,19.4880952 C17.3247917,19.4700909 18.1444718,19.0969678 18.7262246,18.4563177 C19.3189478,17.9074999 24.5052763,12.5894551 24.3570955,8.98921012 C24.2363556,6.42623084 22.123407,4.25291223 19.7525139,4.25291223 C18.5053576,4.22947431 17.3125171,4.76253118 16.4980242,5.70727948 C15.6177331,4.73767759 14.354699,4.20555668 13.04596,4.25291223 L13.0185191,4.25291223 Z" fill="#E74C3C"/> {/* Changed fill to red */}
+          {/* heart-lines: visible during animation */}
+          <path className="heart-lines" d="M26,4 L30.6852129,0.251829715" stroke="#2DCAB5" strokeWidth="2" strokeLinecap="round"/> {/* Changed stroke to teal */}
+          <path className="heart-lines"d="M2.314788,4 L7.00000086,0.251829715" stroke="#2DCAB5" strokeWidth="2" strokeLinecap="round" transform="matrix(-1 0 0 1 10.314788 1)"/> {/* Changed stroke to teal */}
+          <path className="heart-lines" d="M27,12 L33,12" stroke="#2DCAB5" strokeWidth="2" strokeLinecap="round" /> {/* Changed stroke to teal */}
+          <path className="heart-lines" d="M0,12 L6,12" stroke="#2DCAB5" strokeWidth="2" strokeLinecap="round" transform="matrix(-1 0 0 1 7 1)"/> {/* Changed stroke to teal */}
+          <path className="heart-lines" d="M24,19 L28.6852129,22.7481703" stroke="#2DCAB5" strokeWidth="2" strokeLinecap="round"/> {/* Changed stroke to teal */}
+          <path className="heart-lines" d="M4.314788,19 L9.00000086,22.7481703" stroke="#2DCAB5" strokeWidth="2" strokeLinecap="round" transform="matrix(-1 0 0 1 14.314788 1)"/> {/* Changed stroke to teal */}
+        </g>
+      </svg>
+    </div>
+  );
+};
+
+
+// ImageCarousel Component - Renders the image carousel for PG cards
+const ImageCarousel = ({ photos, pgName }) => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
+
+  const nextImage = useCallback(() => {
+    setCurrentImageIndex((prevIndex) =>
+      prevIndex === (photos?.length || 0) - 1 ? 0 : prevIndex + 1
+    );
+  }, [photos]);
+
+  const prevImage = useCallback(() => {
+    setCurrentImageIndex((prevIndex) =>
+      prevIndex === 0 ? (photos?.length || 0) - 1 : prevIndex - 1
+    );
+  }, [photos]);
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchMove = (e) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX.current - touchEndX.current > 50) {
+      // Swiped left
+      nextImage();
+    } else if (touchEndX.current - touchStartX.current > 50) {
+      // Swiped right
+      prevImage();
+    }
+    touchStartX.current = 0;
+    touchEndX.current = 0;
+  };
+
+  if (!photos || photos.length === 0) {
+    return (
+      <img src="https://placehold.co/300x200/E0E0E0/333333?text=No+Image" alt="No Image Available" className="pg-card-image" />
+    );
+  }
+
+  return (
+    <div
+      className="image-carousel-container"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      <img
+        src={photos[currentImageIndex]?.url || "https://placehold.co/300x200/E0E0E0/333333?text=No+Image"}
+        alt={`${pgName} - Photo ${currentImageIndex + 1}`}
+        className="pg-card-image"
+        onError={(e) => {
+          e.target.onerror = null;
+          e.target.src = "https://placehold.co/300x200/E0E0E0/333333?text=Error";
+        }}
+      />
+      {photos.length > 1 && (
+        <>
+          <button className="carousel-arrow left-arrow" onClick={(e) => { e.stopPropagation(); prevImage(); }}>
+            <ChevronLeft size={24} />
+          </button>
+          <button className="carousel-arrow right-arrow" onClick={(e) => { e.stopPropagation(); nextImage(); }}>
+            <ChevronRight size={24} />
+          </button>
+          <div className="carousel-dots">
+            {photos.map((_, idx) => (
+              <span
+                key={idx}
+                className={`dot ${currentImageIndex === idx ? 'active' : ''}`}
+                onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(idx); }}
+              ></span>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
+// MessageBox Class - Adapted from the provided HTML/SCSS/JS for notifications
+class MessageBox {
+  constructor(option) {
+    this.option = option;
+    
+    this.msgBoxArea = document.querySelector("#msgbox-area");
+    
+    if (this.msgBoxArea === null) {
+      this.msgBoxArea = document.createElement("DIV");
+      this.msgBoxArea.setAttribute("id", "msgbox-area");
+      this.msgBoxArea.classList.add("msgbox-area");
+      
+      document.body.appendChild(this.msgBoxArea);
+    }
+  }
+  
+  // Modified show method to accept a 'type' for styling
+  show(msg, type = 'info', callback, closeLabel) { // Default type to 'info'
+    if (msg === "" || msg === undefined || msg === null) {
+      throw "Message is empty or not defined.";
+    }
+    
+    if (closeLabel === undefined || closeLabel === null) {
+      closeLabel = "Close";
+    }
+    
+    const option = this.option;
+
+    const msgboxBox = document.createElement("DIV");
+    const msgboxContent = document.createElement("DIV");
+    const msgboxCommand = document.createElement("DIV");
+    const msgboxClose = document.createElement("A");
+    
+    msgboxContent.classList.add("msgbox-content");
+    msgboxContent.innerText = msg;
+    
+    msgboxCommand.classList.add("msgbox-command");
+    
+    msgboxClose.classList.add("msgbox-close");
+    msgboxClose.setAttribute("href", "#");
+    msgboxClose.innerText = closeLabel;
+    
+    msgboxBox.classList.add("msgbox-box");
+    msgboxBox.classList.add(`msgbox-box-${type}`); // Add type-specific class
+    msgboxBox.appendChild(msgboxContent);
+
+    if (option.hideCloseButton === false || option.hideCloseButton === undefined) {
+      msgboxCommand.appendChild(msgboxClose);
+      msgboxBox.appendChild(msgboxCommand);
+    }
+
+    this.msgBoxArea.appendChild(msgboxBox);
+    
+    // Add 'msgbox-box-show' class after a slight delay to trigger the pop-in animation
+    setTimeout(() => {
+        msgboxBox.classList.add("msgbox-box-show");
+    }, 10); // Small delay to allow initial render before transition
+
+    msgboxClose.onclick = (evt) => {
+      evt.preventDefault();
+      
+      if (msgboxBox.classList.contains("msgbox-box-hide")) {
+        return;
+      }
+      
+      clearTimeout(this.msgboxTimeout);
+      
+      this.msgboxTimeout = null;
+
+      this.hide(msgboxBox, callback);
+    };
+
+    if (option.closeTime > 0) {
+      this.msgboxTimeout = setTimeout(() => {
+        this.hide(msgboxBox, callback);
+      }, option.closeTime);
+    }
+  }
+  
+  hideMessageBox(msgboxBox) {
+    return new Promise(resolve => {
+      msgboxBox.ontransitionend = () => {
+        resolve();
+      };
+    });
+  }
+  
+  async hide(msgboxBox, callback) {
+    if (msgboxBox !== null) {
+      msgboxBox.classList.add("msgbox-box-hide");
+      msgboxBox.classList.remove("msgbox-box-show"); // Ensure show class is removed
+    }
+    
+    await this.hideMessageBox(msgboxBox);
+    
+    if (this.msgBoxArea.contains(msgboxBox)) { // Check if child exists before removing
+        this.msgBoxArea.removeChild(msgboxBox);
+    }
+
+    clearTimeout(this.msgboxTimeout);
+    
+    if (typeof callback === "function") {
+      callback();
+    }
+  }
+}
 
 
 const UserDashboard = () => {
   const navigate = useNavigate();
   const [allPgListings, setAllPgListings] = useState([]); // State for all accepted PG listings
-  const [myPgListings, setMyPgListings] = useState([]); // State for current user's own PG listings
+  // Removed myPgListings state
   const [wishlistedPgMeta, setWishlistedPgMeta] = useState(new Map()); // Map to store pgId -> wishlistDocId for efficient removal
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   // Sidebar and active section states
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState('dashboard'); // 'dashboard', 'wishlist', 'myListings'
-  const [hoveredButton, setHoveredButton] = useState(null); // For sidebar button hover effects
+  const [activeSection, setActiveSection] = useState('dashboard'); // 'dashboard', 'wishlist'
 
   // Firebase state
   const [db, setDb] = useState(null);
@@ -38,14 +261,15 @@ const UserDashboard = () => {
   const [userEmail, setUserEmail] = useState(''); // To display user's email in profile
   const [isAuthReady, setIsAuthReady] = useState(false);
 
-
-  // Message states for displaying feedback to the user
-  const [message, setMessage] = useState('');
-  const [messageType, setMessageType ] = useState(''); // 'success', 'error', 'info'
-
-  // Refs for closing popups/sidebar on outside click
-  const sidebarRef = useRef(null);
+  // Ref for MessageBox instance
   const messageBoxRef = useRef(null);
+
+  // Ref for the sidebar element to handle outside clicks
+  const sidebarRef = useRef(null);
+
+
+  // State to manage animation for each heart icon
+  const [animatingHearts, setAnimatingHearts] = useState({});
 
 
   // Firebase Initialization and Auth
@@ -57,6 +281,14 @@ const UserDashboard = () => {
 
       setAuth(authInstance);
       setDb(dbInstance);
+
+      // Initialize MessageBox only once
+      if (!messageBoxRef.current) {
+        messageBoxRef.current = new MessageBox({
+          closeTime: 2000, // Auto-close after 2 seconds
+          hideCloseButton: true // Hide close button for toast-like behavior
+        });
+      }
 
       const unsubscribe = onAuthStateChanged(authInstance, async (user) => {
         if (user) {
@@ -111,37 +343,7 @@ const UserDashboard = () => {
     }
   }, [db, isAuthReady]);
 
-  // Fetch current user's own PG listings (for 'My Listings' section)
-  useEffect(() => {
-    if (db && isAuthReady && userId) {
-      setLoading(true);
-      setError('');
-      const appId = typeof __app_id !== 'undefined' ? __app_id : 'homifi-4d283';
-      const q = query(
-        collection(db, `artifacts/${appId}/users/${userId}/pg_listings`)
-        // No 'where' clause here to fetch all of *this user's* PGs, regardless of status
-      );
-
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        const listings = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        setMyPgListings(listings);
-        setLoading(false);
-      }, (err) => {
-        console.error("Error fetching user's own PG listings:", err);
-        setError("Failed to load your own PG listings. Please try again.");
-        setLoading(false);
-      });
-
-      return () => unsubscribe();
-    } else if (isAuthReady && !userId) {
-      // If auth is ready but no user, clear myPgListings
-      setMyPgListings([]);
-    }
-  }, [db, isAuthReady, userId]);
-
+  // Removed useEffect for fetching current user's own PG listings
 
   // Fetch user's wishlist IDs and their corresponding document IDs
   useEffect(() => {
@@ -175,7 +377,7 @@ const UserDashboard = () => {
         navigate('/login'); // Navigate to login page after logout
       } catch (error) {
         console.error("Error logging out:", error);
-        setError("Failed to log out. Please try again.");
+        displayMessage(`Failed to log out: ${error.message}`, 'error');
       }
     }
   };
@@ -186,9 +388,15 @@ const UserDashboard = () => {
         return;
     }
     if (!db) {
-        setError("Database not initialized. Please try again.");
+        displayMessage("Database not initialized. Please try again.", 'error');
         return;
     }
+
+    // Trigger animation
+    setAnimatingHearts(prev => ({ ...prev, [pgId]: true }));
+    setTimeout(() => {
+      setAnimatingHearts(prev => ({ ...prev, [pgId]: false }));
+    }, 500); // Animation duration is approx 0.5s for heart + lines
 
     try {
         setLoading(true);
@@ -211,7 +419,7 @@ const UserDashboard = () => {
         }
     } catch (error) {
         console.error("Error toggling wishlist item:", error);
-        setError("Failed to update wishlist. Please try again.");
+        displayMessage("Failed to update wishlist. Please try again.", 'error');
     } finally {
         setLoading(false);
     }
@@ -224,48 +432,39 @@ const UserDashboard = () => {
   // Determine which list of PGs to display based on activeSection
   const displayedPgListings = activeSection === 'wishlist'
     ? allPgListings.filter(pg => wishlistedPgMeta.has(pg.id))
-    : activeSection === 'myListings'
-      ? myPgListings
-      : allPgListings; // Default to all accepted listings for 'dashboard'
+    : allPgListings; // Default to all accepted listings for 'dashboard'
 
-
-  // Function to display messages to the user (similar to PgOwnerDashboard)
-  const displayMessage = (text, type, duration = 5000) => {
-    setMessage(text);
-    setMessageType(type);
-    if (type !== 'error') {
-      setTimeout(() => {
-        setMessage('');
-        setMessageType('');
-      }, duration);
+  // Function to display messages to the user using the new MessageBox
+  const displayMessage = (text, type, duration = 2000) => { // Default duration to 2 seconds
+    if (messageBoxRef.current) {
+      messageBoxRef.current.show(text, type, null, 'Close'); // Pass type to MessageBox
+    } else {
+      console.warn("MessageBox not initialized. Cannot display message:", text);
+      // Fallback for console if MessageBox isn't ready
+      if (type === 'error') {
+        setError(text);
+      }
     }
   };
 
   // Profile button in top nav will open sidebar and set active section to dashboard
   const handleProfileClick = () => {
-    // No change to active section on profile click, just open sidebar
     setIsSidebarOpen(true); // Open sidebar
   };
 
   const handleDashboardClick = () => {
     setActiveSection('dashboard');
-    // Do NOT close sidebar here, as this function might be called from top nav
-    displayMessage('Browsing available PG listings.', 'info', 2000);
+    setIsSidebarOpen(false); // Close sidebar after selection
+    displayMessage('Browse available PG listings.', 'info', 2000);
   };
 
   const handleWishlistClick = () => {
     setActiveSection('wishlist');
-    // Do NOT close sidebar here, as this function might be called from top nav
+    setIsSidebarOpen(false); // Close sidebar after selection
     displayMessage('Viewing your wishlisted PGs.', 'info', 2000);
   };
 
-  // Handler for 'My Listings' sidebar button
-  const handleMyListingsClick = () => {
-    setActiveSection('myListings');
-    setIsSidebarOpen(false); // Close sidebar after selection, as it's a sidebar-specific action
-    displayMessage('Viewing your submitted PG listings.', 'info', 2000);
-  };
-
+  // Removed handleMyListingsClick function
 
   const handleResetPassword = async () => {
     if (!auth || !auth.currentUser || !auth.currentUser.email) {
@@ -285,23 +484,21 @@ const UserDashboard = () => {
     }
   };
 
+  // Removed handleAddPgClick, handleEditPg, confirmDeletePg functions
 
-  // Close notification popup/sidebar/message box if clicked outside
+  // Close sidebar if clicked outside
   useEffect(() => {
     const handleClickOutside = (event) => {
+      // Ensure sidebarRef.current exists before trying to use it
       if (sidebarRef.current && !sidebarRef.current.contains(event.target) && isSidebarOpen) {
         setIsSidebarOpen(false);
-      }
-      if (messageBoxRef.current && !messageBoxRef.current.contains(event.target) && message) {
-        setMessage('');
-        setMessageType('');
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isSidebarOpen, message]);
+  }, [isSidebarOpen]);
 
 
   if (!isAuthReady) {
@@ -312,157 +509,216 @@ const UserDashboard = () => {
     );
   }
 
+  // Determine the title to display in the top navigation bar
+  const getHeaderTitle = () => {
+    switch (activeSection) {
+      case 'dashboard':
+        return 'Browse Available PGs';
+      case 'wishlist':
+        return 'My Wishlisted PGs';
+      default:
+        return 'HomiFi';
+    }
+  };
+
 
   return (
     <div className="pg-owner-dashboard-wrapper">
+      {/* Embedded CSS for this component */}
       <style>{`
         /* Define HomiFi Color Palette as CSS Variables - Enhanced for Professional Look */
         :root {
-            --homifi-dark-blue: #1A123F; /* Deeper, richer dark blue */
-            --homifi-teal: #2DCAB5; /* Slightly softer, sophisticated teal */
-            --homifi-cyan: #00B1C4; /* A refined cyan */
-            --homifi-darker-blue: #140D2F; /* Even darker for strong contrasts */
-            --homifi-deepest-blue: #0E0824; /* Background deep blue */
+            --homifi-dark-blue: #20143b;
+            --homifi-teal: #30D5C8;
+            --homifi-cyan: #00BCD4;
+            --homifi-darker-blue: #000069;
+            --homifi-deepest-blue: #000040;
 
-            --success-green: #2ecc71; /* Modern success green */
-            --error-red: #e74c3c; /* Modern error red */
-            --warning-orange: #f39c12; /* Modern warning orange */
+            --success-green: #28a745;
+            --error-red: #dc3545;
+            --warning-orange: #ffc107;
 
-            --bg-light-grey: #f0f2f5; /* Softer light grey background */
-            --bg-white: #ffffff; /* Clean white background */
-            --bg-soft-blue: #e8f5e9; /* Very light background for subtle sections, changed from blue to green tint for success/info feeling */
-            --bg-card: #ffffff; /* Explicit card background */
-            --bg-gradient-start: #20143b; /* Maintain original gradient feel */
-            --bg-gradient-end: #000040; /* Maintain original gradient feel */
+            --bg-light-grey: #f8f9fa;
+            --bg-white: #ffffff;
+            --bg-soft-blue: #e0f7fa;
+            --bg-card: #ffffff;
+            --bg-gradient-start: #20143b;
+            --bg-gradient-end: #000040;
 
-            /* Typography */
-            --font-family-sans-serif: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-            --font-size-base: 1rem;
-            --line-height-base: 1.6; /* Slightly increased for readability */
-
-            /* Spacing */
-            --spacing-xs: 0.25rem;
-            --spacing-sm: 0.5rem;
-            --spacing-md: 1rem;
-            --spacing-lg: 1.5rem;
-            --spacing-xl: 2rem;
-
-            /* Border Radius */
-            --border-radius-small: 0.3rem;
-            --border-radius-medium: 0.5rem;
-            --border-radius-large: 0.8rem; /* Slightly larger for a softer look */
-
-            /* Shadows - Enhanced for depth and softness */
-            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
-            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
-            --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.15); /* New, for more prominent elements */
+            /* Fonts */
+            --font-primary: 'Inter', sans-serif;
+            --font-heading: 'Poppins', sans-serif;
         }
 
         /* Base Styles */
         body {
-            font-family: var(--font-family-sans-serif);
-            line-height: var(--line-height-base);
-            color: var(--text-dark);
+            font-family: var(--font-primary);
+            line-height: 1.6;
+            color: #333333;
             background-color: var(--bg-light-grey);
             margin: 0;
             padding: 0;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden; /* Prevent horizontal scrolling on the body */
         }
 
-        /* Main Dashboard Container - The outermost div */
+        /* Overall Dashboard Container */
         .pg-owner-dashboard-wrapper {
-            display: flex;
+            background-color: var(--bg-light-grey);
+            font-family: var(--font-primary);
             min-height: 100vh;
-            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
-            color: var(--bg-white);
+            color: #333333;
             position: relative; /* Needed for sidebar positioning */
+            overflow-x: hidden; /* Prevent horizontal scrolling on the wrapper */
         }
 
-        /* Top Navigation Bar */
-        .top-nav-bar {
-            background-color: var(--homifi-darker-blue);
-            padding: 0.8rem 1.5rem;
+        /* Header Styles (from GuestDashboard and provided Header.jsx) */
+        .navbar {
+            background-color: var(--homifi-dark-blue);
+            color: white;
+            padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: var(--shadow-md);
-            z-index: 1000;
-            width: 100%;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             position: fixed;
+            width: 100%;
             top: 0;
             left: 0;
+            z-index: 1000;
+            box-sizing: border-box; /* Ensure padding is included in width */
         }
 
-        .top-nav-left {
+        .navbar .container { /* Adjust container within navbar if needed */
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
             display: flex;
             align-items: center;
-            gap: 1.5rem; /* Space between logo and nav links */
+            justify-content: space-between;
         }
 
-        .homifi-logo-text {
-            font-size: 1.8rem;
-            font-weight: 700;
+        .logo-link {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .logo-img {
+            height: 40px; /* Adjusted from 50px for a more compact header */
+            margin-right: 10px;
+        }
+
+        /* Removed .navbar-brand and .logo-tagline styles */
+
+        .nav-links { /* Container for About Us, Contact Us */
+            display: flex;
+            gap: 1.5rem;
+            margin-left: auto; /* Push these links to the right */
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
             color: var(--homifi-teal);
-            margin-right: 0; /* Removed margin-right as gap handles spacing */
         }
 
-        .top-nav-links {
-            display: flex;
-            gap: 1.2rem; /* Space between nav links */
-        }
-
-        .top-nav-link-button {
-            background-color: transparent;
+        .profile-button-top-nav { /* Profile button on the far right */
+            background-color: var(--homifi-teal); /* Changed to teal for prominence */
+            color: var(--homifi-dark-blue);
             border: none;
-            color: var(--bg-white);
-            font-size: 1.1rem;
-            font-weight: 600;
-            padding: 8px 15px;
-            border-radius: var(--border-radius-medium);
-            cursor: pointer;
-            transition: all 0.2s ease;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
             display: flex;
             align-items: center;
-            gap: 8px;
-        }
-
-        .top-nav-link-button:hover,
-        .top-nav-link-button.active {
-            color: var(--homifi-teal);
-            background-color: rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .top-nav-link-button.active {
-            box-shadow: 0 0 0 2px var(--homifi-teal); /* Highlight active link */
-        }
-
-
-        /* Profile Button in Top Nav */
-        .profile-button-top-nav {
-            cursor: pointer;
-            color: var(--bg-white);
-            font-size: 1.1rem;
-            background-color: transparent;
-            border: none;
-            padding: 8px 15px;
-            border-radius: var(--border-radius-medium);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-            box-shadow: none;
+            gap: 0.5rem;
+            font-size: 0.95rem;
             font-weight: 600;
-            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 1.5rem; /* Space from nav links */
         }
 
         .profile-button-top-nav:hover {
-            color: var(--homifi-teal);
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: var(--homifi-cyan);
             transform: translateY(-2px);
-            box-shadow: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
+        .profile-button-top-nav svg {
+            color: var(--homifi-dark-blue); /* Icon color matches text */
+            font-size: 1rem;
+        }
+
+
+        /* Hero Section Styles (from GuestDashboard) */
+        .hero-section {
+            position: relative;
+            width: 100%;
+            height: 60vh;
+            min-height: 350px;
+            overflow: hidden;
+            margin-bottom: 3rem;
+            display: flex;
+            justify-content: center; /* Aligned content to the center */
+            align-items: center;
+            padding-left: 0; /* Removed padding-left */
+            margin-top: 80px; /* To clear fixed header */
+            box-sizing: border-box;
+        }
+
+        .hero-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.7);
+        }
+
+        .hero-content {
+            position: relative;
+            text-align: center; /* Aligned text to center */
+            color: white;
+            z-index: 10;
+            padding: 20px;
+            max-width: 800px;
+        }
+
+        .hero-section::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 5;
+        }
+
+        .hero-title {
+            font-family: var(--font-heading);
+            font-size: 4rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.75rem;
+            line-height: 1.1;
+        }
+
+        .hero-tagline {
+            font-size: 1.8rem;
+            font-weight: 300;
+            opacity: 0.9;
+        }
+
 
         /* Right Sidebar */
         .profile-sidebar {
@@ -472,7 +728,7 @@ const UserDashboard = () => {
             width: 260px;
             height: 100%;
             background-color: var(--homifi-darker-blue);
-            color: var(--bg-white);
+            color: white;
             box-shadow: -6px 0 15px rgba(0, 0, 0, 0.25);
             transition: right 0.3s ease-in-out;
             z-index: 1100;
@@ -488,7 +744,7 @@ const UserDashboard = () => {
         .sidebar-close-button {
             background: none;
             border: none;
-            color: var(--bg-white);
+            color: white;
             font-size: 2rem;
             align-self: flex-end;
             cursor: pointer;
@@ -519,7 +775,7 @@ const UserDashboard = () => {
 
         .sidebar-button {
             background-color: var(--homifi-dark-blue);
-            color: var(--bg-white);
+            color: white;
             border: 1px solid rgba(255, 255, 255, 0.1);
             padding: 0.7rem 1rem;
             border-radius: var(--border-radius-medium);
@@ -537,7 +793,7 @@ const UserDashboard = () => {
             background-color: var(--homifi-cyan);
             color: var(--homifi-dark-blue);
             transform: translateX(6px);
-            box-shadow: var(--shadow-md);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
 
         .sidebar-button svg {
@@ -555,7 +811,8 @@ const UserDashboard = () => {
             flex-grow: 1;
             padding: 2.5rem;
             max-width: 1200px;
-            margin: 60px auto 2.5rem auto;
+            margin: 0 auto; /* Center the content area */
+            margin-top: 80px; /* Adjusted margin-top to clear fixed header */
             width: 100%;
             box-sizing: border-box;
             display: flex;
@@ -569,22 +826,13 @@ const UserDashboard = () => {
             margin-right: 260px;
         }
 
-        .main-content-header {
-            font-size: 2rem;
-            color: var(--homifi-teal);
-            margin-bottom: 2rem;
-            text-align: center;
-            font-weight: 700;
-            width: 100%;
-        }
-
         /* Error and Loading Messages */
         .error-message, .loading-message, .no-listings {
             text-align: center;
             color: var(--error-red);
             background-color: #f2dede;
             padding: 1rem;
-            border-radius: var(--border-radius-medium);
+            border-radius: 0.5rem;
             margin-bottom: 1.5rem;
             width: 100%;
             max-width: 800px;
@@ -595,181 +843,87 @@ const UserDashboard = () => {
             background-color: var(--bg-soft-blue);
         }
         .no-listings {
-            color: var(--text-medium);
+            color: #555555;
             background-color: var(--bg-light-grey);
         }
 
         /* PG Listing Grid */
         .pg-cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.8rem;
-            margin-top: 1.8rem;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            padding-bottom: 4rem;
             width: 100%;
             max-width: 1200px;
+            overflow-x: hidden;
         }
 
+        /* PG Card Styles */
         .pg-card {
-            background-color: var(--bg-card);
-            padding: 1.8rem;
-            border-radius: var(--border-radius-large);
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--border-light);
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
             display: flex;
             flex-direction: column;
-            gap: 0.8rem;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            height: auto;
         }
 
         .pg-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-lg);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
         }
 
         .pg-card-image {
             width: 100%;
-            height: 200px;
+            height: 220px;
             object-fit: cover;
-            border-radius: var(--border-radius-medium);
-            margin-bottom: 0.8rem;
+            border-bottom: 1px solid #eeeeee;
+            border-radius: 12px 12px 0 0;
         }
 
         .pg-details-section {
-            padding: 0;
+            padding: 15px 20px 10px;
+            border-bottom: 1px solid #eeeeee;
+            margin-bottom: 10px;
         }
 
         .pg-name-in-card {
-            font-size: 1.4rem;
+            font-size: 1.4em;
+            font-weight: 700;
             color: var(--homifi-dark-blue);
-            margin-bottom: 0.5rem;
-            font-weight: 600;
+            margin: 0 0 5px 0;
         }
 
         .pg-address-in-card {
-            font-size: 0.95rem;
-            color: var(--text-medium);
-            margin-bottom: 1rem;
+            font-size: 0.95em;
+            color: #555555;
+            margin: 0;
         }
 
-        .pg-card-details p {
-            margin-bottom: 0.6rem;
-            font-size: 0.9rem;
-            color: var(--text-dark);
-        }
-
-        .pg-card-details strong {
-            color: var(--homifi-dark-blue);
-        }
-
-        .pg-card-details ul {
-            list-style: none;
-            padding: 0;
-            margin-top: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .pg-card-details ul li {
-            font-size: 0.85rem;
-            color: var(--text-medium);
-            margin-bottom: 0.3rem;
-            background-color: var(--bg-light-grey);
-            padding: 0.4rem 0.8rem;
-            border-radius: var(--border-radius-small);
-            border: 1px solid var(--border-subtle);
-        }
-
-        .pg-card-link {
-            display: inline-block;
-            margin-top: 1rem;
-            padding: 0.6rem 1.2rem;
-            background-color: var(--homifi-cyan);
-            color: var(--bg-white);
-            text-decoration: none;
-            border-radius: var(--border-radius-medium);
-            font-size: 0.9rem;
-            text-align: center;
-            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
-            box-shadow: 0 2px 5px rgba(0, 177, 196, 0.2);
-        }
-
-        .pg-card-link:hover {
-            background-color: #00afc5;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0, 177, 196, 0.3);
-        }
-
-        /* Wishlist specific button for cards */
-        .wishlist-icon-button, .remove-from-wishlist-button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 50%;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: 0.8rem;
-            color: var(--error-red);
-        }
-
-        .wishlist-icon-button svg, .remove-from-wishlist-button svg {
-            fill: none;
-            transition: fill 0.3s ease;
-            width: 24px;
-            height: 24px;
-        }
-
-        .wishlist-icon-button.active svg {
-            fill: var(--error-red);
-        }
-
-        .remove-from-wishlist-button {
-            background-color: var(--error-red);
-            color: white;
-            padding: 0.6rem 1.2rem;
-            border-radius: var(--border-radius-medium);
-            width: auto;
-            align-self: flex-start;
-            font-weight: 600;
-            gap: 0.5rem;
-            box-shadow: 0 2px 5px rgba(231, 76, 60, 0.2);
-        }
-
-        .remove-from-wishlist-button:hover {
-            background-color: #c0392b;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
-        }
-
-        .remove-from-wishlist-button svg {
-            color: white;
-        }
-
-
-        /* Styling for inline sharing options */
+        /* Styling for inline available sharing options */
         .pg-sharing-options-summary {
-            padding: 0 0 1rem 0;
+            padding: 0 20px 10px;
             display: flex;
             flex-wrap: wrap;
-            gap: 0.8rem;
+            gap: 15px;
             justify-content: flex-start;
-            border-bottom: 1px solid var(--border-subtle);
-            margin-bottom: 1rem;
+            border-bottom: 1px solid #eeeeee;
+            margin-bottom: 15px;
         }
 
         .pg-sharing-option-inline {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 8px;
             background-color: var(--bg-soft-blue);
-            padding: 0.5rem 0.8rem;
-            border-radius: var(--border-radius-medium);
-            font-size: 0.85rem;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.9em;
             font-weight: 600;
             color: var(--homifi-dark-blue);
             white-space: nowrap;
-            border: 1px solid var(--border-light);
         }
 
         .sharing-type {
@@ -781,327 +935,515 @@ const UserDashboard = () => {
             font-weight: 700;
         }
 
-        .pg-card-actions {
+        /* Show More/Less Button Container */
+        .show-more-container {
+            padding: 15px 20px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0;
-            margin-top: auto;
-            border-top: 1px solid var(--border-subtle);
-            padding-top: 1rem;
+            flex-direction: row;
+            gap: 10px;
+            justify-content: center;
+            background-color: white;
         }
 
         .show-more-button {
             background-color: var(--homifi-cyan);
-            color: var(--bg-white);
+            color: white;
             border: none;
-            border-radius: var(--border-radius-medium);
-            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            padding: 10px 15px;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 1em;
             font-weight: 600;
-            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+            transition: background-color 0.3s ease, transform 0.2s ease;
             width: fit-content;
-            align-self: center;
-            box-shadow: 0 2px 5px rgba(0, 177, 196, 0.2);
         }
 
         .show-more-button:hover {
-            background-color: #00afc5;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0, 177, 196, 0.3);
+            background-color: var(--homifi-teal);
+            transform: translateY(-1px);
+        }
+        
+        /* Wishlist button style for the card */
+        .wishlist-button {
+            color: var(--error-red);
+            border-color: rgba(220, 53, 69, 0.5);
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 1rem;
         }
 
-        /* Message Box Popup Styles */
-        .message-popup-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
+        .wishlist-button:hover {
+            background-color: rgba(220, 53, 69, 0.1);
+            border-color: var(--error-red);
+            transform: translateY(-1px);
+        }
+
+        /* Custom Heart Button Styles */
+        .button {
+            background-color: transparent;
+            border: none;
+            border-radius: 0;
+            width: auto;
+            height: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: none;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            padding: 0;
+            margin: 0;
+        }
+
+        .button:hover {
+            transform: scale(1.1);
+        }
+
+        .heart-stroke {
+            fill: none;
+            stroke: var(--homifi-dark-blue);
+            stroke-width: 2px;
+            opacity: 1;
+            transform-origin: center center;
+            transition: opacity 0.3s ease;
+        }
+
+        .button.active .heart-stroke {
+            opacity: 0;
+        }
+          
+        .heart-full {
+            fill: var(--error-red);
+            opacity: 0;
+            transform-origin: 50% 50%;
+            transition: opacity 0.3s ease;
+        }
+
+        .button.active .heart-full {
+            opacity: 1;
+        }
+          
+        .heart-lines {
+            stroke: var(--homifi-teal);
+            stroke-width: 2px;
+            display: none;
+        }
+
+        .button:not(.active):hover .heart-stroke {
+            animation: pulse 1s ease-out infinite;
+        }
+
+        .button.animate .heart-full {
+            animation: heart 0.35s;
+        }
+        .button.animate .heart-lines {
+            animation: lines 0.2s ease-out forwards;
+            display: block;
+        }
+          
+        @keyframes lines {
+            0%   { 
+                stroke-dasharray: 6;
+                stroke-dashoffset: 16; 
+            }
+            100% { 
+                stroke-dasharray: 13;
+                stroke-dashoffset: 18; 
+            }
+        }
+
+        @keyframes heart {
+            0% {
+                transform: scale(1);
+                transform-origin: center center;
+                animation-timing-function: ease-out;
+            }
+            10% {
+                transform: scale(1.2);
+                animation-timing-function: ease-in;
+            }
+            35% {
+                transform: scale(1);
+                animation-timing-function: ease-out;
+            }
+            75% {
+                transform: scale(1.1);
+                animation-timing-function: ease-in;
+            }
+            100% {
+                transform: scale(1);
+                animation-timing-function: ease-out;
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+                transform-origin: center center;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.6;
+                transform: scale(1.15);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+
+        /* Image Carousel Specific Styles */
+        .image-carousel-container {
+            position: relative;
+            width: 100%;
+            height: 220px;
+            overflow: hidden;
+            border-bottom: 1px solid #eeeeee;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            background-color: #f0f0f0;
+        }
+        
+        .pg-card-image {
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1500;
-            animation: fadeIn 0.3s ease-out;
+            object-fit: cover;
+            border-radius: 12px 12px 0 0;
         }
 
-        .app-message-box {
-            background-color: var(--bg-white);
-            color: var(--text-dark);
-            padding: 1.5rem 2rem;
-            border-radius: var(--border-radius-large);
-            box-shadow: var(--shadow-lg);
-            width: 90%;
-            max-width: 450px;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            border: 1px solid transparent;
-            animation: slideInFromTop 0.3s ease-out;
-        }
 
-        .app-message-box p {
-            margin: 0 0 1rem 0;
-            font-size: 1.1rem;
-            flex-grow: 1;
-        }
-
-        .app-message-box.success {
-            border-color: var(--success-green);
-            background-color: #dff0d8;
-            color: #3c763d;
-        }
-
-        .app-message-box.error {
-            border-color: var(--error-red);
-            background-color: #f2dede;
-            color: #a94442;
-        }
-
-        .app-message-box.info {
-            border-color: var(--homifi-cyan);
-            background-color: #d9edf7;
-            color: #31708f;
-        }
-
-        .app-message-box-close-button {
-            background: var(--homifi-teal);
-            color: var(--homifi-dark-blue);
+        .carousel-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
             border: none;
-            padding: 0.6rem 1.5rem;
-            border-radius: var(--border-radius-medium);
-            font-size: 1rem;
-            font-weight: 600;
+            padding: 8px;
             cursor: pointer;
-            transition: background-color 0.2s ease, transform 0.2s ease;
-            margin-top: 0.5rem;
+            z-index: 5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease;
         }
 
-        .app-message-box-close-button:hover {
-            background-color: #27c2b6;
-            transform: translateY(-2px);
+        .carousel-arrow:hover {
+            background-color: rgba(0, 0, 0, 0.8);
         }
 
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        .left-arrow {
+            left: 10px;
         }
 
-        @keyframes slideInFromTop {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        .right-arrow {
+            right: 10px;
+        }
+
+        .carousel-dots {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 5px;
+            z-index: 5;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .dot.active {
+            background-color: var(--homifi-teal);
+            transform: scale(1.2);
         }
 
 
         /* Responsive adjustments */
         @media (max-width: 992px) {
-            .top-nav-bar {
-                padding: 0.8rem 1rem; /* Slightly less padding */
+            .navbar {
+                height: 70px;
+                padding: 0.6rem 1rem;
             }
-            .homifi-logo-text {
-                font-size: 1.5rem; /* Smaller logo */
+            .logo-img {
+                height: 35px;
             }
-            .top-nav-links {
-                gap: 0.8rem; /* Closer links */
+            .navbar-brand {
+                font-size: 1.5rem;
             }
-            .top-nav-link-button {
-                font-size: 1rem;
-                padding: 6px 10px;
+            .logo-tagline {
+                font-size: 0.7rem;
             }
-            .top-nav-link-button svg {
-                display: none; /* Hide icons on smaller screens for brevity */
+            .nav-links {
+                gap: 1rem;
+                margin-left: 1rem;
+            }
+            .nav-link {
+                font-size: 0.9rem;
             }
             .profile-button-top-nav {
-                font-size: 1rem;
-                padding: 6px 10px;
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
             }
             .profile-button-top-nav svg {
-                margin-right: 0;
+                font-size: 0.9rem;
             }
 
             .dashboard-content-area {
                 padding: 1.5rem;
-                margin: 1.5rem auto;
+                margin-top: 70px;
                 gap: 1.5rem;
             }
 
-            .form-group-inline-wrapper {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .form-group-half-wrapper {
-                min-width: unset;
-                width: 100%;
-            }
-
-            .sharing-options-grid,
-            .amenities-checkbox-grid,
-            .listings-grid {
+            .pg-cards-grid {
                 grid-template-columns: 1fr;
             }
 
-            .form-actions {
-                flex-direction: column;
-                gap: 0.8rem;
+            .hero-section {
+                height: 40vh;
+                min-height: 250px;
             }
 
-            .button {
-                width: 100%;
-                padding: 0.8rem 1.5rem;
-                font-size: 1rem;
+            .hero-title {
+                font-size: 2.8rem;
             }
 
-            .gender-preference-radio-group {
-                flex-direction: column;
-                gap: 12px;
-            }
-            .pg-details-form-card,
-            .owner-listings-section {
-                padding: 2rem;
+            .hero-tagline {
+                font-size: 1.3rem;
             }
         }
 
         @media (max-width: 768px) {
-            .pg-details-form-card,
-            .owner-listings-section {
-                padding: 1.5rem;
+            .hero-title {
+                font-size: 3rem;
             }
-
-            .form-title,
-            .section-title {
-                font-size: 1.6rem;
-                margin-bottom: 1.2rem;
+            .hero-tagline {
+                font-size: 1.5rem;
             }
-            .photo-preview-grid {
-                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-                gap: 0.6rem;
-                padding: 0.6rem;
+            .pg-card {
+                border-radius: 6px;
             }
-            .photo-preview-image {
-                height: 70px;
+            .pg-card-image, .image-carousel-container {
+                height: 160px;
             }
-            .photo-caption-input {
-                font-size: 0.7rem;
+            .pg-details-section {
+                padding: 1rem 1rem 0.5rem 1rem;
             }
-            .remove-photo-button {
-                width: 22px;
-                height: 22px;
-                font-size: 1.1rem;
-                top: 6px;
-                right: 6px;
+            .pg-name-in-card {
+                font-size: 1.2rem;
             }
-            .app-message-box {
-                padding: 0.8rem 1.2rem;
+            .pg-address-in-card {
                 font-size: 0.85rem;
-                min-height: 50px;
             }
-            .app-message-box-close-button {
-                font-size: 1.3rem;
+            .pg-sharing-options-summary {
+                padding: 0.5rem 1rem 1rem 1rem;
             }
-            .sidebar-button {
-                padding: 0.7rem 1rem;
-                font-size: 0.95rem;
+            .pg-sharing-option-inline {
+                font-size: 0.85em;
+                padding: 6px 10px;
             }
-            .sidebar-button svg {
-                font-size: 1.1rem;
+            .show-more-container {
+                padding: 1rem;
             }
-            .profile-sidebar {
-                width: 250px;
+            .show-more-button, .wishlist-button {
+                padding: 0.5rem 1rem;
+                font-size: 0.9em;
             }
         }
 
         @media (max-width: 480px) {
-            .top-nav-bar {
-                padding: 0.4rem 0.75rem;
+            .navbar {
+                height: 60px;
+                padding: 0.5rem 0.8rem;
             }
-            .homifi-logo-text {
-                font-size: 1.25rem;
+            .logo-img {
+                height: 30px;
+                margin-right: 5px;
             }
-            .top-nav-links {
-                display: none; /* Hide main nav links on very small screens, rely on sidebar */
+            .navbar-brand {
+                font-size: 1.3rem;
+                margin-left: 5px;
+            }
+            .logo-tagline {
+                display: none; /* Hide tagline on very small screens */
+            }
+            .nav-links {
+                display: none; /* Hide nav links on very small screens */
             }
             .profile-button-top-nav {
-                font-size: 0.9rem;
-                padding: 4px 8px;
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
             }
             .profile-button-top-nav svg {
-                font-size: 18px;
+                font-size: 0.8rem;
             }
-
-            .pg-details-form-card,
-            .owner-listings-section {
+            .hero-title {
+                font-size: 2.2rem;
+            }
+            .hero-tagline {
+                font-size: 1.1rem;
+            }
+            .dashboard-content-area {
                 padding: 1rem;
+                margin-top: 60px;
+                gap: 1rem;
             }
-            .form-title,
-            .section-title {
-                font-size: 1.25rem;
+            .pg-card {
+                border-radius: 4px;
             }
-            .photo-preview-grid {
-                grid-template-columns: 1fr;
-                gap: 0.8rem;
-                padding: 0.5rem;
+            .pg-card-image, .image-carousel-container {
+                height: 120px;
             }
-            .photo-preview-image {
-                height: 100px;
+            .pg-details-section {
+                padding: 0.8rem 0.8rem 0.4rem 0.8rem;
             }
-            .form-actions .button {
-                padding: 0.7rem 1rem;
-                font-size: 0.9rem;
+            .pg-name-in-card {
+                font-size: 1.1rem;
             }
-            .sidebar-user-email {
-                font-size: 0.95rem;
+            .pg-address-in-card {
+                font-size: 0.8rem;
             }
-            .sidebar-button {
-                font-size: 0.9rem;
+            .pg-sharing-options-summary {
+                padding: 0.4rem 0.8rem 0.8rem 0.8rem;
+            }
+            .pg-sharing-option-inline {
+                font-size: 0.8em;
+                padding: 4px 8px;
+            }
+            .show-more-container {
+                flex-direction: column;
                 gap: 0.6rem;
+                padding: 0.8rem;
             }
-            .sidebar-button svg {
-                font-size: 1rem;
-            }
-            .profile-sidebar {
-                width: 220px;
-                right: -240px;
-                padding: 1.5rem 0.8rem;
+            .show-more-button, .wishlist-button {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
             }
         }
+
+        /* MESSAGE BOX RELATED CLASS */
+        .msgbox-area {
+            font-size: inherit;
+            max-height: 100%;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column-reverse; /* Stack from bottom up by default (mobile first) */
+            align-items: center; /* Center horizontally */
+            justify-content: flex-end; /* Align to bottom for column-reverse */
+            pointer-events: none;
+            z-index: 2000;
+            width: 100%;
+            height: 100%;
+            padding: 15px; /* Add padding to prevent messages from touching edges */
+            box-sizing: border-box;
+        }
+
+        @media (min-width: 768px) {
+            .msgbox-area {
+                flex-direction: column; /* Stack from top down for desktop */
+                justify-content: flex-start; /* Align to top for column */
+            }
+        }
+
+        .msgbox-box {
+            font-size: inherit;
+            color: #ffffff;
+            background-color: rgba(0, 0, 0, 0.7);
+            margin: 0.5rem 0; /* Margin between stacked messages */
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(4px);
+            transition: opacity 256ms ease-out, transform 256ms ease-out; /* Use ease-out for smoother pop */
+            opacity: 0; /* Start hidden */
+            transform: scale(0.8); /* Start smaller */
+            pointer-events: auto;
+            width: auto;
+            max-width: 90%;
+            min-width: 250px;
+            text-align: center;
+        }
+
+        .msgbox-box.msgbox-box-show { /* Class added by JS to trigger pop-in */
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .msgbox-box.msgbox-box-hide {
+            opacity: 0;
+            transform: scale(0.8); /* Scale down when hiding */
+        }
+
+        /* Type-specific styles for MessageBox */
+        .msgbox-box-success {
+            background-color: var(--success-green);
+        }
+
+        .msgbox-box-error {
+            background-color: var(--error-red);
+        }
+
+        .msgbox-box-info {
+            background-color: var(--homifi-cyan);
+        }
+
+        @media (min-width: 481px) and (max-width: 767px) {
+            .msgbox-area {
+                /* No specific changes for tablet, will follow default centered behavior */
+            }
+        }
+
+        /* Desktop media query for msgbox-area is now handled above for stacking direction */
       `}</style>
       {/* Top Navigation Bar */}
-      <nav className="top-nav-bar">
-        <div className="top-nav-left">
-          <span className="homifi-logo-text">HomiFi</span> {/* Using text logo */}
-          <div className="top-nav-links">
-            {/* Direct link for Browse PGs (Dashboard) */}
-            <button
-              onClick={handleDashboardClick}
-              className={`top-nav-link-button ${activeSection === 'dashboard' ? 'active' : ''}`}
-            >
-              <LayoutDashboard size={20} />
-              <span>Browse PGs</span>
-            </button>
-            {/* Direct link for Wishlist */}
-            <button
-              onClick={handleWishlistClick}
-              className={`top-nav-link-button ${activeSection === 'wishlist' ? 'active' : ''}`}
-            >
-              <Heart size={20} />
-              <span>Wishlist</span>
-            </button>
+      <nav className="navbar">
+        <div className="container"> {/* Added container for consistent width */}
+          <div className="flex items-center">
+            <Link to="/guest-dashboard" className="logo-link"> {/* Link to guest-dashboard as home */}
+              <img src="https://firebasestorage.googleapis.com/v0/b/homifi-4d283.firebasestorage.app/o/logo.png?alt=media&token=c826ddbe-0d22-4061-8f5d-686f6e416a2f" alt="HomiFi Logo" className="logo-img" />
+              {/* Removed HomiFi text and tagline as requested */}
+            </Link>
           </div>
-        </div>
-        <div className="top-nav-right">
-          {/* Profile button to toggle sidebar */}
-          <button className="profile-button-top-nav" onClick={handleProfileClick}>
-            <User size={20} /> {/* User icon for the profile button */}
-            Profile
+          <div className="nav-links"> {/* Renamed for clarity */}
+            {/* Removed Home and Login links as per request */}
+            {/* Removed About Us and Contact Us links as per request */}
+          </div>
+          <button onClick={handleProfileClick} className="profile-button-top-nav">
+            <User size={20} />
+            <span>Profile</span>
           </button>
         </div>
       </nav>
+
+      {/* Hero Section */}
+      <div className="hero-section">
+          <img src="https://firebasestorage.googleapis.com/v0/b/homifi-4d283.firebasestorage.app/o/hero-background.jpg?alt=media&token=0ad31552-f183-4283-b2bf-ffe1855bb666" alt="Welcome to HomiFi" className="hero-background" />
+          <div className="hero-content">
+              <h1 className="hero-title">Welcome to HomiFi</h1>
+              <p className="hero-tagline">Find your perfect comfort zone.</p>
+          </div>
+      </div>
 
       {/* Right Sidebar for Profile and Navigation */}
       <div ref={sidebarRef} className={`profile-sidebar ${isSidebarOpen ? 'open' : ''}`}>
@@ -1111,28 +1453,35 @@ const UserDashboard = () => {
         <div className="sidebar-content">
           <p className="sidebar-user-email">Welcome, {userEmail}</p>
 
-          {/* My Listings Button (now only in sidebar) */}
+          {/* Dashboard Button */}
           <button
-            onClick={handleMyListingsClick}
-            className="sidebar-button"
-            onMouseEnter={() => setHoveredButton('myListings')}
-            onMouseLeave={() => setHoveredButton(null)}
+            onClick={handleDashboardClick}
+            className={`sidebar-button ${activeSection === 'dashboard' ? 'active' : ''}`}
           >
-            <Menu size={20} /> {/* Using Menu icon for 'My Listings' */}
-            <span>{hoveredButton === 'myListings' ? 'My Listings' : 'My Listings'}</span>
+            <LayoutDashboard size={20} />
+            <span>Browse PGs</span>
           </button>
+
+          {/* Wishlist Button */}
+          <button
+            onClick={handleWishlistClick}
+            className={`sidebar-button ${activeSection === 'wishlist' ? 'active' : ''}`}
+          >
+            <Heart size={20} />
+            <span>Wishlist</span>
+          </button>
+
+          {/* Removed My Listings Button */}
 
           {/* Reset Password Button in Sidebar */}
           {auth?.currentUser?.email && ( // Only show if user has an email (not anonymous)
             <button
                 onClick={handleResetPassword}
                 className="sidebar-button"
-                onMouseEnter={() => setHoveredButton('resetPassword')}
-                onMouseLeave={() => setHoveredButton(null)}
                 disabled={loading}
             >
                 <Key size={20} />
-                <span>{hoveredButton === 'resetPassword' ? 'Change Password' : 'Reset Password'}</span>
+                <span>Reset Password</span>
             </button>
           )}
 
@@ -1140,180 +1489,131 @@ const UserDashboard = () => {
           <button
             onClick={() => { handleLogout(); setIsSidebarOpen(false); }}
             className="sidebar-button"
-            onMouseEnter={() => setHoveredButton('logout')}
-            onMouseLeave={() => setHoveredButton(null)}
           >
             <LogOut size={20} />
-            <span>{hoveredButton === 'logout' ? 'Sign Out' : 'Logout'}</span>
+            <span>Logout</span>
           </button>
         </div>
       </div>
 
       {/* Main Content Area */}
       <main className={`dashboard-content-area ${isSidebarOpen ? 'shifted' : ''}`}>
-        {/* Message Box as a Popup */}
-        {message && (
-          <div className="message-popup-overlay">
-            <div ref={messageBoxRef} className={`app-message-box ${messageType}`}>
-              <p>{message}</p>
-              <button className="app-message-box-close-button" onClick={() => setMessage('')}>OK</button>
-            </div>
-          </div>
-        )}
-
-        <div className="main-content-header">
-          <h1>
-            {activeSection === 'dashboard' && 'Browse Available PGs'}
-            {activeSection === 'wishlist' && 'My Wishlisted PGs'}
-            {activeSection === 'myListings' && 'My Submitted PG Listings'}
-          </h1>
-        </div>
-
+        {/* The MessageBox will render its messages into #msgbox-area, which is appended to body */}
         {error && <p className="error-message">{error}</p>}
-        {loading && <p className="loading-message">Fetching {activeSection === 'dashboard' ? 'available PGs' : activeSection === 'wishlist' ? 'your wishlisted PGs' : 'your submitted PGs'}...</p>}
+        {loading && <p className="loading-message">Fetching {activeSection === 'dashboard' ? 'available PGs' : 'your wishlisted PGs'}...</p>}
 
         {/* Conditional rendering of content based on activeSection */}
         {activeSection === 'dashboard' && (
-          <>
+          <React.Fragment>
             {!loading && displayedPgListings.length === 0 && (
               <p className="no-listings">No accepted PG listings available yet.</p>
             )}
             <div className="pg-cards-grid">
-              {displayedPgListings.map(pg => (
-                <div key={pg.id} className="pg-card">
-                  {pg.photos && pg.photos.length > 0 && pg.photos[0].url ? (
-                    <img src={pg.photos[0].url} alt={pg.photos[0].caption || pg.pgName} className="pg-card-image" />
-                  ) : (
-                    <img src="https://placehold.co/300x200/E0E0E0/333333?text=No+Image" alt="No Image Available" className="pg-card-image" />
-                  )}
-                  <div className="pg-details-section">
-                    <h3 className="pg-name-in-card">{pg.pgName}</h3>
-                    <p className="pg-address-in-card">{pg.address}, {pg.state}</p>
-                  </div>
+              {displayedPgListings.map((pg) => {
+                return (
+                  <div key={pg.id} className="pg-card">
+                      {/* Use ImageCarousel for all PG cards now */}
+                      <ImageCarousel photos={pg.photos} pgName={pg.pgName} />
+                      <div className="pg-details-section">
+                          <h3 className="pg-name-in-card">{pg.pgName}</h3>
+                          <p className="pg-address-in-card">{pg.address}</p>
+                      </div>
 
-                  <div className="pg-sharing-options-summary">
-                    {pg.sharingOptions &&
-                        pg.sharingOptions
-                            .filter(option => option.status?.toLowerCase() === 'available')
-                            .slice(0, 3)
-                            .map((option, idx) => (
-                                <div key={idx} className="pg-sharing-option-inline">
-                                    <span className="sharing-type">{option.type}</span>
-                                    <span className="sharing-price">₹{option.price || 'N/A'}</span>
-                                </div>
-                            ))}
-                  </div>
+                      {/* Display initial sharing options summary (you can decide how many to show) */}
+                      <div className="pg-sharing-options-summary">
+                          {pg.sharingOptions &&
+                              pg.sharingOptions
+                                  .filter(option => option.status?.toLowerCase() === 'available')
+                                  .slice(0, 3) // Still showing first 3 available options here
+                                  .map((option, idx) => (
+                                      <div key={idx} className="pg-sharing-option-inline">
+                                          <span className="sharing-type">{option.type}</span>
+                                          <span className="sharing-price">₹{option.price || 'N/A'}</span>
+                                      </div>
+                                  ))}
+                      </div>
 
-                  <div className="pg-card-actions">
-                      <button
-                          onClick={() => handleToggleWishlist(pg.id)}
-                          className={`wishlist-icon-button ${wishlistedPgMeta.has(pg.id) ? 'active' : ''}`}
-                          title={wishlistedPgMeta.has(pg.id) ? "Remove from Wishlist" : "Add to Wishlist"}
-                      >
-                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill={wishlistedPgMeta.has(pg.id) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-heart">
-                              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                          </svg>
-                      </button>
-
+                      {/* "Show More" and "Wishlist" buttons */}
                       {pg.sharingOptions && pg.sharingOptions.length > 0 && (
-                          <button onClick={() => handleShowMoreClick(pg.id)} className="show-more-button">
-                              Show More
-                          </button>
+                          <div className="show-more-container">
+                              <button onClick={() => handleShowMoreClick(pg.id)} className="show-more-button">Show More</button>
+                              <button
+                                  onClick={(e) => { e.stopPropagation(); handleToggleWishlist(pg.id); }}
+                                  className="wishlist-button"
+                                  title={wishlistedPgMeta.has(pg.id) ? "Remove from Wishlist" : "Add to Wishlist"}
+                              >
+                                  <HeartIconSVG
+                                    isActive={wishlistedPgMeta.has(pg.id)}
+                                    isAnimating={animatingHearts[pg.id]}
+                                  />
+                                  {wishlistedPgMeta.has(pg.id) ? "Wishlisted" : "Wishlist"}
+                              </button>
+                          </div>
                       )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
-          </>
+          </React.Fragment>
         )}
 
         {activeSection === 'wishlist' && (
-          <>
-            {!loading && displayedPgListings.length === 0 && (
-              <p className="no-listings">Your wishlist is currently empty. Go to "Browse PGs" to add some!</p>
+          <React.Fragment>
+            <h1 className="text-3xl font-bold text-[var(--homifi-teal)] mb-6">My Wishlist</h1>
+            {!loading && displayedPgListings.length === 0 ? (
+              <div className="bg-white p-6 rounded-lg shadow-md text-center">
+                <p className="text-gray-600 text-lg">Your wishlist is empty.</p>
+                <p className="text-500">Explore PGs and add them to your wishlist!</p>
+              </div>
+            ) : (
+              <div className="pg-cards-grid">
+                {displayedPgListings.map((pg) => {
+                  return (
+                  <div key={pg.id} className="pg-card">
+                    <ImageCarousel photos={pg.photos} pgName={pg.pgName} />
+                    <div className="pg-details-section">
+                      <h4 className="pg-name-in-card">{pg.pgName}</h4>
+                      <h6 className="pg-address-in-card">{pg.address}, {pg.state}</h6>
+                      <div className="pg-sharing-options-summary">
+                          {pg.sharingOptions && pg.sharingOptions
+                              .map((option, idx) => {
+                                return (
+                                  <div key={idx} className="pg-sharing-option-inline">
+                                      <span className="sharing-type">{option.type}</span>
+                                      <span className="sharing-price">₹{option.price}</span> ({option.status})
+                                  </div>
+                                );
+                              })}
+                          {(!pg.sharingOptions || pg.sharingOptions.length === 0) && (
+                              <span className="inline-block bg-gray-200 text-gray-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">No sharing options listed</span>
+                          )}
+                      </div>
+                      <div className="show-more-container">
+                          <button onClick={() => handleShowMoreClick(pg.id)} className="show-more-button">
+                              <Info size={16} className="mr-1" /> Details
+                          </button>
+                          <button
+                              onClick={(e) => { e.stopPropagation(); handleToggleWishlist(pg.id); }}
+                              className="wishlist-button"
+                              title={wishlistedPgMeta.has(pg.id) ? "Remove from Wishlist" : "Add to Wishlist"}
+                          >
+                              <HeartIconSVG
+                                isActive={wishlistedPgMeta.has(pg.id)}
+                                isAnimating={animatingHearts[pg.id]}
+                              />
+                              {wishlistedPgMeta.has(pg.id) ? "Wishlisted" : "Wishlist"}
+                          </button>
+                      </div>
+                    </div>
+                  </div>
+                  );
+                })}
+              </div>
             )}
-            <div className="pg-cards-grid">
-              {displayedPgListings.map(pg => (
-                <div key={pg.id} className="pg-card">
-                  {pg.photos && pg.photos.length > 0 && pg.photos[0].url ? (
-                    <img src={pg.photos[0].url} alt={pg.photos[0].caption || pg.pgName} className="pg-card-image" />
-                  ) : (
-                    <img src="https://placehold.co/300x200/E0E0E0/333333?text=No+Image" alt="No Image Available" className="pg-card-image" />
-                  )}
-                  <div className="pg-details-section">
-                    <h3 className="pg-name-in-card">{pg.pgName}</h3>
-                    <p className="pg-address-in-card">{pg.address}, {pg.state}</p>
-                  </div>
-
-                  <div className="pg-card-details"> {/* This section is for detailed display of wishlisted items */}
-                    <p><strong>Owner:</strong> {pg.pgOwnerName}</p>
-                    <p><strong>Email:</strong> {pg.pgOwnerEmail}</p>
-                    <p><strong>Phone:</strong> {pg.pgOwnerPhoneNumber}</p>
-                    <p><strong>Sharing Options:</strong></p>
-                    <ul>
-                      {pg.sharingOptions && pg.sharingOptions.map((option, index) => (
-                        <li key={index}>{option.type}: ₹{option.price} ({option.status})</li>
-                      ))}
-                    </ul>
-                    <p><strong>Facilities:</strong> {pg.facilities && pg.facilities.join(', ')}</p>
-                  </div>
-                  {pg.locationLink && <a href={pg.locationLink} target="_blank" rel="noopener noreferrer" className="pg-card-link">View on Map</a>}
-                  <button
-                    onClick={() => handleToggleWishlist(pg.id)} // This will now remove the item from wishlist
-                    className="remove-from-wishlist-button"
-                    title="Remove from Wishlist"
-                  >
-                    Remove from Wishlist
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-x-circle">
-                      <circle cx="12" cy="12" r="10"></circle>
-                      <line x1="15" y1="9" x2="9" y2="15"></line>
-                      <line x1="9" y1="9" x2="15" y2="15"></line>
-                    </svg>
-                  </button>
-                </div>
-              ))}
-            </div>
-          </>
+          </React.Fragment>
         )}
 
-        {/* My Listings Section */}
-        {activeSection === 'myListings' && (
-          <>
-            {!loading && displayedPgListings.length === 0 && (
-              <p className="no-listings">You have not submitted any PG listings yet.</p>
-            )}
-            <div className="pg-cards-grid">
-              {displayedPgListings.map(pg => (
-                <div key={pg.id} className="pg-card">
-                  {pg.photos && pg.photos.length > 0 && pg.photos[0].url ? (
-                    <img src={pg.photos[0].url} alt={pg.photos[0].caption || pg.pgName} className="pg-card-image" />
-                  ) : (
-                    <img src="https://placehold.co/300x200/E0E0E0/333333?text=No+Image" alt="No Image Available" className="pg-card-image" />
-                  )}
-                  <div className="pg-details-section">
-                    <h3 className="pg-name-in-card">{pg.pgName}</h3>
-                    <p className="pg-address-in-card">{pg.address}, {pg.state}</p>
-                  </div>
-
-                  <div className="pg-card-details"> {/* Display full details for own listings */}
-                    <p><strong>Status:</strong> {pg.status ? pg.status.toUpperCase() : 'N/A'}</p> {/* Show status */}
-                    <p><strong>Gender:</strong> {pg.genderPreference}</p>
-                    <p><strong>Sharing Options:</strong></p>
-                    <ul>
-                      {pg.sharingOptions && pg.sharingOptions.map((option, index) => (
-                        <li key={index}>{option.type}: ₹{option.price} ({option.status})</li>
-                      ))}
-                    </ul>
-                    <p><strong>Facilities:</strong> {pg.facilities && pg.facilities.join(', ')}</p>
-                    <p><strong>Description:</strong> {pg.description || 'N/A'}</p>
-                  </div>
-                  {pg.locationLink && <a href={pg.locationLink} target="_blank" rel="noopener noreferrer" className="pg-card-link">View on Map</a>}
-                  {/* You might want to add edit/delete buttons here for owner's listings */}
-                </div>
-              ))}
-            </div>
-          </>
-        )}
+        {/* Removed My Listings section */}
       </main>
     </div>
   );

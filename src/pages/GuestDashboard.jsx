@@ -2,10 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore, collection, query, where, onSnapshot } from 'firebase/firestore';
+import { getAuth, onAuthStateChanged } from 'firebase/auth'; // Import Firebase Auth functions
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
-
-// Replaced hero background image import with a placeholder URL
-// import heroImage from '../assets/hero-background.jpg'; // Adjust path if necessary
 
 // Your Firebase configuration (keep this consistent across components)
 const firebaseConfig = {
@@ -22,28 +20,45 @@ const GuestDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [db, setDb] = useState(null);
+    const [auth, setAuth] = useState(null); // Firebase Auth instance
+    const [isLoggedIn, setIsLoggedIn] = useState(false); // User login status
+    const [authReady, setAuthReady] = useState(false); // New state to track if auth state is ready
     const navigate = useNavigate(); // Initialize useNavigate hook
 
-    // Initialize Firebase
+    // Initialize Firebase and Auth
     useEffect(() => {
         try {
             const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
             const dbInstance = getFirestore(app);
+            const authInstance = getAuth(app); // Get Auth instance
             setDb(dbInstance);
+            setAuth(authInstance); // Set Auth instance
         } catch (err) {
             console.error("Failed to initialize Firebase in Guest Dashboard:", err);
             setError("Failed to load listings. Please try again.");
         }
     }, []);
 
+    // Listen for Auth state changes
+    useEffect(() => {
+        if (auth) {
+            const unsubscribe = onAuthStateChanged(auth, (user) => {
+                setIsLoggedIn(!!user); // Set isLoggedIn based on user presence
+                setAuthReady(true); // Auth state has been checked
+                console.log("Auth state changed. User logged in:", !!user, "Auth Ready:", true);
+            });
+            return () => unsubscribe(); // Cleanup subscription
+        }
+    }, [auth]);
+
     // Fetch PG listings (only 'accepted' ones)
     useEffect(() => {
-        if (db) {
+        if (db && authReady) { // Ensure auth state is ready before fetching
             setLoading(true);
             setError('');
 
-            // Use the __app_id global variable for the collection path
-            const appId = firebaseConfig.projectId; // Using projectId as appId for consistency with artifacts path
+            // Use the projectId from firebaseConfig as appId for consistency with artifacts path
+            const appId = firebaseConfig.projectId; 
             const q = query(
                 collection(db, `artifacts/${appId}/public/data/pg_listings`),
                 where('status', '==', 'accepted')
@@ -64,14 +79,15 @@ const GuestDashboard = () => {
 
             return () => unsubscribe();
         }
-    }, [db]);
+    }, [db, authReady]); // Add authReady to dependency array
 
-    // This function will now navigate to the PgDetails page
+    // This function will now always navigate to the login page when "Show More" is clicked
     const handleShowMoreClick = (pgId) => {
-        navigate(`/pg-details/${pgId}`); // Navigate to the details page with the PG ID
+        console.log("Show More clicked. Routing to /login");
+        navigate('/login'); // Always navigate to login page
     };
 
-    if (loading) {
+    if (loading || !authReady) { // Show loading until both PG details and auth status are ready
         return (
             <div className="guest-dashboard-container">
                 <p className="loading-message">Loading PG listings...</p>
@@ -161,7 +177,7 @@ const GuestDashboard = () => {
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
-                filter: brightness(0.7);
+                filter: brightness(0.7); /* For image brightness */
                 }
 
                 .hero-content {
@@ -180,7 +196,7 @@ const GuestDashboard = () => {
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background-color: rgba(0, 0, 0, 0.4);
+                background-color: rgba(0, 0, 0, 0.5); /* Black transparent overlay (0.5 opacity) */
                 z-index: 5;
                 }
 
@@ -188,9 +204,8 @@ const GuestDashboard = () => {
                 font-family: var(--font-heading);
                 font-size: 4rem;
                 font-weight: 700;
-                color: var(--bg-white); /* Changed to white for better contrast on dark overlay */
+                color: var(--bg-white);
                 margin-bottom: 0.75rem;
-                text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
                 line-height: 1.1;
                 }
 
@@ -198,7 +213,6 @@ const GuestDashboard = () => {
                 font-size: 1.8rem;
                 font-weight: 300;
                 opacity: 0.9;
-                text-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
                 }
 
                 /* General button styles for the dashboard */
@@ -227,14 +241,25 @@ const GuestDashboard = () => {
                 }
 
                 .wishlist-button {
-                color: var(--error-red);
-                border-color: rgba(220, 53, 69, 0.5);
+                    color: var(--error-red);
+                    border-color: rgba(220, 53, 69, 0.5);
+                    background-color: var(--bg-white); /* Ensure background is white */
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    padding: 0.75rem 1.5rem;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    font-weight: 500;
+                    font-size: 1rem;
                 }
 
                 .wishlist-button:hover {
-                background-color: rgba(220, 53, 69, 0.1);
-                border-color: var(--error-red);
-                transform: translateY(-2px);
+                    background-color: rgba(220, 53, 69, 0.1);
+                    border-color: var(--error-red);
+                    transform: translateY(-1px);
                 }
 
                 /* Grid for property listings */
@@ -322,12 +347,13 @@ const GuestDashboard = () => {
                 }
 
 
-                /* Show More/Less Button */
+                /* Show More/Less Button Container */
                 .show-more-container {
                     padding: 15px 20px;
                     display: flex;
-                    flex-direction: column;
-                    gap: 10px;
+                    flex-direction: row; /* Changed to row for horizontal alignment */
+                    gap: 10px; /* Gap between buttons */
+                    justify-content: center; /* Center the buttons horizontally */
                     background-color: var(--bg-white); /* Ensure background is white for clarity */
                 }
 
@@ -342,21 +368,21 @@ const GuestDashboard = () => {
                     font-weight: 600;
                     transition: background-color 0.3s ease, transform 0.2s ease;
                     width: fit-content; /* Button width adjusts to content */
-                    align-self: center; /* Center the button within the container */
+                    /* Removed align-self: center as justify-content handles centering */
                 }
 
                 .show-more-button:hover {
-                    background-color: var(--homifi-teal); /* Darker teal on hover */
+                    background-color: var(--homifi-teal);
                     transform: translateY(-1px);
                 }
 
                 /* Styling for ALL sharing options when "Show More" is active */
                 .pg-sharing-option-full {
-                    background-color: var(--bg-light-grey); /* Light grey background for full details */
+                    background-color: var(--bg-light-grey);
                     border: 1px solid var(--border-subtle);
                     border-radius: 8px;
                     padding: 12px 15px;
-                    margin-bottom: 10px; /* Space between full detail options */
+                    margin-bottom: 10px;
                     display: flex;
                     flex-direction: column;
                     gap: 5px;
@@ -392,11 +418,11 @@ const GuestDashboard = () => {
                     display: inline-block;
                     padding: 4px 8px;
                     border-radius: 5px;
-                    font-size: 0.75em; /* Slightly smaller for tags */
+                    font-size: 0.75em;
                     font-weight: 600;
                     text-transform: uppercase;
                     color: white;
-                    white-space: nowrap; /* Prevent wrapping for tags */
+                    white-space: nowrap;
                 }
 
                 .pg-tag.available {
@@ -407,8 +433,8 @@ const GuestDashboard = () => {
                     background-color: var(--warning-orange);
                 }
 
-                .pg-tag.full { /* Added style for 'Full' status */
-                    background-color: var(--error-red); /* Red for 'Full' */
+                .pg-tag.full {
+                    background-color: var(--error-red);
                 }
 
                 /* Messages */
@@ -423,6 +449,20 @@ const GuestDashboard = () => {
                     color: var(--error-red);
                     font-weight: bold;
                 }
+
+                /* Login Modal Styles - REMOVED */
+                /* .login-modal-overlay { ... } */
+                /* .login-modal-content { ... } */
+                /* @keyframes fadeInScale { ... } */
+                /* .login-modal-content h2 { ... } */
+                /* .login-modal-content p { ... } */
+                /* .modal-actions { ... } */
+                /* .modal-login-button, .modal-close-button { ... } */
+                /* .modal-login-button { ... } */
+                /* .modal-login-button:hover { ... } */
+                /* .modal-close-button { ... } */
+                /* .modal-close-button:hover { ... } */
+
 
                 /* Responsive adjustments */
                 @media (max-width: 768px) {
@@ -460,7 +500,8 @@ const GuestDashboard = () => {
                 }
             `}</style>
             <div className="hero-section">
-                <img src="https://placehold.co/1200x600/20143b/30D5C8?text=Welcome+to+HomiFi" alt="Welcome to HomiFi" className="hero-background" />
+                {/* Corrected the image source to use the Firebase Storage URL */}
+                <img src="https://firebasestorage.googleapis.com/v0/b/homifi-4d283.firebasestorage.app/o/hero-background.jpg?alt=media&token=0ad31552-f183-4283-b2bf-ffe1855bb666" alt="Welcome to HomiFi" className="hero-background" />
                 <div className="hero-content">
                     <h1 className="hero-title">Welcome to HomiFi</h1>
                     <p className="hero-tagline">Find your perfect comfort zone.</p>
@@ -498,10 +539,16 @@ const GuestDashboard = () => {
                                             ))}
                                 </div>
 
-                                {/* "Show More" button to navigate to a new page */}
-                                {pg.sharingOptions && pg.sharingOptions.length > 0 && ( // Show button if there are any options
+                                {/* "Show More" and "Wishlist" buttons */}
+                                {pg.sharingOptions && pg.sharingOptions.length > 0 && ( // Show buttons if there are any options
                                     <div className="show-more-container">
                                         <button onClick={() => handleShowMoreClick(pg.id)} className="show-more-button">Show More</button>
+                                        <button onClick={() => navigate('/login')} className="wishlist-button"> {/* Directly navigate to login */}
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-10 h-10"> {/* Adjusted SVG size */}
+                                                <path d="m11.645 20.917-7.393-7.393A4.5 4.5 0 0 1 3 10.148V9.25c0-5.404 4.396-9.8 9.8-9.8s9.8 4.396 9.8 9.8v.898c0 1.258-.46 2.44-1.288 3.334l-7.393 7.393a.75.75 0 0 1-1.06 0Z" />
+                                            </svg>
+                                            Wishlist
+                                        </button>
                                     </div>
                                 )}
                             </div>

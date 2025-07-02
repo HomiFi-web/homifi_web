@@ -1,6 +1,6 @@
 [
   {
-    "origin": ["http://localhost:3000", "https://your-deployed-app-domain.web.app"],
+    "origin": ["http://localhost:3000", "https://homifi-4d283.web.app", "https://homifi-4d283.firebaseapp.com"],
     "method": ["GET", "POST", "PUT", "DELETE"],
     "responseHeader": ["Content-Type", "Firebase-Storage-Resumable-Upload-Protocol", "X-Firebase-Storage-Metadata"],
     "maxAgeSeconds": 3600

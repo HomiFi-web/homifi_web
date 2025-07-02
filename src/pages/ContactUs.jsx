@@ -1,4 +1,3 @@
-// src/pages/ContactUs.jsx
 import React from 'react';
 import './main.css'; // This path expects main.css in the 'src' directory
 
@@ -31,9 +30,7 @@ const ContactUs = () => {
             <br />
             HomiFi Headquarters
             <br />
-            [Your Street Address, e.g., 123 Main Street]
-            <br />
-            [City, State, Pincode, e.g., Bengaluru, Karnataka, 560001]
+            Kristu Jayanti College, Bengaluru, Karnataka, 560077
           </p>
         </div>
 
